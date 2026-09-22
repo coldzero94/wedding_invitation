@@ -31,6 +31,7 @@ test.describe('real-mode rendering with fictional fixtures', () => {
         : `
         groom: { ...demoWedding.groom, phone: '' },
         bride: { ...demoWedding.bride, phone: '' },
+        accounts: [],
       `;
       const fixture = `
         export const wedding = { ...demoWedding, isDemo: false, ${extra}

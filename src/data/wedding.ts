@@ -24,7 +24,10 @@ export const wedding = {
       { title: '지하철', description: '5호선 발산역에서 도보 3~5분 거리입니다.' },
     ] as { title: string; description: string }[],
   },
-  accounts: [] as { side: '신랑' | '신부'; name: string; bank: string; number: string }[],
+  accounts: [
+    { side: '신랑', name: '이찬영', bank: '신한', number: '110-235-729687' },
+    { side: '신부', name: '임예지', bank: '국민', number: '373301-01-415845' },
+  ] as { side: '신랑' | '신부'; name: string; bank: string; number: string }[],
   introduction: ['서로의 하루에 가장 먼저 떠오르는 사람.', '이제는 같은 내일을 함께 그리려 합니다.', '저희의 새로운 시작에 함께해 주세요.'],
   socialHandle: 'jihun.and.seoyeon',
   closing: '모든 계절을, 당신과 함께.',

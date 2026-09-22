@@ -123,12 +123,14 @@ test('Back closes a dialog, Forward restores its selection, and close consumes i
   await expect(page).toHaveURL(previous);
 });
 
-test('contact section is hidden without phone numbers, and accounts are still pending', async ({ page }) => {
+test('contact section is hidden without phone numbers, and accounts show the real entries', async ({ page }) => {
   await page.goto('./');
   await expect(page.locator('[data-open-contact], #contact-dialog')).toHaveCount(0);
   await expect(page.locator('.mobile-dock [data-share]')).toBeVisible();
   await page.locator('.accounts summary').click();
-  await expect(page.locator('.accounts-content')).toContainText('계좌 정보는 추후 안내');
+  await expect(page.locator('.account-row')).toHaveCount(2);
+  await expect(page.locator('.account-row', { hasText: '이찬영' })).toContainText('신한');
+  await expect(page.locator('.account-row', { hasText: '임예지' })).toContainText('국민');
 });
 
 test('sharing falls back to a copyable URL when browser permissions fail', async ({ page, baseURL }) => {
