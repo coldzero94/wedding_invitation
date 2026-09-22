@@ -19,7 +19,7 @@ const feedPhoto = wedding.photos[0];
 const venueLabel = [wedding.venue.name, wedding.venue.detail].filter(Boolean).join(' · ');
 const kakaoJsKey = (process.env.KAKAO_JS_KEY || '').trim();
 const kakaoMapUrl = wedding.venue.mapLinks.find((map) => map.label.includes('카카오'))?.url || wedding.venue.mapLinks[0]?.url || canonical.href;
-const contacts = [{ ...wedding.groom, role: '신랑' }, { ...wedding.bride, role: '신부' }].filter(person => wedding.isDemo || person.phone.trim());
+const contacts = [{ ...wedding.groom, role: '신랑' }, { ...wedding.bride, role: '신부' }].filter(person => person.phone.trim());
 const showContact = contacts.length > 0;
 const showAccounts = wedding.isDemo || wedding.accounts.length > 0;
 const gallery = await Promise.all(wedding.photos.map(async (photo) => ({

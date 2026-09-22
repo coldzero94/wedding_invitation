@@ -119,21 +119,14 @@ test('Back closes a dialog, Forward restores its selection, and close consumes i
   await expect(page.locator('#gallery-title')).toHaveText('우리의 여행');
   await page.getByRole('button', { name: '사진 닫기', exact: true }).click();
   await expect(page.locator('#gallery-dialog')).toBeHidden();
-  await page.locator('.mobile-dock [data-open-contact]').click();
-  await expect(page.locator('#contact-dialog')).toBeVisible();
-  await page.keyboard.press('Escape');
-  await expect(page.locator('#contact-dialog')).toBeHidden();
   await page.goBack();
   await expect(page).toHaveURL(previous);
 });
 
-test('contact and accounts are truthful when actual details are missing', async ({ page }) => {
+test('contact section is hidden without phone numbers, and accounts are still pending', async ({ page }) => {
   await page.goto('./');
-  await page.locator('.mobile-dock [data-open-contact]').click();
-  await expect(page.getByRole('dialog', { name: '소중한 연락을 기다려요' })).toBeVisible();
-  await expect(page.locator('.person-contact')).toHaveCount(2);
-  await expect(page.locator('a[href^="tel:"]')).toHaveCount(0);
-  await page.keyboard.press('Escape');
+  await expect(page.locator('[data-open-contact], #contact-dialog')).toHaveCount(0);
+  await expect(page.locator('.mobile-dock [data-share]')).toBeVisible();
   await page.locator('.accounts summary').click();
   await expect(page.locator('.accounts-content')).toContainText('계좌 정보는 추후 안내');
 });
