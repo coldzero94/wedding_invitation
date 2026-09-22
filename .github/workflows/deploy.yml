@@ -1,0 +1,68 @@
+name: Publish wedding invitation
+run-name: Publish wedding invitation (${{ inputs.mode }})
+
+# Preview keeps the sample label; release runs the stricter content validation.
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'preview: 디자인 미리보기 / release: 실제 발송용'
+        type: choice
+        required: true
+        default: preview
+        options:
+          - preview
+          - release
+
+permissions:
+  contents: read
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: read
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Read Pages URL
+        id: pages
+        uses: actions/configure-pages@v5
+      - run: npm ci
+      - run: npm run check
+      - name: Build sample preview
+        if: inputs.mode == 'preview'
+        run: npm run build
+        env:
+          SITE_URL: ${{ steps.pages.outputs.origin }}
+          BASE_PATH: ${{ steps.pages.outputs.base_path || '/' }}
+      - name: Validate and build the real invitation
+        if: inputs.mode == 'release'
+        run: npm run build:release
+        env:
+          SITE_URL: ${{ steps.pages.outputs.origin }}
+          BASE_PATH: ${{ steps.pages.outputs.base_path || '/' }}
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publish Pages artifact
+        id: deployment
+        uses: actions/deploy-pages@v4

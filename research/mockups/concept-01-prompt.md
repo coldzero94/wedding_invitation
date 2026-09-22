@@ -1,0 +1,18 @@
+# Concept 01 생성 프롬프트
+
+[시안 설명으로 돌아가기](./README.md)
+
+생성 도구: 내장 `image_gen` · 유형: `ui-mockup` · 입력 이미지 없음.
+
+```text
+Use case: ui-mockup
+Asset type: high fidelity mobile wedding invitation concept board for a Korean couple, three consecutive mobile screens from ONE cohesive responsive website.
+Primary request: create a beautiful, memorable wedding invitation that mixes cinematic OTT episode browsing and social-photo feed conventions with refined wedding editorial typography. This is a visual concept, not a working app.
+Composition: landscape design board, three equal tall mobile website viewports side by side, each about 390:844 aspect ratio, front-facing flat UI, no phones, no device bezels, no perspective, no hands holding devices. Narrow gutters and generous outer margins. Small labels above the panels: "01 / OPENING", "02 / OUR SEASON", "03 / MOMENTS". Large enough to read the Korean copy. Canvas around 1800x1400 if supported.
+Design: restrained charcoal #171917 and warm ivory #F4F1E9, muted olive accent #AFBA83. Elegant oversized serif English titles, clean legible Korean body type. Fine hairline rules, small editorial labels, generous whitespace, polished realistic visual hierarchy. No generic gradient cards. Same typography and identity across all screens.
+Photography: use invented photorealistic Korean adult bride and groom consistently throughout, candid documentary wedding photos outdoors in soft light with a simple white wedding dress and dark suit. Include black-and-white and muted natural-color shots; realistic hands and faces, no real person's likeness.
+Panel 1: dark cinematic cover. Small header "OUR SEASON" and "A WEDDING INVITATION". Tall beautiful couple photograph filling most of the viewport, quietly fading into charcoal at its bottom. Large ivory serif title over lower photo: "The next chapter." Below show "지훈 & 서연", "2027. 05. 22. SAT · 오후 2시", and a wide warm-ivory button with a small play triangle and "초대장 열기". Tiny "SCROLL TO DISCOVER" at bottom.
+Panel 2: dark OTT-inspired relationship episode screen, original branding. Title "우리라는 이야기", small line "함께한 순간들이 하나의 이야기가 되었습니다." One large horizontal photo thumbnail with subtle play icon, text "EP.01" and "처음 만난 날". Under it two compact horizontal episode rows, each small cinematic thumbnail on left, episode number and title on right: "EP.02 우리의 여행", "EP.03 같은 마음". Ending section with thin divider, label "COMING SOON", large "2027.05.22", smaller "우리의 새로운 시작". These are memory cards opening photos, not promises of actual streaming videos.
+Panel 3: warm-ivory social feed mixed with editorial invitation. Top small wordmark "MOMENTS", large serif "Little things, us." Three small circular photo highlights with captions "처음", "여행", "오늘". Main feed post: small circular couple avatar, account name "jihun.and.seoyeon", wide candid wedding photo, minimal outline heart icon and bookmark icon, caption "평범한 날들이 모여, 우리의 가장 특별한 날." Below hairline rule and wedding details section with title "함께해 주세요", text "2027년 5월 22일 토요일 오후 2시", "가든홀 · 서울", two understated outline buttons "오시는 길" and "연락하기".
+Constraints: all three panels clearly belong to the same wedding site. Show all panels fully. Exact short Korean text where specified, don't add lengthy gibberish. No Netflix, Instagram, Spotify logos or trademarks. No fake QR code. No pricing, charts, dashboards, likes counts, app download prompts, watermarks, floral clipart, neon, purple gradients. This is an original elegant wedding design with familiar OTT and social feed interactions. Small unobtrusive board footer outside the screens: "CONCEPT 01 · FICTIONAL COUPLE & EVENT".
+```
