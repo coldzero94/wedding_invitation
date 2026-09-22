@@ -44,12 +44,14 @@ jobs:
         env:
           SITE_URL: ${{ steps.pages.outputs.origin }}
           BASE_PATH: ${{ steps.pages.outputs.base_path || '/' }}
+          KAKAO_JS_KEY: ${{ vars.KAKAO_JS_KEY }}
       - name: Validate and build the real invitation
         if: inputs.mode == 'release'
         run: npm run build:release
         env:
           SITE_URL: ${{ steps.pages.outputs.origin }}
           BASE_PATH: ${{ steps.pages.outputs.base_path || '/' }}
+          KAKAO_JS_KEY: ${{ vars.KAKAO_JS_KEY }}
       - uses: actions/upload-pages-artifact@v4
         with:
           path: dist

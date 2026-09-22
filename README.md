@@ -2,6 +2,10 @@
 
 선택한 [Concept 01 사진 앨범 v2](research/mockups/concept-01-photo-album-v2.png)를 바탕으로 만든 Astro 정적 사이트입니다. 동영상 없이 사진과 글로 구성합니다.
 
+[배포된 미리보기](https://coldzero94.github.io/wedding_invitation/) · [공개 저장소](https://github.com/coldzero94/wedding_invitation) · [배포·QR 기록](research/deployment.md)
+
+현재 배포는 가상의 이름·사진·일정을 사용하는 디자인 미리보기입니다. 실제 하객에게 발송하기 전에 내용을 교체해야 합니다.
+
 ## 로컬 실행
 
 Node.js 22.19 이상을 권장합니다. Astro 자체 최소 버전은 22.12이지만 최신 하위 의존성은 22.19 이상을 요구합니다.
@@ -11,7 +15,7 @@ npm install
 npm run dev
 ```
 
-브라우저에서 http://localhost:4321 을 엽니다. 로컬 제작에는 Git이 필요하지 않습니다. 현재 Git 초기화와 외부 배포는 하지 않았습니다.
+브라우저에서 http://localhost:4321 을 엽니다. 2026-09-22에 Git을 초기화하고 `coldzero94/wedding_invitation` 공개 저장소와 GitHub Pages를 연결했습니다.
 
 ## 내용과 사진 변경
 
@@ -56,30 +60,39 @@ npm run test:e2e
 
 발송 모드의 빈 정보·전화·문자·지도·계좌 복사는 임시 폴더에 만든 가상 데이터로 검증합니다. 검사 종료 후 임시 사이트는 삭제하며 실제 청첩장 데이터는 바꾸지 않습니다.
 
-## GitHub Pages 배포 준비
+## GitHub Pages 배포
 
-사용자가 배포를 요청하면 Git을 초기화하고 공개 저장소를 연결합니다. 프로젝트 주소에 맞춰 환경값을 지정할 수 있습니다.
+배포 주소는 `https://coldzero94.github.io/wedding_invitation/`입니다. 로컬에서도 같은 경로로 빌드할 수 있습니다.
 
 ```sh
-SITE_URL=https://your-name.github.io BASE_PATH=/wedding_invitation npm run build
+SITE_URL=https://coldzero94.github.io BASE_PATH=/wedding_invitation npm run build
 ```
 
-결과는 `dist/`에 생성됩니다. 계정의 루트 사이트라면 `BASE_PATH=/`를 사용합니다. 이미지·폰트·일정 다운로드 링크에 저장소 경로가 반영됩니다. GitHub Actions 배포 연결은 실제 저장소를 만든 뒤 진행합니다.
+결과는 `dist/`에 생성됩니다. 이미지·폰트·일정 다운로드 링크에 저장소 경로가 반영됩니다.
 
 발송용으로는 `npm run build:release`를 사용합니다. 같은 `SITE_URL`·`BASE_PATH`를 지정하되 실제 HTTPS 도메인이 필요합니다. 샘플 모드, 빈 예식장 주소, 로컬·예시 주소는 오류로 표시합니다. 개발용 `npm run build`는 계속 샘플을 허용합니다.
 
-[배포 워크플로](.github/workflows/deploy.yml)는 준비되어 있습니다. 실제 공개 저장소에 올린 뒤 Settings → Pages → Source를 GitHub Actions로 설정하고 Actions에서 수동 실행합니다. Pages의 도메인·저장소 경로를 자동으로 읽어 타입 검사 → 발송용 빌드 → 산출물 업로드 → 배포 순으로 실행합니다. 현재 파일을 작성하고 YAML 구조만 확인했으며 GitHub에서 실행하지 않았습니다.
+[배포 워크플로](.github/workflows/deploy.yml)를 GitHub에서 실행해 미리보기 배포를 완료했습니다. Pages의 도메인·저장소 경로를 자동으로 읽고 검사·빌드 후 배포합니다. 수정한 내용을 커밋·푸시한 다음 Actions → Publish wedding invitation → Run workflow에서 모드를 선택합니다.
+
+- `preview`: 샘플을 허용하는 디자인 미리보기. `isDemo`가 켜져 있으면 제목과 본문에 샘플임을 표시합니다.
+- `release`: 실제 발송용. `build:release`로 샘플 여부·주소 등을 검사합니다.
+
+두 모드는 같은 주소를 갱신합니다. 현재 자동 푸시 배포는 사용하지 않으며 수동 실행합니다. CLI로는 다음과 같이 실행합니다.
+
+```sh
+gh workflow run deploy.yml --repo coldzero94/wedding_invitation --ref main -f mode=preview
+```
 
 - [Astro 공식 GitHub Pages 배포 안내](https://docs.astro.build/en/guides/deploy/github/)
 
 ## QR 생성
 
-실제 HTTPS 배포 주소가 확정된 뒤 실행하세요.
+현재 배포 주소로 QR을 생성했습니다. 다시 생성하려면 다음 명령을 사용합니다.
 
 ```sh
-npm run qr -- https://your-name.github.io/wedding_invitation/
+npm run qr -- https://coldzero94.github.io/wedding_invitation/
 ```
 
-위 주소는 형태를 보여 주는 예시이며, 스크립트에 실제 계정 주소를 넣어야 합니다. SVG·1024px PNG·원본 URL을 `output/qr/`에 생성합니다. 외부 QR 서비스는 사용하지 않습니다. 지금은 배포 URL이 없어 인쇄용 QR을 생성하지 않았습니다.
+[SVG](output/qr/invitation.svg) · [PNG](output/qr/invitation.png) · [원본 URL](output/qr/url.txt)을 저장했습니다. PNG를 디코딩해 배포 주소와 일치하는지 확인했습니다. 현재 연결되는 내용은 샘플이며 실제 인쇄물 스캔 검증은 별도로 필요합니다. 외부 QR 서비스는 사용하지 않습니다.
 
 [조사 문서](research/README.md) · [사진 생성 기록](research/mockups/site-assets.md)

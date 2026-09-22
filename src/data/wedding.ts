@@ -7,17 +7,22 @@ import { validateWedding } from '../lib/validate-wedding';
 // 전화번호·계좌·지도 링크가 비어 있으면 실제 동작을 만들지 않습니다.
 export const wedding = {
   isDemo: true,
-  groom: { name: '지훈', fullName: '김지훈', phone: '' },
-  bride: { name: '서연', fullName: '이서연', phone: '' },
-  date: '2027-05-22T14:00:00+09:00',
+  groom: { name: '찬영', fullName: '이찬영', phone: '' },
+  bride: { name: '예지', fullName: '임예지', phone: '' },
+  date: '2027-03-13T12:10:00+09:00',
   durationMinutes: 90,
   timeZone: 'Asia/Seoul',
   venue: {
-    name: '가든홀',
-    detail: '서울',
-    address: '',
-    mapLinks: [] as { label: string; url: string }[],
-    transport: [] as { title: string; description: string }[],
+    name: '발산 더뉴컨벤션',
+    detail: '서울 강서구',
+    address: '서울 강서구 공항대로36길 57',
+    mapLinks: [
+      { label: '네이버 지도', url: 'https://map.naver.com/p/search/%EB%8D%94%EB%89%B4%EC%BB%A8%EB%B2%A4%EC%85%98%EC%9B%A8%EB%94%A9%20%EC%84%9C%EC%9A%B8%20%EA%B0%95%EC%84%9C%EA%B5%AC%20%EA%B3%B5%ED%95%AD%EB%8C%80%EB%A1%9C36%EA%B8%B8%2057' },
+      { label: '카카오맵', url: 'https://map.kakao.com/link/search/%EB%8D%94%EB%89%B4%EC%BB%A8%EB%B2%A4%EC%85%98%EC%9B%A8%EB%94%A9%20%EC%84%9C%EC%9A%B8%20%EA%B0%95%EC%84%9C%EA%B5%AC%20%EA%B3%B5%ED%95%AD%EB%8C%80%EB%A1%9C36%EA%B8%B8%2057' },
+    ],
+    transport: [
+      { title: '지하철', description: '5호선 발산역에서 도보 3~5분 거리입니다.' },
+    ] as { title: string; description: string }[],
   },
   accounts: [] as { side: '신랑' | '신부'; name: string; bank: string; number: string }[],
   introduction: ['서로의 하루에 가장 먼저 떠오르는 사람.', '이제는 같은 내일을 함께 그리려 합니다.', '저희의 새로운 시작에 함께해 주세요.'],

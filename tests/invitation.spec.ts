@@ -4,13 +4,13 @@ test('photos and required information work without JavaScript errors', async ({ 
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
   await page.goto('./');
-  await expect(page).toHaveTitle(/지훈 & 서연/);
+  await expect(page).toHaveTitle(/찬영 & 예지/);
   await expect(page.locator('h1')).toContainText('The next');
   await expect(page.locator('.cover-image')).toBeVisible();
-  await expect(page.locator('.cover-venue')).toHaveText('가든홀 · 서울');
+  await expect(page.locator('.cover-venue')).toHaveText('발산 더뉴컨벤션 · 서울 강서구');
   await expect(page.locator('.cover-venue')).toHaveAttribute('href', '#wedding-info');
-  await expect(page.locator('.event-date')).toContainText('2027년 5월 22일 토요일');
-  await expect(page.locator('.event-date')).toContainText('오후 2시');
+  await expect(page.locator('.event-date')).toContainText('2027년 3월 13일 토요일');
+  await expect(page.locator('.event-date')).toContainText('오후 12:10');
   await expect(page.locator('video, iframe')).toHaveCount(0);
   await expect(page.locator('.demo-note')).toContainText('가상의 예시');
   expect(errors).toEqual([]);
@@ -151,17 +151,17 @@ test('sharing falls back to a copyable URL when browser permissions fail', async
   await expect(page.locator('#copy-dialog')).not.toBeVisible();
 });
 
-test('calendar download uses Korea event time and May 22 is Saturday', async ({ page, request }) => {
+test('calendar download uses Korea event time and March 13 is Saturday', async ({ page, request }) => {
   await page.goto('./');
   const link = await page.locator('.calendar-link').getAttribute('href');
   const response = await request.get(link!);
   expect(response.ok()).toBe(true);
   const ics = await response.text();
-  expect(ics).toContain('DTSTART:20270522T050000Z');
-  expect(ics).toContain('DTEND:20270522T063000Z');
+  expect(ics).toContain('DTSTART:20270313T031000Z');
+  expect(ics).toContain('DTEND:20270313T044000Z');
   expect(ics).toContain('[샘플]');
   expect(ics).toContain('\r\nEND:VCALENDAR');
-  await expect(page.locator('td:nth-child(7) .wedding-day')).toHaveText('22');
+  await expect(page.locator('td:nth-child(7) .wedding-day')).toHaveText('13');
 });
 
 test('heart is a local toggle and survives reload', async ({ page }) => {
@@ -227,5 +227,5 @@ test('enlarged text keeps information available on a narrow screen', async ({ pa
   });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await page.locator('#wedding-info').scrollIntoViewIfNeeded();
-  await expect(page.locator('.event-date')).toContainText('오후 2시');
+  await expect(page.locator('.event-date')).toContainText('오후 12:10');
 });

@@ -33,6 +33,7 @@ function updatePhoto(index: number) {
   selection.index = (index + selection.photos.length) % selection.photos.length;
   const photo = selection.photos[selection.index];
   galleryImage.style.visibility = 'hidden';
+  galleryImage.style.opacity = '0';
   loadStatus.textContent = '사진을 불러오는 중이에요.';
   retryPhoto.hidden = true;
   galleryImage.src = photo.src;
@@ -48,12 +49,14 @@ function updatePhoto(index: number) {
 }
 function photoLoaded() {
   galleryImage.style.visibility = 'visible';
+  galleryImage.style.opacity = '1';
   loadStatus.textContent = '';
   retryPhoto.hidden = true;
 }
 galleryImage.addEventListener('load', photoLoaded);
 galleryImage.addEventListener('error', () => {
   galleryImage.style.visibility = 'hidden';
+  galleryImage.style.opacity = '0';
   loadStatus.textContent = '사진을 불러오지 못했어요. 다시 시도해 주세요.';
   retryPhoto.hidden = false;
 });
@@ -135,6 +138,35 @@ document.querySelectorAll<HTMLElement>('[data-share]').forEach((button) => butto
   await copy(url.href, '청첩장 링크를 복사했습니다.');
 }));
 
+type KakaoShareLink = { mobileWebUrl: string; webUrl: string };
+type KakaoSDK = {
+  isInitialized: () => boolean;
+  init: (key: string) => void;
+  Share: { sendDefault: (options: { objectType: 'feed'; content: { title: string; description: string; imageUrl: string; link: KakaoShareLink }; buttons: { title: string; link: KakaoShareLink }[] }) => void };
+};
+declare global { interface Window { Kakao?: KakaoSDK } }
+
+// The Kakao SDK <script> tag (head, not deferred) has already run by the time this module executes.
+const kakaoButton = document.querySelector<HTMLButtonElement>('[data-kakao-share]');
+if (kakaoButton && window.Kakao) {
+  const { kakaoJsKey, kakaoTitle, kakaoDescription, kakaoImage, kakaoUrl, kakaoMapUrl } = kakaoButton.dataset;
+  if (kakaoJsKey && kakaoTitle && kakaoDescription && kakaoImage && kakaoUrl && kakaoMapUrl) {
+    const kakao = window.Kakao;
+    if (!kakao.isInitialized()) kakao.init(kakaoJsKey);
+    kakaoButton.hidden = false;
+    kakaoButton.addEventListener('click', () => {
+      kakao.Share.sendDefault({
+        objectType: 'feed',
+        content: { title: kakaoTitle, description: kakaoDescription, imageUrl: kakaoImage, link: { mobileWebUrl: kakaoUrl, webUrl: kakaoUrl } },
+        buttons: [
+          { title: '청첩장 보기', link: { mobileWebUrl: kakaoUrl, webUrl: kakaoUrl } },
+          { title: '위치 보기', link: { mobileWebUrl: kakaoMapUrl, webUrl: kakaoMapUrl } },
+        ],
+      });
+    });
+  }
+}
+
 const like = document.querySelector<HTMLButtonElement>('.like-button')!;
 try { like.setAttribute('aria-pressed', String(localStorage.getItem('our-season-heart') === 'true')); } catch { /* Storage can be disabled. */ }
 like.addEventListener('click', () => {
@@ -159,3 +191,16 @@ function updateCountdown() {
 }
 updateCountdown();
 setInterval(updateCountdown, 60_000);
+
+if ('IntersectionObserver' in window) {
+  const observer = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      entry.target.classList.add('is-visible');
+      observer.unobserve(entry.target);
+    }
+  }, { threshold: .15, rootMargin: '0px 0px -8% 0px' });
+  document.querySelectorAll('[data-reveal]').forEach((el) => observer.observe(el));
+} else {
+  document.querySelectorAll('[data-reveal]').forEach((el) => el.classList.add('is-visible'));
+}

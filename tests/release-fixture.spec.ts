@@ -22,10 +22,16 @@ test.describe('real-mode rendering with fictional fixtures', () => {
       await symlink(join(process.cwd(), 'node_modules'), join(dir, 'node_modules'), 'dir');
       const file = join(dir, 'src/data/wedding.ts');
       let content = (await readFile(file, 'utf8')).replace('export const wedding = {', 'const demoWedding = {');
-      const extra = mode === 'filled' ? `
+      const extra = mode === 'filled'
+        ? `
         groom: { ...demoWedding.groom, phone: '010-0000-0000' },
+        bride: { ...demoWedding.bride, phone: '010-1111-1111' },
         accounts: [{ side: '신랑', name: '테스트 예금주', bank: '테스트 은행', number: '000-000000-00' }],
-      ` : '';
+      `
+        : `
+        groom: { ...demoWedding.groom, phone: '' },
+        bride: { ...demoWedding.bride, phone: '' },
+      `;
       const fixture = `
         export const wedding = { ...demoWedding, isDemo: false, ${extra}
           venue: { ...demoWedding.venue, address: '테스트 전용 주소',
@@ -62,9 +68,11 @@ test.describe('real-mode rendering with fictional fixtures', () => {
         await expect(page.locator('.mobile-dock [data-share]')).toBeVisible();
       } else {
         await page.locator('.contact-button').click();
-        await expect(page.locator('.person-contact')).toHaveCount(1);
-        await expect(page.locator('a[href^="tel:"]')).toHaveAttribute('href', 'tel:010-0000-0000');
-        await expect(page.locator('a[href^="sms:"]')).toHaveAttribute('href', 'sms:010-0000-0000');
+        await expect(page.locator('.person-contact')).toHaveCount(2);
+        await expect(page.locator('a[href="tel:010-0000-0000"]')).toBeVisible();
+        await expect(page.locator('a[href="tel:010-1111-1111"]')).toBeVisible();
+        await expect(page.locator('a[href="sms:010-0000-0000"]')).toBeVisible();
+        await expect(page.locator('a[href="sms:010-1111-1111"]')).toBeVisible();
         await page.keyboard.press('Escape');
         await expect(page.locator('#contact-dialog')).toBeHidden();
         await expect(page.locator('.map-links a')).toHaveAttribute('href', 'https://map.naver.com/');

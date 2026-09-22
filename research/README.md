@@ -2,11 +2,12 @@
 
 > 조사일: 2026-09-21 · 완전 무료 반응형 모바일 청첩장
 
-공개 GitHub 저장소와 GitHub Pages를 배포 기본안으로 한다. 사용자가 Concept 01 사진 앨범 v2를 선택해 로컬 사이트를 구현했다. [실행·수정 안내](../README.md)에서 확인할 수 있다. Git 초기화와 외부 배포는 아직 하지 않았다.
+공개 GitHub 저장소와 GitHub Pages를 사용한다. 사용자가 선택한 Concept 01 사진 앨범 v2를 구현하고 [샘플 사이트](https://coldzero94.github.io/wedding_invitation/)를 배포했다. [실행·수정 안내](../README.md)와 [배포 기록](deployment.md)에서 확인할 수 있다.
 
 | 문서 | 내용 |
 | --- | --- |
 | [구현 상태](implementation-status.md) | 완료한 기능, 자동 검사 범위, 실사용 전에 남은 정보 |
+| [배포 기록](deployment.md) | 실제 GitHub Pages 주소, 재배포 방법, 온라인 검증과 QR |
 | [발송 전 작업 목록](launch-checklist.md) | 실제 코드 점검으로 정한 남은 작업, 우선순위와 완료 기준 |
 | [이미지 시안](mockups/README.md) | 선택한 SNS·OTT Concept 01 사진 앨범 v2, 대안 Concept 02 |
 | [반응형 설계](responsive-design.md) | 320px부터 PC까지의 배치, 터치·글자·사진 규칙 |
@@ -65,7 +66,7 @@ https://사용자명.github.io/저장소명/
 - 2026-09-22 선택: Concept 01 사진 앨범 v2를 구현한다. 커플 동영상은 없으며 사진과 글만 사용한다. 사진 기록장 Concept 02는 비교 자료로 보관한다.
 
 - 완전 무료로 운영한다.
-- 공개 GitHub 저장소와 GitHub Pages의 무료 `github.io` 주소를 사용한다. Git 초기화·저장소 생성·배포는 아직 진행하지 않는다.
+- 공개 저장소 `coldzero94/wedding_invitation`과 GitHub Pages의 `github.io` 주소를 사용한다. 2026-09-22 사용자 요청에 따라 Git 초기화·저장소 생성·샘플 배포를 완료했다.
 - 사진은 프로젝트 안에 저장하고 빌드 시 최적화한다.
 - 별도 서버, DB, S3는 사용하지 않는다.
 - QR은 최종 배포 주소로 직접 생성하며 외부 QR 서비스를 사용하지 않는다.

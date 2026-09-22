@@ -17,6 +17,8 @@ const { albums, previews } = createPhotoArchive(wedding.photos, wedding.albums, 
 const featuredAlbum = albums[0];
 const feedPhoto = wedding.photos[0];
 const venueLabel = [wedding.venue.name, wedding.venue.detail].filter(Boolean).join(' · ');
+const kakaoJsKey = (process.env.KAKAO_JS_KEY || '').trim();
+const kakaoMapUrl = wedding.venue.mapLinks.find((map) => map.label.includes('카카오'))?.url || wedding.venue.mapLinks[0]?.url || canonical.href;
 const contacts = [{ ...wedding.groom, role: '신랑' }, { ...wedding.bride, role: '신부' }].filter(person => wedding.isDemo || person.phone.trim());
 const showContact = contacts.length > 0;
 const showAccounts = wedding.isDemo || wedding.accounts.length > 0;
@@ -47,6 +49,8 @@ const dates = Array.from({ length: daysInMonth }, (_, i) => i + 1);
     <link rel="icon" type="image/svg+xml" href={base + 'favicon.svg'} />
     <link rel="canonical" href={canonical.href} />
     <title>{title} | OUR SEASON</title>
+    {kakaoJsKey && <script is:inline src="https://developers.kakao.com/sdk/js/kakao.js"></script>}
+    <noscript><style>[data-reveal] { opacity: 1 !important; transform: none !important; }</style></noscript>
   </head>
   <body>
     <a class="skip-link" href="#wedding-info">예식 안내 바로가기</a>
@@ -67,7 +71,6 @@ const dates = Array.from({ length: daysInMonth }, (_, i) => i + 1);
           <p class="cover-date">{shortDate}. {weekday}<span>·</span>{time}</p>
           <a class="cover-venue" href="#wedding-info"><Icon name="pin" size={15} /><span>{venueLabel}</span></a>
           <a class="button cover-button" href="#story">초대장 열기 <Icon name="arrow" size={18} /></a>
-          <a href="#story" class="scroll-hint"><span>SCROLL TO DISCOVER</span><Icon name="down" size={17} /></a>
         </div>
       </header>
 
@@ -78,10 +81,10 @@ const dates = Array.from({ length: daysInMonth }, (_, i) => i + 1);
         </nav>
 
         <section class="story-section section-pad" id="story" aria-labelledby="story-heading">
-          <div class="section-label"><span>OUR STORY</span><span>CHAPTER ONE</span></div>
-          <div class="story-heading"><h2 id="story-heading">우리라는 이야기</h2><p class="vertical-note" aria-hidden="true">LOVE<br />TRAVEL<br />AND US</p></div>
-          <p class="section-subtitle">함께한 순간들이 하나의 이야기가 되었습니다.</p>
-          {featuredAlbum && <button type="button" class="album-feature photo-button" data-album={featuredAlbum.id} aria-label={featuredAlbum.title + ' 사진과 이야기 보기'}>
+          <div class="section-label" data-reveal><span>OUR STORY</span><span>CHAPTER ONE</span></div>
+          <div class="story-heading" data-reveal style="--reveal-delay:80ms"><h2 id="story-heading">우리라는 이야기</h2><p class="vertical-note" aria-hidden="true">LOVE<br />TRAVEL<br />AND US</p></div>
+          <p class="section-subtitle" data-reveal style="--reveal-delay:140ms">함께한 순간들이 하나의 이야기가 되었습니다.</p>
+          {featuredAlbum && <button type="button" class="album-feature photo-button" data-album={featuredAlbum.id} aria-label={featuredAlbum.title + ' 사진과 이야기 보기'} data-reveal style="--reveal-delay:200ms">
             <Image src={featuredAlbum.cover.image} alt={featuredAlbum.cover.alt} style={{ objectPosition: featuredAlbum.cover.position }} widths={[480, 800]} sizes="(min-width: 1000px) 50vw, 100vw" format="webp" loading="lazy" />
             <span class="album-gradient"></span>
             <span class="album-feature-label"><span class="eyebrow">ALBUM 01 · {featuredAlbum.photos.length} PHOTO{featuredAlbum.photos.length > 1 ? 'S' : ''}</span><span class="album-title">{featuredAlbum.title}</span></span>
@@ -89,19 +92,19 @@ const dates = Array.from({ length: daysInMonth }, (_, i) => i + 1);
           </button>}
           <div class="album-list">
             {albums.slice(1).map((album, index) => (
-              <button type="button" class="album-row photo-button" data-album={album.id} aria-label={album.title + ' 사진과 이야기 보기'}>
+              <button type="button" class="album-row photo-button" data-album={album.id} aria-label={album.title + ' 사진과 이야기 보기'} data-reveal style={`--reveal-delay:${index * 100}ms`}>
                 <Image src={album.cover.image} alt={album.cover.alt} style={{ objectPosition: album.cover.position }} widths={[240, 480]} sizes="(min-width: 1000px) 22vw, 42vw" format="webp" loading="lazy" />
                 <span class="album-copy"><span class="eyebrow">ALBUM {String(index + 2).padStart(2, '0')}</span><span class="album-title">{album.title}</span><span class="album-link">사진 {album.photos.length}장 보기 <Icon name="arrow" size={17} /></span></span>
               </button>
             ))}
           </div>
-          <div class="save-date">
+          <div class="save-date" data-reveal>
             <p class="eyebrow ruled-label">SAVE THE DATE</p>
             <p class="display-date">{shortDate}</p>
             <p class="save-date-caption">우리의 새로운 시작</p>
             <p class="countdown" data-event-date={wedding.date} data-time-zone={wedding.timeZone} aria-live="off">소중한 당신을 초대합니다</p>
           </div>
-          <div class="invitation-note">
+          <div class="invitation-note" data-reveal>
             <span class="small-star" aria-hidden="true">✳</span>
             {wedding.introduction.map((line) => <p>{line}</p>)}
             <p class="signature">{wedding.groom.name} & {wedding.bride.name}</p>
@@ -109,18 +112,18 @@ const dates = Array.from({ length: daysInMonth }, (_, i) => i + 1);
         </section>
 
         <section class="moments-section section-pad" id="moments" aria-labelledby="moments-heading">
-          <div class="section-label"><span>MOMENTS</span><span>OUR LITTLE ARCHIVE</span></div>
-          <h2 class="english-heading" id="moments-heading">Little things,<br /><em>us.</em></h2>
-          <p class="section-subtitle">작은 순간들이 모여, 특별한 우리가 됩니다.</p>
+          <div class="section-label" data-reveal><span>MOMENTS</span><span>OUR LITTLE ARCHIVE</span></div>
+          <h2 class="english-heading" id="moments-heading" data-reveal style="--reveal-delay:80ms">Little things,<br /><em>us.</em></h2>
+          <p class="section-subtitle" data-reveal style="--reveal-delay:140ms">작은 순간들이 모여, 특별한 우리가 됩니다.</p>
           <div class="highlights" aria-label="사진 앨범">
-            {albums.map((album) => (
-              <button type="button" data-album={album.id} class="highlight" aria-label={album.title + ' 앨범 열기'}>
+            {albums.map((album, index) => (
+              <button type="button" data-album={album.id} class="highlight" aria-label={album.title + ' 앨범 열기'} data-reveal style={`--reveal-delay:${index * 80}ms`}>
                 <span class="highlight-ring"><Image src={album.cover.image} alt="" width={144} height={144} fit="cover" format="webp" loading="lazy" /></span>
                 <span>{album.label}</span>
               </button>
             ))}
           </div>
-          <article class="feed-post">
+          <article class="feed-post" data-reveal>
             <header class="feed-header">
               <Image src={wedding.hero.image} alt="" width={64} height={64} fit="cover" format="webp" loading="lazy" />
               <span>{wedding.socialHandle}</span><span class="feed-header-note">OUR WEDDING</span>
@@ -138,8 +141,8 @@ const dates = Array.from({ length: daysInMonth }, (_, i) => i + 1);
             <p class="feed-tags">#우리의계절 #새로운시작 #함께해요</p>
           </article>
           <div class="photo-strip">
-            {previews.map((photo) => (
-              <button type="button" class="photo-button" data-gallery={photo.id} aria-label={photo.title + ' 사진 크게 보기'}>
+            {previews.map((photo, index) => (
+              <button type="button" class="photo-button" data-gallery={photo.id} aria-label={photo.title + ' 사진 크게 보기'} data-reveal style={`--reveal-delay:${index * 100}ms`}>
                 <Image src={photo.image} alt={photo.alt} style={{ objectPosition: photo.position }} widths={[240, 480]} sizes="(min-width: 1000px) 25vw, 45vw" format="webp" loading="lazy" />
                 <span>{photo.subtitle}</span>
               </button>
@@ -149,11 +152,11 @@ const dates = Array.from({ length: daysInMonth }, (_, i) => i + 1);
         </section>
 
         <section class="event-section section-pad" id="wedding-info" aria-labelledby="event-heading">
-          <p class="eyebrow">THE DAY WE BECOME ONE</p>
-          <h2 id="event-heading">함께해 주세요</h2>
-          <p class="event-date">{longDate}<br />{time}</p>
-          <p class="event-venue">{venueLabel}</p>
-          <div class="calendar">
+          <p class="eyebrow" data-reveal>THE DAY WE BECOME ONE</p>
+          <h2 id="event-heading" data-reveal style="--reveal-delay:60ms">함께해 주세요</h2>
+          <p class="event-date" data-reveal style="--reveal-delay:120ms">{longDate}<br />{time}</p>
+          <p class="event-venue" data-reveal style="--reveal-delay:120ms">{venueLabel}</p>
+          <div class="calendar" data-reveal style="--reveal-delay:180ms">
             <p class="calendar-month">{year}<span> / </span>{String(month).padStart(2, '0')}</p>
             <table aria-label={year + '년 ' + month + '월 결혼식 달력'}>
               <thead><tr>{['일', '월', '화', '수', '목', '금', '토'].map((d) => <th scope="col">{d}</th>)}</tr></thead>
@@ -166,14 +169,14 @@ const dates = Array.from({ length: daysInMonth }, (_, i) => i + 1);
             </table>
           </div>
           <a class="text-link calendar-link" href={base + 'wedding.ics'} download="our-wedding.ics"><Icon name="calendar" size={17} /> 캘린더에 저장</a>
-          <div class="venue-card">
+          <div class="venue-card" data-reveal>
             <Icon name="pin" size={25} />
             <h3>{wedding.venue.name}</h3>
             <p>{wedding.venue.address || '예식장 상세 주소는 추후 안내드리겠습니다.'}</p>
             {wedding.venue.mapLinks.length > 0 && <div class="map-links">{wedding.venue.mapLinks.map((map) => <a class="button outline-button" href={map.url} target="_blank" rel="noopener noreferrer">{map.label}<Icon name="arrow" size={16} /></a>)}</div>}
             {wedding.venue.address && <button type="button" class="text-link" data-copy={wedding.venue.address} data-copy-message="주소를 복사했습니다."><Icon name="copy" size={16} /> 주소 복사</button>}
           </div>
-          {wedding.venue.transport.map((item) => <div class="transport-note"><h3>{item.title}</h3><p>{item.description}</p></div>)}
+          {wedding.venue.transport.map((item) => <div class="transport-note" data-reveal><h3>{item.title}</h3><p>{item.description}</p></div>)}
           {showContact && <button type="button" class="button contact-button" data-open-contact><Icon name="phone" size={17} /> 신랑 · 신부에게 연락하기</button>}
           {showAccounts && <details class="accounts">
             <summary>마음 전하실 곳 <Icon name="plus" size={18} /></summary>
@@ -184,14 +187,30 @@ const dates = Array.from({ length: daysInMonth }, (_, i) => i + 1);
               )) : <p class="pending-info">계좌 정보는 추후 안내드리겠습니다.</p>}
             </div>
           </details>}
+          {kakaoJsKey && (
+            <button
+              type="button"
+              class="button outline-button kakao-share-button"
+              data-kakao-share
+              data-kakao-js-key={kakaoJsKey}
+              data-kakao-title={title}
+              data-kakao-description={longDate + ' · ' + time + ' · ' + wedding.venue.name}
+              data-kakao-image={new URL(og.src, Astro.site).href}
+              data-kakao-url={canonical.href}
+              data-kakao-map-url={kakaoMapUrl}
+              hidden
+            >
+              <Icon name="share" size={17} /> 카카오톡으로 공유
+            </button>
+          )}
           <button type="button" class="button outline-button share-button" data-share><Icon name="share" size={17} /> 청첩장 공유하기</button>
         </section>
 
         <footer class="closing section-pad">
-          <p class="eyebrow">SAME PEOPLE. A BRIGHTER TOMORROW.</p>
-          <p class="closing-title">To all our<br /><em>tomorrows.</em></p>
-          <p class="closing-line">{wedding.closing}</p>
-          <p class="closing-names">{wedding.groom.name} <span>&</span> {wedding.bride.name}</p>
+          <p class="eyebrow" data-reveal>SAME PEOPLE. A BRIGHTER TOMORROW.</p>
+          <p class="closing-title" data-reveal style="--reveal-delay:80ms">To all our<br /><em>tomorrows.</em></p>
+          <p class="closing-line" data-reveal style="--reveal-delay:160ms">{wedding.closing}</p>
+          <p class="closing-names" data-reveal style="--reveal-delay:220ms">{wedding.groom.name} <span>&</span> {wedding.bride.name}</p>
           <a class="back-top text-link" href="#top">처음으로 <Icon name="arrow" size={16} /></a>
           {wedding.isDemo && <p class="demo-note">SAMPLE INVITATION<br />사진 속 인물과 이름·예식 정보는 가상의 예시입니다.</p>}
           <p class="footer-mark">OUR SEASON · {year}</p>
