@@ -1,4 +1,5 @@
 import hero from '../assets/photos/hero.jpg';
+import heroOg from '../assets/photos/og.jpg';
 import type { GalleryOverride } from '../lib/gallery-core';
 import { validateWedding } from '../lib/validate-wedding';
 
@@ -33,7 +34,7 @@ export const wedding = {
   ] as { side: '신랑' | '신부'; relation?: string; name: string; bank: string; number: string }[],
   introduction: ['서로의 하루에 가장 먼저 떠오르는 사람.', '이제는 같은 내일을 함께 그리려 합니다.', '저희의 새로운 시작에 함께해 주세요.'],
   closing: '모든 계절을, 당신과 함께.',
-  hero: { image: hero, alt: '정원에서 이마에 입 맞추는 신랑과 미소 짓는 신부', position: '52% 25%' },
+  hero: { image: hero, alt: '버드나무 아래에서 부케를 든 신부와 뒤에 선 신랑', position: '50% 30%', og: heroOg as ImageMetadata | undefined },
   // 갤러리 사진은 파일 이름 순서로 표시합니다. 사진별 설명·대체 텍스트·자르기 위치는 파일 번호로 지정하세요.
   // 예: '07': { caption: '제주에서', alt: '바다 앞의 두 사람', position: 'top' }
   // position: attention(기본, 눈에 띄는 부분 중심)·top·bottom·left·right·center 등

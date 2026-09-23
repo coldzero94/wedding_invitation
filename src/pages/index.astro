@@ -19,7 +19,8 @@ const heroHeight = Math.round(heroWidth * Number(heroSource.height) / Number(her
 const heroWidths = [...new Set([480, 800, heroWidth].filter((w) => w <= heroWidth))];
 const ogWidth = heroWidth;
 const ogHeight = Math.round(ogWidth * 630 / 1200);
-const og = await getImage({ src: wedding.hero.image, width: ogWidth, height: ogHeight, fit: 'cover', position: 'attention', format: 'jpg' });
+// hero.og is an optional landscape crop for link previews; otherwise sharp picks the focus.
+const og = await getImage({ src: wedding.hero.og || wedding.hero.image, width: ogWidth, height: ogHeight, fit: 'cover', position: 'attention', format: 'jpg' });
 const ogUrl = new URL(og.src, Astro.site).href;
 const venueLabel = [wedding.venue.name, wedding.venue.detail].filter(Boolean).join(' · ');
 const summary = longDate + ' ' + time + ' · ' + wedding.venue.name;
