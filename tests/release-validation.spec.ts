@@ -8,7 +8,7 @@ const details = () => ({
   bride: { name: '테스트', fullName: '테스트 신부', phone: '' },
   date: '2028-02-29T14:00:00+09:00', durationMinutes: 90, timeZone: 'Asia/Seoul',
   venue: { name: '테스트홀', address: '테스트 주소', mapLinks: [] },
-  accounts: [], hero: { alt: '표지' }, photos: [{ id: 'one', alt: '사진' }],
+  accounts: [], hero: { alt: '표지' },
 });
 
 test('release accepts optional contact/accounts but rejects samples and missing address', () => {

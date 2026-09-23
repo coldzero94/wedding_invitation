@@ -24,9 +24,13 @@ test.describe('real-mode rendering with fictional fixtures', () => {
       let content = (await readFile(file, 'utf8')).replace('export const wedding = {', 'const demoWedding = {');
       const extra = mode === 'filled'
         ? `
-        groom: { ...demoWedding.groom, phone: '010-0000-0000' },
+        groom: { ...demoWedding.groom, phone: '010-0000-0000', father: '이테스트', mother: '故 김테스트', relation: '장남' },
         bride: { ...demoWedding.bride, phone: '010-1111-1111' },
-        accounts: [{ side: '신랑', name: '테스트 예금주', bank: '테스트 은행', number: '000-000000-00' }],
+        accounts: [
+          { side: '신랑', name: '테스트 예금주', bank: '테스트 은행', number: '000-000000-00' },
+          { side: '신랑', relation: '아버지', name: '이테스트', bank: '테스트 은행', number: '111-111111-11' },
+        ],
+        gallery: { '02': { caption: '테스트 사진 설명' } },
       `
         : `
         groom: { ...demoWedding.groom, phone: '' },
@@ -79,12 +83,18 @@ test.describe('real-mode rendering with fictional fixtures', () => {
         await expect(page.locator('.map-links a')).toHaveAttribute('href', 'https://map.naver.com/');
         await page.getByRole('button', { name: '주소 복사', exact: true }).click();
         expect(await page.evaluate(() => (window as any).__copied)).toBe('테스트 전용 주소');
+        await expect(page.locator('.families')).toContainText('이테스트 · 故 김테스트의 장남 찬영');
+        await expect(page.locator('.families')).toContainText('신부 임예지');
         await page.locator('.accounts summary').click();
+        await expect(page.locator('.account-owner')).toHaveText(['신랑 테스트 예금주', '아버지 이테스트']);
         await page.getByRole('button', { name: '테스트 예금주 계좌번호 복사' }).click();
         expect(await page.evaluate(() => (window as any).__copied)).toBe('000-000000-00');
       }
-      await page.locator('.gallery-all-button').click();
+      await page.locator('.gallery-thumb').first().click();
       await expect(page.locator('#gallery-dialog')).toBeVisible();
+      await expect(page.locator('#gallery-caption')).toBeHidden();
+      await page.getByRole('button', { name: '다음 사진', exact: true }).click();
+      if (mode === 'filled') await expect(page.locator('#gallery-caption')).toHaveText('테스트 사진 설명');
       expect(errors).toEqual([]);
     });
   }

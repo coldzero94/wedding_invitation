@@ -4,6 +4,8 @@
 
 공개 GitHub 저장소와 GitHub Pages를 사용한다. 사용자가 선택한 Concept 01 사진 앨범 v2를 구현하고 [샘플 사이트](https://coldzero94.github.io/wedding_invitation/)를 배포했다. [실행·수정 안내](../README.md)와 [배포 기록](deployment.md)에서 확인할 수 있다.
 
+> **2026-09-23 구조 변경:** 사용자 요청으로 "우리라는 이야기"(이야기 앨범), 하이라이트, SNS 피드 카드, 하트 버튼을 제거했다. 표지 다음은 아이보리 배경의 SAVE THE DATE·달력·D-day·인사말로 시작하고, 이어서 사진 30장 이상을 담는 갤러리(9장 + 사진 더보기), 오시는 길, 신랑측·신부측 마음 전하실 곳, 공유 순서로 구성한다. 사진은 `npm run photos`로 정리해 `src/assets/gallery`에 넣는다([실행 안내](../README.md)). 아래 내용 중 앨범·피드에 관한 설명은 이전 구조의 기록이다.
+
 | 문서 | 내용 |
 | --- | --- |
 | [구현 상태](implementation-status.md) | 완료한 기능, 자동 검사 범위, 실사용 전에 남은 정보 |

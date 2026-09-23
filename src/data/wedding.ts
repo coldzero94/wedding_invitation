@@ -1,14 +1,16 @@
-import hero from '../assets/photos/hero.png';
-import travel from '../assets/photos/travel.png';
-import hands from '../assets/photos/hands.png';
+import hero from '../assets/photos/hero.jpg';
+import type { GalleryOverride } from '../lib/gallery-core';
 import { validateWedding } from '../lib/validate-wedding';
 
-// 실제 사진은 위 import를, 예식 정보와 문구는 이 파일을 수정하세요.
-// 전화번호·계좌·지도 링크가 비어 있으면 실제 동작을 만들지 않습니다.
+// 예식 정보와 문구는 이 파일에서 수정하세요.
+// 갤러리 사진은 photos-inbox 폴더에 넣고 npm run photos 를 실행하면 src/assets/gallery 에 정리됩니다.
+// 전화번호·계좌·지도 링크·부모님 성함이 비어 있으면 해당 영역을 표시하지 않습니다.
 export const wedding = {
   isDemo: true,
-  groom: { name: '찬영', fullName: '이찬영', phone: '' },
-  bride: { name: '예지', fullName: '임예지', phone: '' },
+  // father·mother에 부모님 성함을 넣으면 "이○○ · 김○○ 의 장남 찬영"처럼 표시됩니다.
+  // relation을 비우면 '아들'·'딸'로 표시합니다. 고인은 '故 이○○'처럼 적어 주세요.
+  groom: { name: '찬영', fullName: '이찬영', phone: '', father: '', mother: '', relation: '' },
+  bride: { name: '예지', fullName: '임예지', phone: '', father: '', mother: '', relation: '' },
   date: '2027-03-13T12:10:00+09:00',
   durationMinutes: 90,
   timeZone: 'Asia/Seoul',
@@ -24,27 +26,20 @@ export const wedding = {
       { title: '지하철', description: '5호선 발산역에서 도보 3~5분 거리입니다.' },
     ] as { title: string; description: string }[],
   },
+  // relation(아버지·어머니 등)을 비우면 신랑·신부 본인 계좌로 표시합니다.
   accounts: [
-    { side: '신랑', name: '이찬영', bank: '신한', number: '110-235-729687' },
-    { side: '신부', name: '임예지', bank: '국민', number: '373301-01-415845' },
-  ] as { side: '신랑' | '신부'; name: string; bank: string; number: string }[],
+    { side: '신랑', relation: '', name: '이찬영', bank: '신한', number: '110-235-729687' },
+    { side: '신부', relation: '', name: '임예지', bank: '국민', number: '373301-01-415845' },
+  ] as { side: '신랑' | '신부'; relation?: string; name: string; bank: string; number: string }[],
   introduction: ['서로의 하루에 가장 먼저 떠오르는 사람.', '이제는 같은 내일을 함께 그리려 합니다.', '저희의 새로운 시작에 함께해 주세요.'],
-  socialHandle: 'jihun.and.seoyeon',
   closing: '모든 계절을, 당신과 함께.',
   hero: { image: hero, alt: '정원에서 이마에 입 맞추는 신랑과 미소 짓는 신부', position: '52% 25%' },
-  // 사진은 고유 ID로 관리합니다. 앨범과 본문 대표 컷은 아래에서 별도로 선택합니다.
-  photos: [
-    { id: 'garden', image: hero, alt: '정원에서 이마에 입 맞추는 신랑과 미소 짓는 신부', title: '처음 만난 날', subtitle: '평범한 하루가 특별해진 순간', position: '50% 30%' },
-    { id: 'travel', image: travel, alt: '해 질 무렵 바다를 나란히 바라보는 두 사람의 뒷모습', title: '우리의 여행', subtitle: '어디든, 함께라서 좋았던', position: '50% 50%' },
-    { id: 'hands', image: hands, alt: '꽃이 핀 정원에서 결혼반지를 끼고 손을 맞잡은 두 사람', title: '같은 마음', subtitle: '잡은 손을 놓지 않기로', position: '50% 50%' },
-  ],
-  previewPhotoIds: ['travel', 'hands'],
-  // photoIds 순서대로 앨범에 표시하며 첫 사진을 앨범 표지로 사용합니다.
-  albums: [
-    { id: 'beginning', title: '처음 만난 날', label: '처음', photoIds: ['garden'], story: '처음엔 몰랐어요. 그날의 짧은 인사가 이렇게 오래 이어질 줄은. 자꾸만 웃게 되는 하루들이 우리의 시작이었습니다.' },
-    { id: 'journey', title: '우리의 여행', label: '여행', photoIds: ['travel'], story: '낯선 풍경 앞에서도 함께라면 마음이 편안했어요. 돌아오는 길에는 다음 여행보다, 함께할 평범한 내일을 더 기대하게 되었습니다.' },
-    { id: 'together', title: '같은 마음', label: '오늘', photoIds: ['hands'], story: '좋은 날에도, 조금 서툰 날에도 곁에 있기로 했습니다. 서로의 속도에 맞춰 오래오래 함께 걸어가겠습니다.' },
-  ],
+  // 갤러리 사진은 파일 이름 순서로 표시합니다. 사진별 설명·대체 텍스트·자르기 위치는 파일 번호로 지정하세요.
+  // 예: '07': { caption: '제주에서', alt: '바다 앞의 두 사람', position: 'top' }
+  // position: attention(기본, 눈에 띄는 부분 중심)·top·bottom·left·right·center 등
+  // npm run photos 를 다시 실행하면 번호가 새로 매겨지므로 이 설정을 다시 확인해야 합니다.
+  // 사진을 빼려면 photos-inbox 에서 파일을 지우고 npm run photos 를 다시 실행하세요.
+  gallery: {} as Record<string, GalleryOverride>,
 };
 
 const errors = validateWedding(wedding, process.env.RELEASE_BUILD === '1');

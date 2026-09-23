@@ -11,9 +11,12 @@ export const day = part('day');
 export const longDate = new Intl.DateTimeFormat('ko-KR', {
   timeZone: wedding.timeZone, year: 'numeric', month: 'long', day: 'numeric', weekday: 'long',
 }).format(eventDate);
-export const time = new Intl.DateTimeFormat('ko-KR', {
+const timeParts = new Intl.DateTimeFormat('ko-KR', {
   timeZone: wedding.timeZone, hour: 'numeric', minute: '2-digit', hour12: true,
-}).format(eventDate).replace(':00', '시');
+}).formatToParts(eventDate);
+const timePart = (name: string) => timeParts.find((p) => p.type === name)?.value ?? '';
+const minutes = Number(timePart('minute'));
+export const time = timePart('dayPeriod') + ' ' + Number(timePart('hour')) + '시' + (minutes ? ' ' + minutes + '분' : '');
 export const shortDate = [year, String(month).padStart(2, '0'), String(day).padStart(2, '0')].join('.');
 export const weekday = new Intl.DateTimeFormat('en-US', { timeZone: wedding.timeZone, weekday: 'short' }).format(eventDate).toUpperCase();
 export const firstWeekday = new Date(Date.UTC(year, month - 1, 1)).getUTCDay();

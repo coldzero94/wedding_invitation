@@ -1,4 +1,7 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
+
+const counter = (page: Page) => page.locator('#gallery-counter');
+const firstThumb = (page: Page) => page.locator('.gallery-thumb').first();
 
 test('photos and required information work without JavaScript errors', async ({ page }) => {
   const errors: string[] = [];
@@ -8,28 +11,43 @@ test('photos and required information work without JavaScript errors', async ({ 
   await expect(page.locator('h1')).toContainText('The next');
   await expect(page.locator('.cover-image')).toBeVisible();
   await expect(page.locator('.cover-venue')).toHaveText('발산 더뉴컨벤션 · 서울 강서구');
-  await expect(page.locator('.cover-venue')).toHaveAttribute('href', '#wedding-info');
-  await expect(page.locator('.event-date')).toContainText('2027년 3월 13일 토요일');
-  await expect(page.locator('.event-date')).toContainText('오후 12:10');
+  await expect(page.locator('.cover-venue')).toHaveAttribute('href', '#location');
+  await expect(page.locator('.cover-button')).toHaveAttribute('href', '#invitation');
+  await expect(page.locator('.save-date-when')).toContainText('2027년 3월 13일 토요일');
+  await expect(page.locator('.save-date-when')).toContainText('오후 12시 10분');
+  await expect(page.locator('.cover-date')).toContainText('오후 12시 10분');
+  await expect(page.locator('#story, .album-feature, .feed-post, .like-button')).toHaveCount(0);
   await expect(page.locator('video, iframe')).toHaveCount(0);
-  await expect(page.locator('.demo-note')).toContainText('가상의 예시');
+  await expect(page.locator('.demo-note')).toContainText('예시');
   expect(errors).toEqual([]);
   const image = page.locator('.cover-image');
   expect(await image.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
 });
 
+test('the invitation starts with SAVE THE DATE on ivory, followed by the gallery', async ({ page }) => {
+  await page.goto('./');
+  const sections = await page.locator('main > section').evaluateAll((items) => items.map((item) => item.id));
+  expect(sections.slice(0, 3)).toEqual(['invitation', 'gallery', 'location']);
+  await expect(page.locator('#invitation .ruled-label')).toHaveText('SAVE THE DATE');
+  const background = await page.locator('#invitation').evaluate((el) => getComputedStyle(el).backgroundColor);
+  const lower = await page.locator('#location').evaluate((el) => getComputedStyle(el).backgroundColor);
+  expect(background).toBe(lower);
+  expect(background).toBe('rgb(243, 241, 233)');
+});
+
 test('full gallery supports arrows, close and focus restoration', async ({ page }) => {
   await page.goto('./');
-  const trigger = page.getByRole('button', { name: '사진 전체 보기 · 3장', exact: true });
+  const total = await page.locator('.gallery-thumb').count();
+  const trigger = firstThumb(page);
   await trigger.click();
-  const dialog = page.getByRole('dialog', { name: '처음 만난 날' });
-  await expect(dialog).toBeVisible();
+  await expect(page.getByRole('dialog', { name: '사진 크게 보기' })).toBeVisible();
+  await expect(counter(page)).toHaveText('01 / ' + String(total).padStart(2, '0'));
   await page.keyboard.press('ArrowRight');
-  await expect(page.locator('#gallery-title')).toHaveText('우리의 여행');
-  await page.getByRole('button', { name: '다음 사진', exact: true }).click();
-  await expect(page.locator('#gallery-title')).toHaveText('같은 마음');
-  await page.getByRole('button', { name: '다음 사진', exact: true }).click();
-  await expect(page.locator('#gallery-title')).toHaveText('처음 만난 날');
+  await expect(counter(page)).toHaveText('02 / ' + String(total).padStart(2, '0'));
+  await page.keyboard.press('ArrowLeft');
+  await page.keyboard.press('ArrowLeft');
+  await expect(counter(page)).toHaveText(String(total).padStart(2, '0') + ' / ' + String(total).padStart(2, '0'));
+  await expect(page.locator('#gallery-image')).toHaveAttribute('alt', /찬영과 예지의 웨딩 사진/);
   await page.keyboard.press('Escape');
   await expect(page.locator('#gallery-dialog')).not.toBeVisible();
   await expect(trigger).toBeFocused();
@@ -37,74 +55,58 @@ test('full gallery supports arrows, close and focus restoration', async ({ page 
 
 test('touch swipe changes photos and vertical gestures do not', async ({ page }) => {
   await page.goto('./');
-  await page.locator('.feed-photo').click();
+  await firstThumb(page).click();
   const area = page.locator('.gallery-image-wrap');
   await area.dispatchEvent('touchstart', { touches: [{ identifier: 1, clientX: 250, clientY: 150 }] });
   await area.dispatchEvent('touchend', { changedTouches: [{ identifier: 1, clientX: 80, clientY: 155 }] });
-  await expect(page.locator('#gallery-title')).toHaveText('우리의 여행');
+  await expect(counter(page)).toHaveText(/^02 \//);
   await area.dispatchEvent('touchstart', { touches: [{ identifier: 2, clientX: 250, clientY: 150 }] });
   await area.dispatchEvent('touchend', { changedTouches: [{ identifier: 2, clientX: 240, clientY: 300 }] });
-  await expect(page.locator('#gallery-title')).toHaveText('우리의 여행');
+  await expect(counter(page)).toHaveText(/^02 \//);
 });
 
 test('failed gallery photos can be retried without losing the selected photo', async ({ page }) => {
   await page.goto('./');
-  const src = await page.locator('#gallery-data').evaluate(el => JSON.parse((el as HTMLElement).dataset.photos!)[0].src as string);
-  const url = new URL(src, page.url()).href;
-  await page.route(url, route => route.abort(), { times: 1 });
-  await page.locator('.gallery-all-button').click();
+  const urls = await page.locator('#gallery-data').evaluate((el) => {
+    const photo = JSON.parse((el as HTMLElement).dataset.photos!)[0];
+    const candidates = [photo.src, ...photo.srcset.split(',').map((item: string) => item.trim().split(' ')[0])];
+    return candidates.map((url: string) => new URL(url, location.href).href);
+  });
+  let failed = false;
+  await page.route((url) => urls.includes(url.href), (route) => {
+    if (failed) return route.continue();
+    failed = true;
+    return route.abort();
+  });
+  await firstThumb(page).click();
   await expect(page.locator('#gallery-load-status')).toContainText('불러오지 못했어요');
   await expect(page.locator('#gallery-image')).toBeHidden();
   await page.getByRole('button', { name: '사진 다시 불러오기' }).click();
   await expect(page.locator('#gallery-image')).toBeVisible();
   await expect(page.locator('#gallery-load-status')).toBeEmpty();
-  await expect(page.locator('#gallery-counter')).toHaveText('01 / 03');
+  await expect(counter(page)).toHaveText(/^01 \//);
 });
 
-test('story albums are separate from the full gallery', async ({ page }) => {
+test('thumbnails are links to the full photo and the next photo is preloaded', async ({ page }) => {
   await page.goto('./');
-  await expect(page.locator('#story [data-album]')).toHaveCount(3);
-  await expect(page.locator('.highlight')).toHaveCount(3);
-  await expect(page.locator('.photo-strip [data-gallery]')).toHaveCount(2);
-  await page.locator('.album-feature').click();
-  await expect(page.locator('#gallery-label')).toHaveText('이야기 앨범 · 처음 만난 날');
-  await expect(page.locator('#gallery-counter')).toHaveText('01 / 01');
-  await expect(page.locator('[data-gallery-next]')).toBeHidden();
-  await expect(page.locator('#gallery-story')).toContainText('그날의 짧은 인사');
-  await page.getByRole('button', { name: '사진 닫기', exact: true }).click();
-  await expect(page.locator('#gallery-dialog')).toBeHidden();
-  await page.locator('.gallery-all-button').click();
-  await expect(page.locator('#gallery-label')).toHaveText('사진 전체');
-  await expect(page.locator('#gallery-counter')).toHaveText('01 / 03');
-  await expect(page.locator('[data-gallery-next]')).toBeVisible();
-});
-
-test('multi-photo albums follow their own order and keep the album story', async ({ page }) => {
-  await page.route('**/', async (route) => {
-    const response = await route.fetch();
-    const html = await response.text();
-    const fixture = JSON.stringify([{ id: 'beginning', title: '두 장의 기록', story: '같은 이야기 속 두 순간', photoIds: ['hands', 'garden'] }]).replaceAll('"', '&quot;');
-    await route.fulfill({ response, body: html.replace(/data-albums="[^"]*"/, 'data-albums="' + fixture + '"') });
-  });
-  await page.goto('./');
-  await page.locator('.album-feature').click();
-  await expect(page.locator('#gallery-title')).toHaveText('두 장의 기록');
-  await expect(page.locator('#gallery-counter')).toHaveText('01 / 02');
-  await expect(page.locator('#gallery-image')).toHaveAttribute('alt', /손을 맞잡은/);
-  await page.getByRole('button', { name: '다음 사진', exact: true }).click();
-  await expect(page.locator('#gallery-image')).toHaveAttribute('alt', /이마에 입 맞추는/);
-  await expect(page.locator('#gallery-story')).toHaveText('같은 이야기 속 두 순간');
-  await page.getByRole('button', { name: '다음 사진', exact: true }).click();
-  await expect(page.locator('#gallery-counter')).toHaveText('01 / 02');
+  const photos = await page.locator('#gallery-data').evaluate((el) => JSON.parse((el as HTMLElement).dataset.photos!));
+  await expect(firstThumb(page)).toHaveAttribute('href', photos[0].src);
+  expect(photos[0].src).toMatch(/\.webp$/);
+  const requested: string[] = [];
+  page.on('request', (request) => requested.push(new URL(request.url()).pathname));
+  await firstThumb(page).click();
+  await expect(counter(page)).toHaveText(/^01 \//);
+  const next = photos[1].srcset.split(',').map((item: string) => new URL(item.trim().split(' ')[0], page.url()).pathname);
+  await expect.poll(() => requested.some((path) => next.includes(path))).toBe(true);
 });
 
 test('Back closes a dialog, Forward restores its selection, and close consumes its history entry', async ({ page }) => {
   await page.goto('./?previous=1');
   const previous = page.url();
-  await page.goto('./#moments');
+  await page.goto('./#gallery');
   await page.addStyleTag({ content: 'html { scroll-behavior: auto !important; }' });
   const invitationURL = page.url();
-  const trigger = page.locator('.gallery-all-button');
+  const trigger = firstThumb(page);
   await trigger.scrollIntoViewIfNeeded();
   const y = await page.evaluate(() => window.scrollY);
   await trigger.click();
@@ -116,21 +118,32 @@ test('Back closes a dialog, Forward restores its selection, and close consumes i
   expect(Math.abs(await page.evaluate(() => window.scrollY) - y)).toBeLessThan(5);
   await page.goForward();
   await expect(page.locator('#gallery-dialog')).toBeVisible();
-  await expect(page.locator('#gallery-title')).toHaveText('우리의 여행');
+  await expect(counter(page)).toHaveText(/^02 \//);
   await page.getByRole('button', { name: '사진 닫기', exact: true }).click();
   await expect(page.locator('#gallery-dialog')).toBeHidden();
   await page.goBack();
   await expect(page).toHaveURL(previous);
 });
 
-test('contact section is hidden without phone numbers, and accounts show the real entries', async ({ page }) => {
+test('contact is hidden without phone numbers, and accounts are grouped by side', async ({ page }) => {
   await page.goto('./');
   await expect(page.locator('[data-open-contact], #contact-dialog')).toHaveCount(0);
   await expect(page.locator('.mobile-dock [data-share]')).toBeVisible();
-  await page.locator('.accounts summary').click();
-  await expect(page.locator('.account-row')).toHaveCount(2);
-  await expect(page.locator('.account-row', { hasText: '이찬영' })).toContainText('신한');
-  await expect(page.locator('.account-row', { hasText: '임예지' })).toContainText('국민');
+  await expect(page.locator('.accounts')).toHaveCount(2);
+  await page.locator('.accounts summary', { hasText: '신랑측' }).click();
+  await expect(page.locator('.account-row', { hasText: '이찬영' })).toContainText('신한 110-235-729687');
+  await page.locator('.accounts summary', { hasText: '신부측' }).click();
+  await expect(page.locator('.account-row', { hasText: '임예지' })).toContainText('국민 373301-01-415845');
+});
+
+test('the dock stays off the cover and appears once the invitation is on screen', async ({ page }) => {
+  await page.goto('./');
+  const dock = page.locator('.mobile-dock');
+  await expect(dock).not.toHaveClass(/is-shown/);
+  expect(await dock.evaluate((el) => (el as HTMLElement).inert)).toBe(true);
+  await page.locator('#gallery').evaluate((el) => el.scrollIntoView());
+  await expect(dock).toHaveClass(/is-shown/);
+  expect(await dock.evaluate((el) => (el as HTMLElement).inert)).toBe(false);
 });
 
 test('sharing falls back to a copyable URL when browser permissions fail', async ({ page, baseURL }) => {
@@ -138,7 +151,7 @@ test('sharing falls back to a copyable URL when browser permissions fail', async
     Object.defineProperty(navigator, 'share', { value: undefined });
     Object.defineProperty(navigator, 'clipboard', { value: { writeText: async () => { throw new Error('denied'); } } });
   });
-  await page.goto('./#moments');
+  await page.goto('./#location');
   await page.locator('.share-button').click();
   await expect(page.locator('#copy-dialog')).toBeVisible();
   await expect(page.locator('#copy-value')).toHaveValue(baseURL!);
@@ -156,17 +169,33 @@ test('calendar download uses Korea event time and March 13 is Saturday', async (
   expect(ics).toContain('DTEND:20270313T044000Z');
   expect(ics).toContain('[샘플]');
   expect(ics).toContain('\r\nEND:VCALENDAR');
-  await expect(page.locator('td:nth-child(7) .wedding-day')).toHaveText('13');
+  await expect(page.locator('td:nth-child(7) .wedding-day')).toHaveText('13일 결혼식');
 });
 
-test('heart is a local toggle and survives reload', async ({ page }) => {
+test('the D-day line counts down in Korea time and changes on the day', async ({ page }) => {
+  const countdown = page.locator('.countdown');
+  await page.clock.setFixedTime(new Date('2027-03-11T23:30:00+09:00'));
   await page.goto('./');
-  await page.locator('.like-button').click();
-  await expect(page.locator('.like-button')).toHaveAttribute('aria-pressed', 'true');
+  await expect(countdown).toHaveText('결혼식까지 2일 남았습니다');
+  await page.clock.setFixedTime(new Date('2027-03-13T09:00:00+09:00'));
   await page.reload();
-  await expect(page.locator('.like-button')).toHaveAttribute('aria-pressed', 'true');
-  await page.locator('.like-button').click();
-  await expect(page.locator('.like-button')).toHaveAttribute('aria-pressed', 'false');
+  await expect(countdown).toHaveText('오늘, 저희 결혼합니다');
+  await page.clock.setFixedTime(new Date('2027-03-14T09:00:00+09:00'));
+  await page.reload();
+  await expect(countdown).toHaveText('함께해 주셔서 감사합니다');
+});
+
+test('the share image frames the couple and its declared size matches the file', async ({ page, request }) => {
+  await page.goto('./');
+  const url = await page.locator('meta[property="og:image"]').getAttribute('content');
+  const width = Number(await page.locator('meta[property="og:image:width"]').getAttribute('content'));
+  const height = Number(await page.locator('meta[property="og:image:height"]').getAttribute('content'));
+  const response = await request.get(new URL(url!).pathname);
+  expect(response.ok()).toBe(true);
+  const { default: sharp } = await import('sharp');
+  const meta = await sharp(await response.body()).metadata();
+  expect([meta.width, meta.height]).toEqual([width, height]);
+  expect(Math.abs(width / height - 1200 / 630)).toBeLessThan(0.01);
 });
 
 test('layout reflows at narrow, tablet and desktop widths', async ({ page }) => {
@@ -181,6 +210,9 @@ test('layout reflows at narrow, tablet and desktop widths', async ({ page }) => 
   const cover = await page.locator('.cover').boundingBox();
   const content = await page.locator('.invitation-content').boundingBox();
   expect(content!.x).toBeGreaterThanOrEqual(cover!.width - 1);
+  await expect(page.locator('.section-nav')).toBeVisible();
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.locator('.section-nav')).toBeHidden();
 });
 
 test('reduced motion removes the cover animation and basic content needs no JS', async ({ browser }) => {
@@ -188,8 +220,9 @@ test('reduced motion removes the cover animation and basic content needs no JS',
   const basePath = process.env.BASE_PATH || '/';
   await page.goto('http://localhost:4322' + basePath.replace(/\/$/, '') + '/');
   await expect(page.locator('.cover-image')).toHaveCSS('animation-name', 'none');
-  await expect(page.locator('.event-date')).toContainText('2027년');
+  await expect(page.locator('.save-date-when')).toContainText('2027년');
   await expect(page.locator('.calendar-link')).toBeVisible();
+  await expect(page.locator('.gallery-thumb').first()).toBeVisible();
   await page.close();
 });
 
@@ -216,11 +249,11 @@ test('enlarged text keeps information available on a narrow screen', async ({ pa
   await page.setViewportSize({ width: 320, height: 800 });
   await page.goto('./');
   await page.evaluate(() => {
-    const items = Array.from(document.querySelectorAll<HTMLElement>('h1,h2,h3,p,a,button,span,th,td,summary'));
+    const items = Array.from(document.querySelectorAll<HTMLElement>('h1,h2,h3,p,a,button,span,th,td,summary,dt,dd'));
     const sizes = items.map((el) => parseFloat(getComputedStyle(el).fontSize));
     items.forEach((el, index) => { el.style.fontSize = sizes[index] * 2 + 'px'; });
   });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
-  await page.locator('#wedding-info').scrollIntoViewIfNeeded();
-  await expect(page.locator('.event-date')).toContainText('오후 12:10');
+  await page.locator('#invitation').scrollIntoViewIfNeeded();
+  await expect(page.locator('.save-date-when')).toContainText('오후 12시 10분');
 });

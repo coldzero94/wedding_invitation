@@ -7,3 +7,5 @@ dist/
 test-results/
 playwright-report/
 .DS_Store
+photos-inbox/
+.claude/settings.local.json

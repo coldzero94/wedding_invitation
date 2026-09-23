@@ -6,7 +6,6 @@ type WeddingDetails = {
   venue: { name: string; address: string; mapLinks: { label: string; url: string }[] };
   accounts: { side: string; name: string; bank: string; number: string }[];
   hero: { alt: string };
-  photos: { id: string; alt: string }[];
 };
 
 export function validateWedding(data: WeddingDetails, release = false): string[] {
@@ -28,7 +27,6 @@ export function validateWedding(data: WeddingDetails, release = false): string[]
   if (!Number.isInteger(data.durationMinutes) || data.durationMinutes <= 0) errors.push('예식 소요 시간은 양의 정수(분)여야 합니다.');
   required(data.venue.name, '예식장 이름');
   required(data.hero.alt, '표지 사진 설명');
-  for (const photo of data.photos) required(photo.alt, '사진 ' + photo.id + ' 설명');
   for (const map of data.venue.mapLinks) {
     required(map.label, '지도 버튼 이름');
     try {
