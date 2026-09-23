@@ -182,14 +182,14 @@ type KakaoShareLink = { mobileWebUrl: string; webUrl: string };
 type KakaoSDK = {
   isInitialized: () => boolean;
   init: (key: string) => void;
-  Share: { sendDefault: (options: { objectType: 'feed'; content: { title: string; description: string; imageUrl: string; link: KakaoShareLink }; buttons: { title: string; link: KakaoShareLink }[] }) => void };
+  Share: { sendDefault: (options: { objectType: 'feed'; content: { title: string; description: string; imageUrl: string; imageWidth?: number; imageHeight?: number; link: KakaoShareLink }; buttons: { title: string; link: KakaoShareLink }[] }) => void };
 };
 declare global { interface Window { Kakao?: KakaoSDK } }
 
 // The Kakao SDK <script> tag (head, not deferred) has already run by the time this module executes.
 const kakaoButton = document.querySelector<HTMLButtonElement>('[data-kakao-share]');
 if (kakaoButton && window.Kakao) {
-  const { kakaoJsKey, kakaoTitle, kakaoDescription, kakaoImage, kakaoUrl, kakaoMapUrl } = kakaoButton.dataset;
+  const { kakaoJsKey, kakaoTitle, kakaoDescription, kakaoImage, kakaoImageWidth, kakaoImageHeight, kakaoUrl, kakaoMapUrl } = kakaoButton.dataset;
   if (kakaoJsKey && kakaoTitle && kakaoDescription && kakaoImage && kakaoUrl && kakaoMapUrl) {
     const kakao = window.Kakao;
     if (!kakao.isInitialized()) kakao.init(kakaoJsKey);
@@ -197,7 +197,7 @@ if (kakaoButton && window.Kakao) {
     kakaoButton.addEventListener('click', () => {
       kakao.Share.sendDefault({
         objectType: 'feed',
-        content: { title: kakaoTitle, description: kakaoDescription, imageUrl: kakaoImage, link: { mobileWebUrl: kakaoUrl, webUrl: kakaoUrl } },
+        content: { title: kakaoTitle, description: kakaoDescription, imageUrl: kakaoImage, imageWidth: Number(kakaoImageWidth) || undefined, imageHeight: Number(kakaoImageHeight) || undefined, link: { mobileWebUrl: kakaoUrl, webUrl: kakaoUrl } },
         buttons: [
           { title: '청첩장 보기', link: { mobileWebUrl: kakaoUrl, webUrl: kakaoUrl } },
           { title: '위치 보기', link: { mobileWebUrl: kakaoMapUrl, webUrl: kakaoMapUrl } },

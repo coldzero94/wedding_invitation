@@ -10,7 +10,7 @@ import { loadGallery } from '../lib/gallery';
 import { year, month, day, longDate, time, shortDate, weekday, firstWeekday, daysInMonth } from '../lib/event';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '') + '/';
-const title = (wedding.isDemo ? '[샘플] ' : '') + wedding.groom.name + ' & ' + wedding.bride.name + ' — 결혼합니다';
+const title = wedding.groom.name + ' & ' + wedding.bride.name + ', 결혼합니다';
 const canonical = new URL(base, Astro.site);
 // Probe sizes through getImage attributes: reading properties of an imported image would publish the original file.
 const heroSource = (await getImage({ src: wedding.hero.image })).attributes;
@@ -25,6 +25,10 @@ const ogUrl = new URL(og.src, Astro.site).href;
 const venueLabel = [wedding.venue.name, wedding.venue.detail].filter(Boolean).join(' · ');
 const summary = longDate + ' ' + time + ' · ' + wedding.venue.name;
 const kakaoJsKey = (process.env.KAKAO_JS_KEY || '').trim();
+// Kakao crops feed images to a square unless told the size, so the share card gets its own 3:4 portrait (hero.kakao when set).
+// Always generated: an imported image that is never transformed would be published as the original.
+const kakaoImage = await getImage({ src: wedding.hero.kakao || wedding.hero.image, width: 900, height: 1200, fit: 'cover', position: 'top', format: 'jpg' });
+const kakaoImageUrl = new URL(kakaoImage.src, Astro.site).href;
 const kakaoMapUrl = wedding.venue.mapLinks.find((map) => map.label.includes('카카오'))?.url || wedding.venue.mapLinks[0]?.url || canonical.href;
 const contacts = [{ ...wedding.groom, role: '신랑' }, { ...wedding.bride, role: '신부' }].filter((person) => person.phone.trim());
 const showContact = contacts.length > 0;
@@ -239,7 +243,9 @@ const dates = Array.from({ length: daysInMonth }, (_, i) => i + 1);
                 data-kakao-js-key={kakaoJsKey}
                 data-kakao-title={title}
                 data-kakao-description={summary}
-                data-kakao-image={ogUrl}
+                data-kakao-image={kakaoImageUrl}
+                data-kakao-image-width={String(kakaoImage.attributes.width)}
+                data-kakao-image-height={String(kakaoImage.attributes.height)}
                 data-kakao-url={canonical.href}
                 data-kakao-map-url={kakaoMapUrl}
                 hidden

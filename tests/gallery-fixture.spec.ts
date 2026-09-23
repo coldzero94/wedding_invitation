@@ -85,8 +85,8 @@ test.describe('a 30-photo gallery', () => {
     const files = await readdir(join(dist, '_astro'));
     // Originals keep Vite's plain hash (name.HASH.jpg); generated images add a transform suffix (name.HASH_xyz.ext).
     const jpegs = files.filter((file) => /\.(jpe?g|png)$/i.test(file));
-    expect(jpegs).toHaveLength(1);
-    expect(jpegs[0]).toMatch(/_[\w-]+\.jpe?g$/i);
+    expect(jpegs.length).toBeGreaterThan(0);
+    for (const file of jpegs) expect(file).toMatch(/_[\w-]+\.jpe?g$/i);
     expect(files.filter((file) => /\.(jpe?g|png|webp|avif)$/i.test(file) && !/_[\w-]+\.\w+$/.test(file))).toEqual([]);
   });
 });
