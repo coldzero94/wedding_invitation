@@ -1,10 +1,10 @@
 ---
 import { Image, getImage } from 'astro:assets';
 import cormorantRegular from '@fontsource/cormorant-garamond/files/cormorant-garamond-latin-400-normal.woff2?url';
-import pinyonRegular from '@fontsource/pinyon-script/files/pinyon-script-latin-400-normal.woff2?url';
+import cormorantItalic500 from '@fontsource/cormorant-garamond/files/cormorant-garamond-latin-500-italic.woff2?url';
 import '@fontsource/cormorant-garamond/latin-400.css';
 import '@fontsource/cormorant-garamond/latin-400-italic.css';
-import '@fontsource/pinyon-script/latin-400.css';
+import '@fontsource/cormorant-garamond/latin-500-italic.css';
 import '@fontsource/bebas-neue/latin-400.css';
 import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css';
 import '../../styles/movie.css';
@@ -39,6 +39,20 @@ const cookie = pick(movie.cookie);
 const emptyCells = Array.from({ length: firstWeekday });
 const dates = Array.from({ length: daysInMonth }, (_, i) => i + 1);
 const weeks = Math.ceil((firstWeekday + daysInMonth) / 7);
+// Marquee bulbs: placed one by one along the frame (corners included) so none is ever cut off, in a fixed
+// 330x116 drawing that scales as a whole.
+const MARQUEE = { w: 330, h: 116, inset: 9, gap: 13.5 };
+const marqueeBulbs = (() => {
+  const { w, h, inset, gap } = MARQUEE;
+  const x0 = inset, x1 = w - inset, y0 = inset, y1 = h - inset;
+  const nx = Math.round((x1 - x0) / gap), ny = Math.round((y1 - y0) / gap);
+  const bulbs: { x: number; y: number }[] = [];
+  for (let i = 0; i < nx; i++) bulbs.push({ x: x0 + (x1 - x0) * i / nx, y: y0 });
+  for (let i = 0; i < ny; i++) bulbs.push({ x: x1, y: y0 + (y1 - y0) * i / ny });
+  for (let i = 0; i < nx; i++) bulbs.push({ x: x1 - (x1 - x0) * i / nx, y: y1 });
+  for (let i = 0; i < ny; i++) bulbs.push({ x: x0, y: y1 - (y1 - y0) * i / ny });
+  return bulbs.map((b) => ({ x: Math.round(b.x * 10) / 10, y: Math.round(b.y * 10) / 10 }));
+})();
 ---
 <!doctype html>
 <html lang="ko" class="movie">
@@ -63,7 +77,7 @@ const weeks = Math.ceil((firstWeekday + daysInMonth) / 7);
     <title>{movie.title} | {title}</title>
     <script is:inline>if (location.hash === '#invitation') history.replaceState(null, '', location.pathname + location.search); document.documentElement.classList.add('js'); setTimeout(function () { document.documentElement.classList.add('cover-ready'); }, 2500);</script>
     <link rel="preload" as="font" type="font/woff2" href={cormorantRegular} crossorigin />
-    <link rel="preload" as="font" type="font/woff2" href={pinyonRegular} crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href={cormorantItalic500} crossorigin />
     {kakao.key && <script is:inline defer src="https://developers.kakao.com/sdk/js/kakao.js"></script>}
     <noscript><style>[data-reveal] { opacity: 1 !important; transform: none !important; }</style></noscript>
   </head>
@@ -116,7 +130,7 @@ const weeks = Math.ceil((firstWeekday + daysInMonth) / 7);
         };
         var waits = [image.decode ? image.decode().catch(function () {}) : null];
         if (document.fonts && document.fonts.load) {
-          ['400 1em "Cormorant Garamond"', '400 1em "Pinyon Script"', '300 1em "Pretendard Variable"'].forEach(function (font) {
+          ['400 1em "Cormorant Garamond"', 'italic 500 1em "Cormorant Garamond"', '300 1em "Pretendard Variable"'].forEach(function (font) {
             waits.push(document.fonts.load(font, cover.textContent).catch(function () {}));
           });
         }
@@ -202,6 +216,19 @@ const weeks = Math.ceil((firstWeekday + daysInMonth) / 7);
 
       <section class="scene showing" id="gallery" aria-labelledby="gallery-heading">
         <div class="marquee" data-reveal>
+          <svg class="marquee-frame" viewBox={`0 0 ${MARQUEE.w} ${MARQUEE.h}`} aria-hidden="true">
+            <defs>
+              <radialGradient id="bulb-glow"><stop offset="0" stop-color="#f6dfa8" stop-opacity=".6" /><stop offset="1" stop-color="#f6dfa8" stop-opacity="0" /></radialGradient>
+            </defs>
+            <rect class="marquee-plate" x=".5" y=".5" width={MARQUEE.w - 1} height={MARQUEE.h - 1} rx="10" />
+            <rect class="marquee-panel" x="18" y="18" width={MARQUEE.w - 36} height={MARQUEE.h - 36} rx="3" />
+            {marqueeBulbs.map((bulb, index) => (
+              <g class:list={['bulb', index % 2 ? 'bulb-b' : 'bulb-a']}>
+                <circle cx={bulb.x} cy={bulb.y} r="6.2" fill="url(#bulb-glow)" />
+                <circle class="bulb-core" cx={bulb.x} cy={bulb.y} r="2.4" />
+              </g>
+            ))}
+          </svg>
           <p class="marquee-title" lang="en">NOW SHOWING</p>
         </div>
         <figure class="movie-poster" data-reveal>
