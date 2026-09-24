@@ -1,5 +1,8 @@
 ---
 import { Image, getImage } from 'astro:assets';
+// Same files the @fontsource CSS points at; preloaded so the cover title does not swap fonts mid-entrance.
+import cormorantRegular from '@fontsource/cormorant-garamond/files/cormorant-garamond-latin-400-normal.woff2?url';
+import cormorantItalic from '@fontsource/cormorant-garamond/files/cormorant-garamond-latin-400-italic.woff2?url';
 import '@fontsource/cormorant-garamond/latin-400.css';
 import '@fontsource/cormorant-garamond/latin-400-italic.css';
 import '@fontsource/noto-serif-kr/400.css';
@@ -29,7 +32,9 @@ const kakaoJsKey = (process.env.KAKAO_JS_KEY || '').trim();
 // Always generated: an imported image that is never transformed would be published as the original.
 const kakaoImage = await getImage({ src: wedding.hero.kakao || wedding.hero.image, width: 900, height: 1200, fit: 'cover', position: 'top', format: 'jpg' });
 const kakaoImageUrl = new URL(kakaoImage.src, Astro.site).href;
-const kakaoMapUrl = wedding.venue.mapLinks.find((map) => map.label.includes('카카오'))?.url || wedding.venue.mapLinks[0]?.url || canonical.href;
+// Kakao share buttons may only link to domains registered in the Kakao app (others are swapped for
+// the app's default site), so 위치 보기 opens our own location section, which has the map buttons.
+const kakaoMapUrl = new URL('#location', canonical).href;
 const contacts = [{ ...wedding.groom, role: '신랑' }, { ...wedding.bride, role: '신부' }].filter((person) => person.phone.trim());
 const showContact = contacts.length > 0;
 const accountGroups = (['신랑', '신부'] as const)
@@ -98,7 +103,9 @@ const dates = Array.from({ length: daysInMonth }, (_, i) => i + 1);
     <link rel="apple-touch-icon" href={base + 'apple-touch-icon.png'} />
     <link rel="canonical" href={canonical.href} />
     <title>{title} | OUR SEASON</title>
-    <script is:inline>document.documentElement.classList.add('js');</script>
+    <script is:inline>document.documentElement.classList.add('js'); setTimeout(function () { document.documentElement.classList.add('cover-ready'); }, 3000);</script>
+    <link rel="preload" as="font" type="font/woff2" href={cormorantRegular} crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href={cormorantItalic} crossorigin />
     {kakaoJsKey && <script is:inline src="https://developers.kakao.com/sdk/js/kakao.js"></script>}
     <noscript><style>[data-reveal] { opacity: 1 !important; transform: none !important; }</style></noscript>
   </head>

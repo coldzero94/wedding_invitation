@@ -256,6 +256,8 @@ dialog[open]::backdrop { opacity: 1; }
 @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
 
 /* Cover: the photo settles while the lines arrive one after another. */
+/* Held on the first frame until the photo and fonts are in (html.cover-ready), so it plays once, cleanly. */
+.js:not(.cover-ready) :is(.cover-image, .cover-top, .cover-aside, .cover-kicker, .cover-title-first, .cover h1 em, .couple-name, .cover-date, .cover-venue, .cover-button) { animation-play-state: paused; }
 .cover-top, .cover-aside { animation: fade-in 1.2s var(--ease-out-soft) .3s both; }
 .cover-kicker, .cover h1 .cover-title-first, .cover h1 em, .couple-name, .cover-date, .cover-venue, .cover-button { animation: rise-in 1s var(--ease-out-soft) both; }
 .cover h1 .cover-title-first, .cover h1 em { display: inline-block; }

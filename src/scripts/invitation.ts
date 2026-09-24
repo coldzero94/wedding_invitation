@@ -89,6 +89,14 @@ galleryImage.addEventListener('error', () => {
   retryPhoto.hidden = false;
 });
 retryPhoto.addEventListener('click', () => updatePhoto(selection.index));
+// Start the cover entrance once the photo is decoded and the fonts are in (at most 1.8s), instead of
+// the photo popping in mid-animation and the title re-rendering in its web font.
+const coverImage = document.querySelector<HTMLImageElement>('.cover-image');
+void Promise.race([
+  Promise.all([document.fonts?.ready, coverImage?.decode().catch(() => {})]),
+  new Promise((resolve) => setTimeout(resolve, 1800)),
+]).then(() => document.documentElement.classList.add('cover-ready'));
+
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 let opening = false;
 // Grow the tapped thumbnail into the full photo. Only when the photo is already decoded, so the
