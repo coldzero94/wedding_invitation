@@ -8,7 +8,7 @@ import { validateWedding } from '../lib/validate-wedding';
 // 갤러리 사진은 photos-inbox 폴더에 넣고 npm run photos 를 실행하면 src/assets/gallery 에 정리됩니다.
 // 전화번호·계좌·지도 링크·부모님 성함이 비어 있으면 해당 영역을 표시하지 않습니다.
 export const wedding = {
-  isDemo: true,
+  isDemo: false,
   // father·mother에 부모님 성함을 넣으면 "이○○ · 김○○ 의 장남 찬영"처럼 표시됩니다.
   // relation을 비우면 '아들'·'딸'로 표시합니다. 고인은 '故 이○○'처럼 적어 주세요.
   groom: { name: '찬영', fullName: '이찬영', phone: '', father: '', mother: '', relation: '' },

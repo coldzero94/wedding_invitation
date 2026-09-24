@@ -18,7 +18,7 @@ test('photos and required information work without JavaScript errors', async ({ 
   await expect(page.locator('.cover-date')).toContainText('오후 12시 10분');
   await expect(page.locator('#story, .album-feature, .feed-post, .like-button')).toHaveCount(0);
   await expect(page.locator('video, iframe')).toHaveCount(0);
-  await expect(page.locator('.demo-note')).toContainText('예시');
+  await expect(page.locator('.demo-note')).toHaveCount(0);
   expect(errors).toEqual([]);
   const image = page.locator('.cover-image');
   expect(await image.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
@@ -166,7 +166,8 @@ test('calendar download uses Korea event time and March 13 is Saturday', async (
   const ics = await response.text();
   expect(ics).toContain('DTSTART:20270313T031000Z');
   expect(ics).toContain('DTEND:20270313T044000Z');
-  expect(ics).toContain('[샘플]');
+  expect(ics).toContain('SUMMARY:찬영 & 예지 결혼식');
+  expect(ics).not.toContain('[샘플]');
   expect(ics).toContain('\r\nEND:VCALENDAR');
   await expect(page.locator('td:nth-child(7) .wedding-day')).toHaveText('13일 결혼식');
 });
