@@ -137,13 +137,13 @@ const dates = Array.from({ length: daysInMonth }, (_, i) => i + 1);
 
         <section class="paper-section intro-section section-pad" id="invitation" aria-labelledby="invitation-heading">
           <h2 class="visually-hidden" id="invitation-heading">결혼식에 초대합니다</h2>
-          <div class="save-date" data-reveal>
+          <div class="save-date" data-reveal data-arrive>
             <p class="eyebrow ruled-label" lang="en">SAVE THE DATE</p>
             <p class="display-date"><span aria-hidden="true">{[...shortDate].map((char, i) => <span class="date-char" style={`--c: ${i}`}>{char}</span>)}</span><span class="visually-hidden">{shortDate}</span></p>
             <p class="save-date-when">{longDate} {time}</p>
             <p class="save-date-venue">{wedding.venue.name}</p>
           </div>
-          <div class="calendar" data-reveal>
+          <div class="calendar" data-reveal data-arrive>
             <p class="calendar-month">{year}<span> / </span>{String(month).padStart(2, '0')}</p>
             <table aria-label={year + '년 ' + month + '월 결혼식 달력'}>
               <thead><tr>{['일', '월', '화', '수', '목', '금', '토'].map((d) => <th scope="col">{d}</th>)}</tr></thead>

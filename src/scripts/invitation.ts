@@ -281,6 +281,28 @@ if ('IntersectionObserver' in window) {
   document.querySelectorAll('[data-reveal]').forEach((el) => el.classList.add('is-visible'));
 }
 
+// Moments the guest should actually watch start only once the scroll has come to rest with them
+// on screen, so "초대장 열기" does not play them mid-scroll.
+const arriving = document.querySelectorAll<HTMLElement>('[data-arrive]');
+if ('IntersectionObserver' in window) {
+  let lastScroll = 0;
+  window.addEventListener('scroll', () => { lastScroll = performance.now(); }, { passive: true });
+  const whenSettled = (run: () => void) => {
+    const check = () => (performance.now() - lastScroll > 140 ? run() : setTimeout(check, 60));
+    check();
+  };
+  const arrivals = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      arrivals.unobserve(entry.target);
+      whenSettled(() => entry.target.classList.add('is-arrived'));
+    }
+  }, { threshold: .6 });
+  arriving.forEach((el) => arrivals.observe(el));
+} else {
+  arriving.forEach((el) => el.classList.add('is-arrived'));
+}
+
 // The dock stays out of the way on the cover and appears once the invitation itself is on screen.
 const dock = document.querySelector<HTMLElement>('.mobile-dock');
 const cover = document.querySelector<HTMLElement>('.cover');

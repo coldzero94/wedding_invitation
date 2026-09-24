@@ -267,11 +267,12 @@ dialog[open]::backdrop { opacity: 1; }
 .cover-venue { animation-delay: .93s; }
 .cover-button { animation-delay: 1.01s; }
 
-/* SAVE THE DATE: the digits arrive one by one, then a ring is drawn around the day before it fills. */
+/* SAVE THE DATE: once the guest has stopped on it (data-arrive), the digits arrive one by one,
+   then a ring is drawn around the day before it fills. */
 .date-char { display: inline-block; transition: opacity .7s var(--ease-out-soft), transform .7s var(--ease-out-soft); transition-delay: calc(.15s + var(--c) * 45ms); }
-.js .save-date:not(.is-visible) .date-char { opacity: 0; transform: translateY(.25em); }
-.js .calendar:not(.is-visible) .wedding-day { color: inherit; background: transparent; transition: none; }
-.js .calendar:not(.is-visible) .day-ring circle { stroke-dashoffset: 1; transition: none; }
+.js .save-date:not(.is-arrived) .date-char { opacity: 0; transform: translateY(.25em); }
+.js .calendar:not(.is-arrived) .wedding-day { color: inherit; background: transparent; transition: none; }
+.js .calendar:not(.is-arrived) .day-ring circle { stroke-dashoffset: 1; transition: none; }
 
 /* Phones: the cover photo drifts a little slower than the page as it scrolls away. */
 @supports (animation-timeline: scroll()) {
