@@ -22,9 +22,9 @@ const heroSource = (await getImage({ src: wedding.hero.image })).attributes;
 const heroWidth = Math.min(1200, Number(heroSource.width));
 const heroHeight = Math.round(heroWidth * Number(heroSource.height) / Number(heroSource.width));
 const heroWidths = [...new Set([480, 800, heroWidth].filter((w) => w <= heroWidth))];
-// A ~1KB blurred copy of the cover inlined in the HTML: the very first paint already shows the photo,
-// softly, and the real image fades in over it. (Same file wedding.ts imports as hero.image.)
-const lqip = 'data:image/webp;base64,' + (await sharp(join(process.cwd(), 'src/assets/photos/hero.jpg')).rotate().resize(24).webp({ quality: 50 }).toBuffer()).toString('base64');
+// A ~260-byte, already-blurred copy of the cover inlined in the HTML: the very first paint shows the photo
+// softly and the real image fades in over it. Blurred here, not with a CSS filter the phone would redo. (Same file wedding.ts imports as hero.image.)
+const lqip = 'data:image/webp;base64,' + (await sharp(join(process.cwd(), 'src/assets/photos/hero.jpg')).rotate().resize(32).blur(1.2).webp({ quality: 55 }).toBuffer()).toString('base64');
 const ogWidth = heroWidth;
 const ogHeight = Math.round(ogWidth * 630 / 1200);
 // hero.og is an optional landscape crop for link previews; otherwise sharp picks the focus.
@@ -149,7 +149,16 @@ const dates = Array.from({ length: daysInMonth }, (_, i) => i + 1);
         // start the entrance once the photo is decoded and the cover's fonts are in, at most 1.5s.
         (function () {
           var root = document.documentElement, cover = document.querySelector('.cover'), image = cover.querySelector('.cover-image');
-          var go = function () { root.classList.add('cover-ready'); };
+          var start = Date.now(), done = false;
+          // Everything already cached (a repeat visit, a reload): show the finished cover at once. Whether a
+          // near-instant entrance would even play depends on paint timing, which is what made reopening in
+          // KakaoTalk stutter; the entrance is kept for when the guest actually waited for it.
+          var go = function () {
+            if (done) return;
+            done = true;
+            if (Date.now() - start < 200) root.classList.add('cover-instant');
+            root.classList.add('cover-ready');
+          };
           var waits = [image.decode ? image.decode().catch(function () {}) : null];
           if (document.fonts && document.fonts.load) {
             ['400 1em "Cormorant Garamond"', 'italic 400 1em "Cormorant Garamond"', '400 1em "Noto Serif KR"'].forEach(function (font) {

@@ -55,8 +55,8 @@ h1, h2, h3 { font-weight: 400; }
 /* Cover */
 .cover { isolation: isolate; position: relative; min-height: 860px; min-height: max(780px, 100svh); display: flex; flex-direction: column; overflow: hidden; overflow: clip; background: var(--ink); }
 .cover-lqip, .cover-image, .cover-shade { position: absolute; z-index: -1; inset: 0; width: 100%; height: 100%; }
-/* Blurred placeholder under the photo; scaled so the blur's soft edges stay outside the frame. */
-.cover-lqip { background-size: cover; filter: blur(14px); transform: scale(1.08); }
+/* Pre-blurred placeholder under the photo (no CSS filter, so nothing for the phone to recompute). */
+.cover-lqip { background-size: cover; }
 .cover-image { object-fit: cover; object-position: 52% 25%; }
 .cover-shade { background: linear-gradient(180deg, rgba(12,18,13,.52) 0%, rgba(17,22,16,.04) 26%, rgba(16,21,15,.08) 38%, rgba(18,23,17,.77) 70%, var(--ink) 100%); }
 .cover-top { padding: 30px 26px 0; display: flex; flex-wrap: wrap; align-items: center; gap: 15px; }
@@ -286,7 +286,7 @@ dialog[open]::backdrop { opacity: 1; }
    only declared under .cover-ready: WebKit styles the page once before the stylesheet arrives, and a
    transition present from the start would visibly fade the cover *out* into its hidden state. */
 .cover h1 .cover-title-first, .cover h1 em { display: inline-block; }
-.cover-ready .cover-image { transition: opacity .9s var(--ease-out-soft), transform 2.4s var(--ease-out-soft); }
+.cover-ready .cover-image { transition: opacity .9s var(--ease-out-soft); }
 .cover-ready :is(.cover-top, .cover-aside) { transition: opacity 1.2s var(--ease-out-soft) .15s; }
 /* :where keeps this at low specificity so the per-line delays below apply. */
 .cover-ready :where(.cover-kicker, .cover-title-first, .cover h1 em, .couple-name, .cover-date, .cover-venue) { transition: opacity 1s var(--ease-out-soft), transform 1s var(--ease-out-soft); }
@@ -298,7 +298,9 @@ dialog[open]::backdrop { opacity: 1; }
 .cover-ready .couple-name { transition-delay: .52s; }
 .cover-ready .cover-date { transition-delay: .62s; }
 .cover-ready .cover-venue { transition-delay: .7s; }
-.js:not(.cover-ready) .cover-image { opacity: 0; transform: scale(1.06); }
+.js:not(.cover-ready) .cover-image { opacity: 0; }
+/* Repeat visits (everything cached): the finished cover, with no entrance to race the first paint. */
+.cover-instant .cover :is(.cover-image, .cover-top, .cover-aside, .cover-kicker, .cover-title-first, h1 em, .couple-name, .cover-date, .cover-venue, .cover-button) { transition: none !important; }
 .js:not(.cover-ready) :is(.cover-top, .cover-aside, .cover-button) { opacity: 0; }
 .js:not(.cover-ready) :is(.cover-kicker, .cover-title-first, .cover h1 em, .couple-name, .cover-date, .cover-venue) { opacity: 0; transform: translateY(14px); }
 
