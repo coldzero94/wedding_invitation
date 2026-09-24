@@ -1,5 +1,5 @@
 ---
-interface Props { name: 'arrow' | 'down' | 'close' | 'heart' | 'bookmark' | 'pin' | 'phone' | 'copy' | 'calendar' | 'share' | 'plus' | 'left' | 'right'; size?: number; }
+interface Props { name: 'arrow' | 'down' | 'close' | 'heart' | 'bookmark' | 'pin' | 'phone' | 'copy' | 'calendar' | 'share' | 'plus' | 'left' | 'right' | 'parking'; size?: number; }
 const { name, size = 20 } = Astro.props;
 const paths = {
   arrow: 'M4 12h16m-6-6 6 6-6 6',
@@ -15,6 +15,7 @@ const paths = {
   plus: 'M12 5v14M5 12h14',
   left: 'm14 6-6 6 6 6',
   right: 'm10 6 6 6-6 6',
+  parking: 'M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2ZM10 17V7h3.5a3 3 0 0 1 0 6H10',
 };
 ---
 <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d={paths[name]} /></svg>

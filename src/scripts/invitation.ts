@@ -7,11 +7,12 @@ const lightboxSizes = galleryData?.dataset.sizes || '100vw';
 const gallery = document.querySelector<HTMLDialogElement>('#gallery-dialog')!;
 const contact = document.querySelector<HTMLDialogElement>('#contact-dialog');
 const copyDialog = document.querySelector<HTMLDialogElement>('#copy-dialog')!;
+const parking = document.querySelector<HTMLDialogElement>('#parking-dialog');
 const galleryImage = document.querySelector<HTMLImageElement>('#gallery-image')!;
 const galleryCaption = document.querySelector<HTMLElement>('#gallery-caption')!;
 const galleryCounter = document.querySelector<HTMLElement>('#gallery-counter')!;
 const toastElement = document.querySelector<HTMLElement>('.toast')!;
-const dialogs = [gallery, contact, copyDialog].filter((dialog): dialog is HTMLDialogElement => dialog !== null);
+const dialogs = [gallery, contact, copyDialog, parking].filter((dialog): dialog is HTMLDialogElement => dialog !== null);
 const navigation = createDialogNavigation(dialogs);
 const loadStatus = document.querySelector<HTMLElement>('#gallery-load-status')!;
 const retryPhoto = document.querySelector<HTMLButtonElement>('[data-gallery-retry]')!;
@@ -192,6 +193,13 @@ if (galleryGrid && galleryMore) {
   });
 }
 
+// The button is a link to the first guide image, so it still works without JavaScript.
+document.querySelector('[data-open-parking]')?.addEventListener('click', (event) => {
+  if (!parking || (event as MouseEvent).metaKey || (event as MouseEvent).ctrlKey) return;
+  event.preventDefault();
+  navigation.open(parking, () => { parking.scrollTop = 0; });
+});
+document.querySelector('[data-close-parking]')?.addEventListener('click', () => { if (parking) navigation.close(parking); });
 document.querySelectorAll<HTMLElement>('[data-open-contact]').forEach((button) => button.addEventListener('click', () => {
   if (contact) navigation.open(contact);
 }));

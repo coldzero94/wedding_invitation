@@ -1,6 +1,8 @@
 import hero from '../assets/photos/hero.jpg';
 import heroOg from '../assets/photos/og.jpg';
 import heroKakao from '../assets/photos/kakao.jpg';
+import parkingNotice from '../assets/parking/01-notice.jpg';
+import parkingRoute from '../assets/parking/02-route.jpg';
 import type { GalleryOverride } from '../lib/gallery-core';
 import { validateWedding } from '../lib/validate-wedding';
 
@@ -27,7 +29,13 @@ export const wedding = {
     ],
     transport: [
       { title: '지하철', description: '5호선 발산역에서 도보 3~5분 거리입니다.' },
+      { title: '주차', description: '예식장 건물 주차장을 이용해 주세요.\n만차 시에는 주차 안내원이 드리는 주차권을 받아 이대서울병원 주차장(C관 J·K·L 구역)을 이용하시고, 출차 전 컨벤션 1층 안내데스크에 주차권을 제출해 주세요.' },
     ] as { title: string; description: string }[],
+    // Shown full screen from the 주차 안내 보기 button, in this order.
+    parkingGuide: [
+      { image: parkingNotice, alt: '만차 시 이대서울병원 주차장 이용 안내: 주차 안내원이 주는 주차권을 받아 이대서울병원 주차장에 주차하고, C관 엘리베이터로 1층 남문 방향 출구로 나와 길을 건너 식장으로 이동합니다. 출차 전 컨벤션 1층 안내데스크에 주차권을 제출하고 차량을 등록해 주세요. 혼잡할 수 있으니 여유 있게 도착해 주세요.' },
+      { image: parkingRoute, alt: '이대서울병원 주차 후 더뉴컨벤션 웨딩홀 찾아오는 길 8단계: C관 주차안내 유도선을 따라 C관 엘리베이터 근처 J·K·L 구역에 주차, C관 엘리베이터로 1층 이동, 오른쪽의 나가는 곳(남문) 표시를 따라 출구로 나가 바로 앞 횡단보도를 건넌 뒤 왼쪽으로 약 50m 가면 더뉴컨벤션 웨딩홀입니다.' },
+    ],
   },
   // relation(아버지·어머니 등)을 비우면 신랑·신부 본인 계좌로 표시합니다.
   accounts: [

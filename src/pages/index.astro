@@ -80,6 +80,10 @@ const prepared = await Promise.all(photos.map(async (photo) => {
   };
 }));
 const gallery = prepared.map((item) => item.data);
+const parkingGuide = await Promise.all(wedding.venue.parkingGuide.map(async (item) => {
+  const width = Math.min(1440, Number((await getImage({ src: item.image })).attributes.width));
+  return { alt: item.alt, image: await getImage({ src: item.image, width, widths: [...new Set([720, 1080, width].filter((w) => w <= width))], format: 'webp' }) };
+}));
 const emptyCells = Array.from({ length: firstWeekday });
 const dates = Array.from({ length: daysInMonth }, (_, i) => i + 1);
 ---
@@ -223,6 +227,9 @@ const dates = Array.from({ length: daysInMonth }, (_, i) => i + 1);
               {wedding.venue.transport.map((item) => <div><dt>{item.title}</dt><dd>{item.description}</dd></div>)}
             </dl>
           )}
+          {parkingGuide.length > 0 && (
+            <a class="button outline-button parking-button" href={parkingGuide[0].image.src} data-open-parking data-reveal><Icon name="parking" size={18} /> 주차 안내 보기</a>
+          )}
           {showContact && <button type="button" class="button contact-button" data-open-contact><Icon name="phone" size={17} /> 신랑 · 신부에게 연락하기</button>}
         </section>
 
@@ -309,6 +316,12 @@ const dates = Array.from({ length: daysInMonth }, (_, i) => i + 1);
       {contacts.map((person) => (
         <div class="person-contact"><p><span>{person.role}</span><strong>{person.fullName}</strong></p><div><a class="icon-button" href={'tel:' + person.phone} aria-label={person.fullName + '에게 전화'}><Icon name="phone" /></a><a class="text-link" href={'sms:' + person.phone}>문자</a></div></div>
       ))}
+    </dialog>}
+    {parkingGuide.length > 0 && <dialog class="parking-dialog" id="parking-dialog" aria-labelledby="parking-title">
+      <div class="parking-header"><h2 id="parking-title">주차 안내</h2><button type="button" class="icon-button" data-close-parking aria-label="주차 안내 닫기"><Icon name="close" size={24} /></button></div>
+      <div class="parking-images">
+        {parkingGuide.map((item) => <img src={item.image.src} srcset={item.image.srcSet.attribute} sizes="(min-width: 760px) 720px, 100vw" width={item.image.attributes.width} height={item.image.attributes.height} alt={item.alt} loading="lazy" decoding="async" />)}
+      </div>
     </dialog>}
     <dialog class="copy-dialog" id="copy-dialog" aria-labelledby="copy-title">
       <h2 id="copy-title">아래 내용을 복사해 주세요</h2><p>길게 누르거나 선택해 복사할 수 있어요.</p><input id="copy-value" aria-label="복사할 내용" readonly /><button type="button" class="button" data-close-copy>닫기</button>
