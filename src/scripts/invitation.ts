@@ -110,7 +110,10 @@ document.querySelectorAll<HTMLAnchorElement>('a[href^="#"]:not(.skip-link)').for
     if (!target || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
     autoScrollUntil = performance.now() + 1500;
-    target.scrollIntoView({ behavior: reduceMotion.matches ? 'instant' : 'smooth', block: 'start' });
+    const behavior = reduceMotion.matches ? 'instant' : 'smooth';
+    // #top means the very top of the page; scroll there directly rather than to the marker element.
+    if (target.id === 'top') window.scrollTo({ top: 0, behavior });
+    else target.scrollIntoView({ behavior, block: 'start' });
   });
 });
 let opening = false;

@@ -120,8 +120,9 @@ const dates = Array.from({ length: daysInMonth }, (_, i) => i + 1);
     <noscript><style>[data-reveal] { opacity: 1 !important; transform: none !important; }</style></noscript>
   </head>
   <body>
-    <!-- 처음으로 targets this, not the cover: on desktop the cover is sticky, so jumping to it barely scrolls. -->
-    <span id="top"></span>
+    <!-- 처음으로 targets this, not the cover: on desktop the cover is sticky, so jumping to it barely scrolls.
+         A block element: WebKit will not scroll to an empty inline one. -->
+    <div id="top" class="page-top"></div>
     <a class="skip-link" href="#invitation">본문 바로가기</a>
     <div class="invitation-shell">
       <header class="cover">

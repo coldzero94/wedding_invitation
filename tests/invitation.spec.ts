@@ -1,4 +1,4 @@
-import { test, expect, type Page } from '@playwright/test';
+import { test, expect, webkit, devices, type Page } from '@playwright/test';
 
 const counter = (page: Page) => page.locator('#gallery-counter');
 const firstThumb = (page: Page) => page.locator('.gallery-thumb').first();
@@ -297,4 +297,15 @@ test('shared links open on the cover: in-page buttons keep the address clean and
   await page.goto('about:blank');
   await page.goto(clean + '#location');
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(200);
+});
+
+test('처음으로 also works in iPhone WebKit (Safari, KakaoTalk)', async ({ baseURL }) => {
+  // The config pins the Chrome channel for Chromium; WebKit ignores channels, so pass none.
+  const browser = await webkit.launch({ channel: undefined });
+  const page = await (await browser.newContext({ ...devices['iPhone 13'] })).newPage();
+  await page.goto(baseURL!);
+  await page.evaluate(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'instant' }));
+  await page.locator('.back-top').tap();
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
+  await browser.close();
 });
