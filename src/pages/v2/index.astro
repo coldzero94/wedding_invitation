@@ -75,7 +75,7 @@ const marqueeBulbs = (() => {
     <link rel="apple-touch-icon" href={root + 'apple-touch-icon.png'} />
     <link rel="canonical" href={canonical.href} />
     <title>{movie.title} | {title}</title>
-    <script is:inline>if (location.hash === '#invitation') history.replaceState(null, '', location.pathname + location.search); document.documentElement.classList.add('js'); setTimeout(function () { document.documentElement.classList.add('cover-ready'); }, 2500);</script>
+    <script is:inline>if (location.hash === '#invitation') history.replaceState(null, '', location.pathname + location.search); document.documentElement.classList.add('js'); setTimeout(function () { document.documentElement.classList.add('cover-ready'); }, 4000);</script>
     <link rel="preload" as="font" type="font/woff2" href={cormorantRegular} crossorigin />
     <link rel="preload" as="font" type="font/woff2" href={cormorantItalic500} crossorigin />
     {kakao.key && <script is:inline defer src="https://developers.kakao.com/sdk/js/kakao.js"></script>}
@@ -117,25 +117,21 @@ const marqueeBulbs = (() => {
       </div>
     </header>
     <script is:inline>
-      // Same readiness rule as the original page: wait for the poster photo and its fonts (1.5s cap);
-      // if they were already cached, show the finished poster at once with no entrance.
+      // Every visit opens with the full film leader (3, 2, 1: 1.8s), even when everything is cached; the poster
+      // then plays its entrance once the leader has finished and the photo and fonts are in (2.5s cap). The
+      // leader covers the first paint, so the entrance never races it. Reduced motion skips the wait.
       (function () {
         var root = document.documentElement, cover = document.querySelector('.cover'), image = cover.querySelector('.cover-image');
-        var start = Date.now(), done = false;
-        var go = function () {
-          if (done) return;
-          done = true;
-          if (Date.now() - start < 200) root.classList.add('cover-instant');
-          root.classList.add('cover-ready');
-        };
+        var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+        var leaderDone = new Promise(function (resolve) { setTimeout(resolve, reduce ? 0 : 1800); });
         var waits = [image.decode ? image.decode().catch(function () {}) : null];
         if (document.fonts && document.fonts.load) {
           ['400 1em "Cormorant Garamond"', 'italic 500 1em "Cormorant Garamond"', '300 1em "Pretendard Variable"'].forEach(function (font) {
             waits.push(document.fonts.load(font, cover.textContent).catch(function () {}));
           });
         }
-        Promise.all(waits).then(go);
-        setTimeout(go, 1500);
+        var loaded = Promise.race([Promise.all(waits), new Promise(function (resolve) { setTimeout(resolve, 2500); })]);
+        Promise.all([leaderDone, loaded]).then(function () { root.classList.add('cover-ready'); });
       })();
     </script>
 
