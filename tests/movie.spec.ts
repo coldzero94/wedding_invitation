@@ -46,4 +46,16 @@ test.describe('the movie edition (/v2/)', () => {
     await expect(page.locator('.poster-title, .leader')).toHaveCount(0);
     await expect(page.locator('h1')).toContainText('The next');
   });
+
+  test('each edition links to the other', async ({ page, baseURL }) => {
+    await page.goto('./');
+    const toMovie = page.getByRole('link', { name: '영화관 버전으로 보기' });
+    await expect(toMovie).toHaveAttribute('href', new URL(baseURL!).pathname + 'v2/');
+    await toMovie.click();
+    await expect(page).toHaveURL(/\/v2\/$/);
+    await expect(page.locator('.poster-title')).toBeVisible();
+    await page.getByRole('link', { name: '클래식 버전으로 보기' }).click();
+    await expect(page).toHaveURL(baseURL!);
+    await expect(page.locator('h1')).toContainText('The next');
+  });
 });

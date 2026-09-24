@@ -303,7 +303,10 @@ const dates = Array.from({ length: daysInMonth }, (_, i) => i + 1);
           <p class="closing-title" lang="en" data-reveal>To all our<br /><em>tomorrows.</em></p>
           <p class="closing-line" data-reveal style="--reveal-delay:80ms">{wedding.closing}</p>
           <p class="closing-names" data-reveal style="--reveal-delay:140ms">{wedding.groom.name} <span>&</span> {wedding.bride.name}</p>
-          <a class="back-top text-link" href="#top">처음으로 <Icon name="arrow" size={16} /></a>
+          <div class="footer-links">
+            <a class="back-top text-link" href="#top">처음으로 <Icon name="arrow" size={16} /></a>
+            <a class="version-link text-link" href={base + 'v2/'}>영화관 버전으로 보기 <Icon name="arrow" size={16} /></a>
+          </div>
           {wedding.isDemo && <p class="demo-note">SAMPLE PREVIEW<br />사진과 일부 정보는 준비 중인 예시입니다.</p>}
           <p class="footer-mark">OUR SEASON · {year}</p>
         </footer>

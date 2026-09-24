@@ -316,7 +316,8 @@ h1, h2, h3 { font-weight: 400; }
 .the-end { padding: 70px var(--gutter) calc(60px + env(safe-area-inset-bottom)); text-align: center; border-top: 1px solid var(--line); }
 .end-title { font-family: var(--display); font-size: 60px; line-height: 1; }
 .end-line { margin-top: 14px; font-size: 15px; color: var(--cream-2); }
-.back-top { margin-top: 28px; }
+/* 처음으로 and the link back to the classic edition (/) sit side by side. */
+.footer-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 0 22px; margin-top: 28px; }
 .back-top svg { transform: rotate(-90deg); }
 .footer-mark { margin-top: 14px; font-family: var(--marquee); font-size: 12px; letter-spacing: .3em; color: var(--dim); }
 

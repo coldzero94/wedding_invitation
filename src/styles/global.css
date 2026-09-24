@@ -231,7 +231,9 @@ h1, h2, h3 { font-weight: 400; }
 .closing-line { margin-top: 26px; font-family: var(--korean); font-size: 15px; color: var(--muted-sage); word-break: keep-all; }
 .closing-names { margin-top: 20px; font-family: var(--korean); font-size: 17px; letter-spacing: .08em; }
 .closing-names span { margin: 0 10px; font-family: var(--serif); font-size: 24px; color: var(--olive); }
-.back-top { margin-top: 24px; color: var(--olive); }
+/* 처음으로 and the link to the other edition (/v2/) sit side by side. */
+.footer-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 0 22px; margin-top: 24px; }
+.back-top, .version-link { color: var(--olive); }
 .back-top svg { transform: rotate(-90deg); }
 .demo-note { margin-top: 32px; padding-top: 20px; border-top: 1px solid #394331; font-size: 12px; line-height: 1.9; color: var(--muted-olive-gray); word-break: keep-all; }
 .footer-mark { margin-top: 20px; font-family: var(--serif); font-size: 12px; letter-spacing: .22em; color: var(--muted-olive-gray); }

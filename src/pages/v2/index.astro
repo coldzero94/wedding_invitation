@@ -317,7 +317,10 @@ const weeks = Math.ceil((firstWeekday + daysInMonth) / 7);
       <footer class="the-end">
         <p class="end-title" lang="en" data-reveal><em>The End</em></p>
         <p class="end-line" data-reveal>{wedding.closing}</p>
-        <a class="back-top text-link" href="#top">처음으로 <Icon name="arrow" size={16} /></a>
+        <div class="footer-links">
+          <a class="back-top text-link" href="#top">처음으로 <Icon name="arrow" size={16} /></a>
+          <a class="version-link text-link" href={root}>클래식 버전으로 보기 <Icon name="arrow" size={16} /></a>
+        </div>
         <p class="footer-mark" lang="en">{movie.studio} · {year}</p>
       </footer>
     </main>
