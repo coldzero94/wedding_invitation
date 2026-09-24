@@ -29,7 +29,8 @@ function toast(message: string) {
 // Warm the neighbouring photos with the same sizes/srcset so the lightbox picks the cached candidate.
 const warmed = new Map<string, HTMLImageElement>();
 function preload(photo?: Photo) {
-  if (!photo || warmed.has(photo.id)) return;
+  if (!photo) return;
+  if (warmed.has(photo.id)) return warmed.get(photo.id);
   const image = new Image();
   image.decoding = 'async';
   image.sizes = lightboxSizes;
@@ -37,6 +38,14 @@ function preload(photo?: Photo) {
   image.src = photo.src;
   warmed.set(photo.id, image);
   image.addEventListener('error', () => warmed.delete(photo.id));
+  return image;
+}
+const wait = (ms: number) => new Promise<false>((resolve) => setTimeout(() => resolve(false), ms));
+// Resolves true once the photo can be painted, or false if it is not ready within the time limit.
+function ready(image: HTMLImageElement | undefined, ms: number) {
+  if (!image) return Promise.resolve(false);
+  if (image.complete) return Promise.resolve(image.naturalWidth > 0);
+  return Promise.race([image.decode().then(() => true, () => false), wait(ms)]);
 }
 
 function updatePhoto(index: number) {
@@ -80,18 +89,54 @@ galleryImage.addEventListener('error', () => {
   retryPhoto.hidden = false;
 });
 retryPhoto.addEventListener('click', () => updatePhoto(selection.index));
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+let opening = false;
+// Grow the tapped thumbnail into the full photo. Only when the photo is already decoded, so the
+// morph never lands on an empty frame; otherwise the viewer simply fades in as before.
+async function openPhoto(index: number, thumb: HTMLImageElement | null) {
+  if (opening || gallery.open) return;
+  const opened = { index };
+  const show = () => navigation.open(gallery, () => {
+    selection = opened;
+    updatePhoto(selection.index);
+  });
+  if (!document.startViewTransition || reduceMotion.matches || !thumb) return show();
+  opening = true;
+  const ok = await ready(preload(photos[index]), 250);
+  if (!ok || gallery.open) { opening = false; if (!gallery.open) show(); return; }
+  thumb.style.viewTransitionName = 'gallery-photo';
+  gallery.classList.add('is-morphing');
+  const transition = document.startViewTransition(async () => {
+    thumb.style.viewTransitionName = '';
+    galleryImage.style.viewTransitionName = 'gallery-photo';
+    show();
+    if (!galleryImage.complete) await ready(galleryImage, 200);
+    if (galleryImage.complete && galleryImage.naturalWidth > 0) photoLoaded();
+  });
+  transition.finished.finally(() => {
+    galleryImage.style.viewTransitionName = '';
+    gallery.classList.remove('is-morphing');
+    opening = false;
+  });
+}
 // Thumbnails are links to the full photo so they still work without JavaScript.
 document.querySelectorAll<HTMLElement>('[data-gallery]').forEach((trigger) => {
+  const index = photos.findIndex((photo) => photo.id === trigger.dataset.gallery);
+  const thumb = trigger.querySelector('img');
+  // Fade each thumbnail in once it has loaded instead of popping in over the placeholder.
+  if (thumb && !thumb.complete) {
+    thumb.classList.add('is-loading');
+    const loaded = () => thumb.classList.remove('is-loading');
+    thumb.addEventListener('load', loaded, { once: true });
+    thumb.addEventListener('error', loaded, { once: true });
+  }
+  // Start fetching the full photo as soon as a finger or pointer lands on it.
+  trigger.addEventListener('pointerdown', () => preload(photos[index]), { passive: true });
   trigger.addEventListener('click', (event) => {
-    const index = photos.findIndex((photo) => photo.id === trigger.dataset.gallery);
     // Modified clicks keep the link's own behaviour (e.g. open the photo in a new tab).
     if (index < 0 || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
-    const opened = { index };
-    navigation.open(gallery, () => {
-      selection = opened;
-      updatePhoto(selection.index);
-    });
+    void openPhoto(index, thumb);
   });
 });
 document.querySelector('[data-close-gallery]')?.addEventListener('click', () => navigation.close(gallery));

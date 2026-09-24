@@ -56,6 +56,7 @@ test('full gallery supports arrows, close and focus restoration', async ({ page 
 test('touch swipe changes photos and vertical gestures do not', async ({ page }) => {
   await page.goto('./');
   await firstThumb(page).click();
+  await expect(counter(page)).toHaveText(/^01 \//);
   const area = page.locator('.gallery-image-wrap');
   await area.dispatchEvent('touchstart', { touches: [{ identifier: 1, clientX: 250, clientY: 150 }] });
   await area.dispatchEvent('touchend', { changedTouches: [{ identifier: 1, clientX: 80, clientY: 155 }] });
@@ -72,15 +73,13 @@ test('failed gallery photos can be retried without losing the selected photo', a
     const candidates = [photo.src, ...photo.srcset.split(',').map((item: string) => item.trim().split(' ')[0])];
     return candidates.map((url: string) => new URL(url, location.href).href);
   });
-  let failed = false;
-  await page.route((url) => urls.includes(url.href), (route) => {
-    if (failed) return route.continue();
-    failed = true;
-    return route.abort();
-  });
+  // The full photo is also prefetched on tap, so keep it failing until the error is on screen.
+  let offline = true;
+  await page.route((url) => urls.includes(url.href), (route) => offline ? route.abort() : route.continue());
   await firstThumb(page).click();
   await expect(page.locator('#gallery-load-status')).toContainText('불러오지 못했어요');
   await expect(page.locator('#gallery-image')).toBeHidden();
+  offline = false;
   await page.getByRole('button', { name: '사진 다시 불러오기' }).click();
   await expect(page.locator('#gallery-image')).toBeVisible();
   await expect(page.locator('#gallery-load-status')).toBeEmpty();

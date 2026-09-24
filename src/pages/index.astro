@@ -116,7 +116,7 @@ const dates = Array.from({ length: daysInMonth }, (_, i) => i + 1);
         <p class="cover-aside">좋은 날,<br />우리라는 이야기가<br />시작됩니다.</p>
         <div class="cover-bottom">
           <p class="eyebrow cover-kicker" lang="en">THE BEGINNING OF OUR FOREVER</p>
-          <h1 lang="en">The next<br /><em>chapter.</em></h1>
+          <h1 lang="en"><span class="cover-title-first">The next</span><br /><em>chapter.</em></h1>
           <p class="couple-name">{wedding.groom.name}<span>&</span>{wedding.bride.name}</p>
           <p class="cover-date">{shortDate}. {weekday}<span class="sep" aria-hidden="true">·</span><span class="ko">{time}</span></p>
           <a class="cover-venue" href="#location"><Icon name="pin" size={15} /><span>{venueLabel}</span></a>
@@ -181,7 +181,7 @@ const dates = Array.from({ length: daysInMonth }, (_, i) => i + 1);
           </header>
           <ul class:list={['gallery-grid', { 'is-collapsible': collapsible }]} id="gallery-grid" data-reveal>
             {photos.map((photo, index) => (
-              <li class:list={{ 'is-extra': collapsible && index >= PREVIEW_COUNT }}>
+              <li class:list={{ 'is-extra': collapsible && index >= PREVIEW_COUNT }} style={`--i: ${collapsible && index >= PREVIEW_COUNT ? index - PREVIEW_COUNT : index}`}>
                 <a class="gallery-thumb" href={gallery[index].src} data-gallery={photo.id}>
                   <Image src={photo.image} alt={photo.alt} width={prepared[index].thumb.width} height={prepared[index].thumb.height} widths={prepared[index].thumb.widths} sizes="(min-width: 600px) 200px, 31vw" fit="cover" position={photo.position} format="webp" loading="lazy" decoding="async" />
                 </a>
