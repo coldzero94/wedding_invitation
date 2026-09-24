@@ -8,11 +8,12 @@ const gallery = document.querySelector<HTMLDialogElement>('#gallery-dialog')!;
 const contact = document.querySelector<HTMLDialogElement>('#contact-dialog');
 const copyDialog = document.querySelector<HTMLDialogElement>('#copy-dialog')!;
 const parking = document.querySelector<HTMLDialogElement>('#parking-dialog');
+const shareSheet = document.querySelector<HTMLDialogElement>('#share-sheet');
 const galleryImage = document.querySelector<HTMLImageElement>('#gallery-image')!;
 const galleryCaption = document.querySelector<HTMLElement>('#gallery-caption')!;
 const galleryCounter = document.querySelector<HTMLElement>('#gallery-counter')!;
 const toastElement = document.querySelector<HTMLElement>('.toast')!;
-const dialogs = [gallery, contact, copyDialog, parking].filter((dialog): dialog is HTMLDialogElement => dialog !== null);
+const dialogs = [gallery, contact, copyDialog, parking, shareSheet].filter((dialog): dialog is HTMLDialogElement => dialog !== null);
 const navigation = createDialogNavigation(dialogs);
 const loadStatus = document.querySelector<HTMLElement>('#gallery-load-status')!;
 const retryPhoto = document.querySelector<HTMLButtonElement>('[data-gallery-retry]')!;
@@ -225,35 +226,21 @@ for (const dialog of dialogs) {
   });
 }
 
+// Clipboard writes must start inside the tap itself (Safari), so try first and report after.
+const tryClipboard = (value: string) => navigator.clipboard?.writeText(value).then(() => true, () => false) ?? Promise.resolve(false);
+function showCopyFallback(value: string) {
+  const input = document.querySelector<HTMLInputElement>('#copy-value')!;
+  navigation.open(copyDialog, () => { input.value = value; });
+  input.focus();
+  input.select();
+}
 async function copy(value: string, message: string) {
-  try {
-    await navigator.clipboard.writeText(value);
-    toast(message);
-  } catch {
-    const input = document.querySelector<HTMLInputElement>('#copy-value')!;
-    navigation.open(copyDialog, () => { input.value = value; });
-    input.focus();
-    input.select();
-  }
+  if (await tryClipboard(value)) toast(message);
+  else showCopyFallback(value);
 }
 document.querySelector('[data-close-copy]')?.addEventListener('click', () => navigation.close(copyDialog));
 document.querySelectorAll<HTMLElement>('[data-copy]').forEach((button) => button.addEventListener('click', () => {
   void copy(button.dataset.copy || '', button.dataset.copyMessage || '복사했습니다.');
-}));
-
-document.querySelectorAll<HTMLElement>('[data-share]').forEach((button) => button.addEventListener('click', async () => {
-  // Share the actual page URL, with no gallery/section fragment.
-  const url = new URL(window.location.href);
-  url.hash = ''; url.search = '';
-  if (navigator.share) {
-    try {
-      await navigator.share({ title: document.title, text: '저희의 새로운 시작에 함께해 주세요.', url: url.href });
-      return;
-    } catch (error) {
-      if (error instanceof Error && error.name === 'AbortError') return;
-    }
-  }
-  await copy(url.href, '청첩장 링크를 복사했습니다.');
 }));
 
 type KakaoShareLink = { mobileWebUrl: string; webUrl: string };
@@ -264,26 +251,67 @@ type KakaoSDK = {
 };
 declare global { interface Window { Kakao?: KakaoSDK } }
 
-// The Kakao SDK <script> tag (head, not deferred) has already run by the time this module executes.
-const kakaoButton = document.querySelector<HTMLButtonElement>('[data-kakao-share]');
-if (kakaoButton && window.Kakao) {
-  const { kakaoJsKey, kakaoTitle, kakaoDescription, kakaoImage, kakaoImageWidth, kakaoImageHeight, kakaoUrl, kakaoMapUrl } = kakaoButton.dataset;
-  if (kakaoJsKey && kakaoTitle && kakaoDescription && kakaoImage && kakaoUrl && kakaoMapUrl) {
-    const kakao = window.Kakao;
-    if (!kakao.isInitialized()) kakao.init(kakaoJsKey);
-    kakaoButton.hidden = false;
-    kakaoButton.addEventListener('click', () => {
-      kakao.Share.sendDefault({
-        objectType: 'feed',
-        content: { title: kakaoTitle, description: kakaoDescription, imageUrl: kakaoImage, imageWidth: Number(kakaoImageWidth) || undefined, imageHeight: Number(kakaoImageHeight) || undefined, link: { mobileWebUrl: kakaoUrl, webUrl: kakaoUrl } },
-        buttons: [
-          { title: '청첩장 보기', link: { mobileWebUrl: kakaoUrl, webUrl: kakaoUrl } },
-          { title: '위치 보기', link: { mobileWebUrl: kakaoMapUrl, webUrl: kakaoMapUrl } },
-        ],
-      });
-    });
-  }
+// One 청첩장 공유하기 button opens a sheet: KakaoTalk (the rich card), other apps (the system share
+// sheet, which can only carry a link) and 링크 복사. With nothing to choose between, it copies directly.
+const shareUrl = () => {
+  const url = new URL(window.location.href);
+  url.hash = ''; url.search = '';
+  return url.href;
+};
+const kakaoData = shareSheet?.dataset ?? {};
+// Checked at tap time rather than on load, so it does not matter when the deferred SDK arrived.
+const kakaoReady = () => Boolean(kakaoData.kakaoJsKey && window.Kakao);
+const kakaoOption = shareSheet?.querySelector<HTMLButtonElement>('[data-share-kakao]');
+const nativeOption = shareSheet?.querySelector<HTMLButtonElement>('[data-share-native]');
+// Close the sheet (through its history entry) and only then run what comes next.
+function afterSheetCloses(next: () => void) {
+  if (!shareSheet?.open) return next();
+  shareSheet.addEventListener('close', () => setTimeout(next, 0), { once: true });
+  navigation.close(shareSheet);
 }
+document.querySelector('[data-share]')?.addEventListener('click', async () => {
+  const canNative = typeof navigator.share === 'function';
+  if (!shareSheet || (!kakaoReady() && !canNative)) {
+    await copy(shareUrl(), '청첩장 링크를 복사했습니다.');
+    return;
+  }
+  if (kakaoOption) kakaoOption.hidden = !kakaoReady();
+  if (nativeOption) nativeOption.hidden = !canNative;
+  navigation.open(shareSheet);
+});
+document.querySelector('[data-close-share]')?.addEventListener('click', () => { if (shareSheet) navigation.close(shareSheet); });
+kakaoOption?.addEventListener('click', () => {
+  const kakao = window.Kakao;
+  const { kakaoJsKey, kakaoTitle, kakaoDescription, kakaoImage, kakaoImageWidth, kakaoImageHeight, kakaoUrl, kakaoMapUrl } = kakaoData;
+  if (!kakao || !kakaoJsKey || !kakaoTitle || !kakaoDescription || !kakaoImage || !kakaoUrl || !kakaoMapUrl) return;
+  if (!kakao.isInitialized()) kakao.init(kakaoJsKey);
+  kakao.Share.sendDefault({
+    objectType: 'feed',
+    content: { title: kakaoTitle, description: kakaoDescription, imageUrl: kakaoImage, imageWidth: Number(kakaoImageWidth) || undefined, imageHeight: Number(kakaoImageHeight) || undefined, link: { mobileWebUrl: kakaoUrl, webUrl: kakaoUrl } },
+    buttons: [
+      { title: '청첩장 보기', link: { mobileWebUrl: kakaoUrl, webUrl: kakaoUrl } },
+      { title: '위치 보기', link: { mobileWebUrl: kakaoMapUrl, webUrl: kakaoMapUrl } },
+    ],
+  });
+  // Leave the hand-off to KakaoTalk a moment before touching history.
+  setTimeout(() => { if (shareSheet) navigation.close(shareSheet); }, 600);
+});
+nativeOption?.addEventListener('click', async () => {
+  try {
+    await navigator.share({ title: document.title, text: '저희의 새로운 시작에 함께해 주세요.', url: shareUrl() });
+    afterSheetCloses(() => {});
+  } catch (error) {
+    // Cancelling the system sheet keeps ours open; any other failure falls back to copying.
+    if (error instanceof Error && error.name === 'AbortError') return;
+    const url = shareUrl();
+    afterSheetCloses(() => showCopyFallback(url));
+  }
+});
+shareSheet?.querySelector('[data-share-copy]')?.addEventListener('click', async () => {
+  const url = shareUrl();
+  const copied = await tryClipboard(url);
+  afterSheetCloses(() => (copied ? toast('청첩장 링크를 복사했습니다.') : showCopyFallback(url)));
+});
 
 const countdown = document.querySelector<HTMLElement>('[data-event-date]');
 const countdownLabel = countdown?.querySelector<HTMLElement>('.countdown-label');

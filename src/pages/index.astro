@@ -285,25 +285,7 @@ const dates = Array.from({ length: daysInMonth }, (_, i) => i + 1);
 
         <div class="paper-section share-section section-pad">
           <div class="share-actions">
-            {kakaoJsKey && (
-              <button
-                type="button"
-                class="button kakao-share-button"
-                data-kakao-share
-                data-kakao-js-key={kakaoJsKey}
-                data-kakao-title={title}
-                data-kakao-description={summary}
-                data-kakao-image={kakaoImageUrl}
-                data-kakao-image-width={String(kakaoImage.attributes.width)}
-                data-kakao-image-height={String(kakaoImage.attributes.height)}
-                data-kakao-url={canonical.href}
-                data-kakao-map-url={kakaoMapUrl}
-                hidden
-              >
-                <Icon name="share" size={17} /> 카카오톡으로 공유
-              </button>
-            )}
-            <button type="button" class="button outline-button share-button" data-share><Icon name="share" size={17} /> 청첩장 공유하기</button>
+            <button type="button" class="button share-button" data-share><Icon name="share" size={17} /> 청첩장 공유하기</button>
           </div>
         </div>
 
@@ -338,12 +320,36 @@ const dates = Array.from({ length: daysInMonth }, (_, i) => i + 1);
         <div class="person-contact"><p><span>{person.role}</span><strong>{person.fullName}</strong></p><div><a class="icon-button" href={'tel:' + person.phone} aria-label={person.fullName + '에게 전화'}><Icon name="phone" /></a><a class="text-link" href={'sms:' + person.phone}>문자</a></div></div>
       ))}
     </dialog>}
-    {parkingGuide.length > 0 && <dialog class="parking-dialog" id="parking-dialog" aria-labelledby="parking-title">
+    {parkingGuide.length > 0 && <dialog class="parking-dialog" id="parking-dialog" aria-labelledby="parking-title" autofocus>
       <div class="parking-header"><h2 id="parking-title">주차 안내</h2><button type="button" class="icon-button" data-close-parking aria-label="주차 안내 닫기"><Icon name="close" size={24} /></button></div>
       <div class="parking-images">
         {parkingGuide.map((item) => <img src={item.image.src} srcset={item.image.srcSet.attribute} sizes="(min-width: 760px) 720px, 100vw" width={item.image.attributes.width} height={item.image.attributes.height} alt={item.alt} loading="lazy" decoding="async" />)}
       </div>
     </dialog>}
+    <dialog
+      class="share-sheet"
+      id="share-sheet"
+      autofocus
+      aria-labelledby="share-title"
+      data-kakao-js-key={kakaoJsKey || undefined}
+      data-kakao-title={title}
+      data-kakao-description={summary}
+      data-kakao-image={kakaoImageUrl}
+      data-kakao-image-width={String(kakaoImage.attributes.width)}
+      data-kakao-image-height={String(kakaoImage.attributes.height)}
+      data-kakao-url={canonical.href}
+      data-kakao-map-url={kakaoMapUrl}
+    >
+      <div class="share-sheet-header"><h2 id="share-title">청첩장 공유하기</h2><button type="button" class="icon-button" data-close-share aria-label="공유 닫기"><Icon name="close" size={22} /></button></div>
+      <div class="share-options">
+        <button type="button" class="share-option" data-share-kakao hidden>
+          <span class="share-option-icon is-kakao" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12 4C7 4 3 7.1 3 11c0 2.5 1.7 4.7 4.2 6l-.9 3.3c-.1.3.3.6.6.4l3.9-2.6c.4 0 .8.1 1.2.1 5 0 9-3.1 9-7s-4-7.2-9-7.2Z" /></svg></span>
+          카카오톡으로 보내기
+        </button>
+        <button type="button" class="share-option" data-share-native hidden><span class="share-option-icon" aria-hidden="true"><Icon name="share" size={19} /></span>다른 앱으로 공유</button>
+        <button type="button" class="share-option" data-share-copy><span class="share-option-icon" aria-hidden="true"><Icon name="copy" size={18} /></span>링크 복사</button>
+      </div>
+    </dialog>
     <dialog class="copy-dialog" id="copy-dialog" aria-labelledby="copy-title">
       <h2 id="copy-title">아래 내용을 복사해 주세요</h2><p>길게 누르거나 선택해 복사할 수 있어요.</p><input id="copy-value" aria-label="복사할 내용" readonly /><button type="button" class="button" data-close-copy>닫기</button>
     </dialog>

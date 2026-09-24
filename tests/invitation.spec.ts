@@ -309,3 +309,30 @@ test('처음으로 also works in iPhone WebKit (Safari, KakaoTalk)', async ({ ba
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
   await browser.close();
 });
+
+test('one share button opens a sheet: other apps share the clean link, 링크 복사 copies it, Back closes it', async ({ page, baseURL }) => {
+  await page.addInitScript(() => {
+    (window as any).__shared = [];
+    Object.defineProperty(navigator, 'share', { value: async (data: unknown) => { (window as any).__shared.push(data); } });
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText: async (text: string) => { (window as any).__copied = text; } } });
+  });
+  await page.goto('./');
+  await expect(page.locator('.share-section button')).toHaveCount(1);
+  const sheet = page.getByRole('dialog', { name: '청첩장 공유하기' });
+  await page.locator('.share-button').click();
+  await expect(sheet).toBeVisible();
+  // No Kakao key in test builds, so only the two link options are offered.
+  await expect(sheet.locator('[data-share-kakao]')).toBeHidden();
+  await sheet.getByRole('button', { name: '다른 앱으로 공유' }).click();
+  await expect(sheet).toBeHidden();
+  expect(await page.evaluate(() => (window as any).__shared[0].url)).toBe(baseURL);
+  await page.locator('.share-button').click();
+  await sheet.getByRole('button', { name: '링크 복사' }).click();
+  await expect(sheet).toBeHidden();
+  await expect(page.locator('.toast')).toHaveText('청첩장 링크를 복사했습니다.');
+  expect(await page.evaluate(() => (window as any).__copied)).toBe(baseURL);
+  await page.locator('.share-button').click();
+  await expect(sheet).toBeVisible();
+  await page.goBack();
+  await expect(sheet).toBeHidden();
+});
