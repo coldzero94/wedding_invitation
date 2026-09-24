@@ -293,3 +293,16 @@ test('처음으로 returns to the very top even beside the sticky desktop cover'
   await page.locator('.back-top').click();
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
 });
+
+test('shared links open on the cover: in-page buttons keep the address clean and #invitation is dropped', async ({ page }) => {
+  await page.goto('./');
+  const clean = page.url();
+  await page.locator('.cover-button').click();
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(200);
+  expect(page.url()).toBe(clean);
+  await page.goto('./#invitation');
+  await expect.poll(() => page.url()).toBe(clean);
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
+  await page.goto('./#location');
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(200);
+});

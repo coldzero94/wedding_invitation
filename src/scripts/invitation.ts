@@ -103,6 +103,23 @@ void Promise.race([
 ]).then(() => document.documentElement.classList.add('cover-ready'));
 
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+// The invitation always opens on its cover. Older shared links carry #invitation (the 초대장 열기
+// target); drop it so they start at the top too. Other anchors (e.g. Kakao's #location) still apply.
+if (location.hash === '#invitation') {
+  history.replaceState(history.state, '', location.pathname + location.search);
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
+// In-page links scroll without writing their #fragment into the address, so a link copied or shared
+// from the address bar later still opens on the cover. The skip link keeps its native behaviour.
+document.querySelectorAll<HTMLAnchorElement>('a[href^="#"]:not(.skip-link)').forEach((link) => {
+  link.addEventListener('click', (event) => {
+    const target = document.getElementById(link.hash.slice(1));
+    if (!target || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    target.scrollIntoView({ behavior: reduceMotion.matches ? 'instant' : 'smooth', block: 'start' });
+  });
+});
 let opening = false;
 // Grow the tapped thumbnail into the full photo. Only when the photo is already decoded, so the
 // morph never lands on an empty frame; otherwise the viewer simply fades in as before.
