@@ -32,7 +32,8 @@
 *, *::before, *::after { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body { margin: 0; }
-body:has(dialog[open]) { overflow: hidden; }
+/* Lock the root too: iOS scrolls the page behind a modal when only <body> is locked. */
+html:has(dialog[open]), body:has(dialog[open]) { overflow: hidden; }
 button, input, a { -webkit-tap-highlight-color: transparent; }
 button, input { font: inherit; }
 button, a { touch-action: manipulation; }
@@ -97,7 +98,7 @@ h1, h2, h3 { font-weight: 400; }
 .nav-home { display: flex; align-items: center; min-height: 44px; gap: 8px; font-family: var(--serif); font-size: 12px; letter-spacing: .16em; }
 .tiny-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--accent); }
 .section-nav > div { display: flex; flex-wrap: wrap; align-items: center; gap: 24px; }
-.section-nav > div > * { min-height: 44px; display: inline-flex; align-items: center; font-size: 13px; padding: 0; color: var(--text-muted); white-space: nowrap; }
+.section-nav > div > * { min-height: 44px; display: inline-flex; align-items: center; font-size: 13px; padding: 0 8px; margin: 0 -8px; color: var(--text-muted); white-space: nowrap; }
 
 /* Ivory sections */
 .section-pad { padding: var(--section-space) var(--gutter); }
@@ -166,7 +167,7 @@ h1, h2, h3 { font-weight: 400; }
 .map-links { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin-top: 16px; }
 .transport { display: grid; gap: 18px; margin-top: 32px; padding-top: 28px; border-top: 1px solid var(--line-light); }
 .transport dt { font-size: 13px; letter-spacing: .04em; color: var(--accent); }
-.transport dd { margin-top: 4px; font-size: 15px; line-height: 1.8; white-space: pre-line; word-break: keep-all; }
+.transport dd { margin-top: 4px; font-size: 15px; line-height: 1.8; white-space: pre-line; word-break: keep-all; text-wrap: pretty; }
 .parking-button { width: 100%; max-width: 400px; margin-top: 28px; }
 /* Parking guide: full screen, scrolled vertically; the images are text-heavy, so they stay pinch-zoomable. */
 .parking-dialog { width: 100vw; height: 100vh; height: 100dvh; max-width: none; max-height: none; margin: 0; border: 0; border-radius: 0; color: var(--text); background: var(--paper); overflow-y: auto; overscroll-behavior: contain; }
