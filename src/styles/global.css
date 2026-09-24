@@ -251,7 +251,8 @@ dialog[open]::backdrop { opacity: 1; }
 /* Motion */
 [data-reveal] { opacity: 0; transform: translateY(16px); transition: opacity .7s var(--ease-photo), transform .7s var(--ease-photo); transition-delay: var(--reveal-delay, 0ms); }
 [data-reveal].is-visible { opacity: 1; transform: none; }
-@keyframes photo-arrive { from { transform: scale(1.07); opacity: .55; } to { transform: scale(1); opacity: 1; } }
+/* Starts from nothing: while held (see cover-ready) the photo stays hidden rather than showing a half-state. */
+@keyframes photo-arrive { from { transform: scale(1.06); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 @keyframes rise-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
 
