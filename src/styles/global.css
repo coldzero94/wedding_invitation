@@ -21,7 +21,8 @@
   --sans: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
   --gutter: 24px;
   --section-space: 72px;
-  font-family: var(--sans);
+  /* Two families only: Cormorant for Latin display and large numerals, Noto Serif KR for all Korean. */
+  font-family: var(--korean-serif);
   font-size: 16px;
   color: var(--paper);
   background: var(--ink);
@@ -191,7 +192,7 @@ h1, h2, h3 { font-weight: 400; }
 .account-row p { display: grid; gap: 2px; min-width: 0; }
 .account-owner { font-size: 13px; color: var(--text-muted); }
 .account-number { font-size: 15px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
-.copy-chip { position: relative; flex-shrink: 0; display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 14px; border: 1px solid var(--line-button); border-radius: 999px; font-size: 13px; color: var(--text); }
+.copy-chip { position: relative; flex-shrink: 0; display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 14px; border: 1px solid var(--line-button); border-radius: 3px; font-size: 13px; color: var(--text); }
 .copy-chip::after { content: ''; position: absolute; inset: -4px; }
 .pending-info { font-size: 14px; color: var(--text-muted); text-align: center; }
 
