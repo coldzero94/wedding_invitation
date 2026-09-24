@@ -159,7 +159,7 @@ const dates = Array.from({ length: daysInMonth }, (_, i) => i + 1);
           <a class="text-link calendar-link" href={base + 'wedding.ics'} download="our-wedding.ics"><Icon name="calendar" size={17} /> 캘린더에 저장</a>
 
           <div class="invitation-note" data-reveal>
-            <span class="small-star" aria-hidden="true">✳</span>
+            <svg class="small-star" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2v16M2 10h16M4.35 4.35l11.3 11.3M15.65 4.35l-11.3 11.3" /></svg>
             {wedding.introduction.map((line) => <p>{line}</p>)}
             {showFamilies ? (
               <div class="families">
