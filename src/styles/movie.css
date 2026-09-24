@@ -31,6 +31,9 @@
   background: var(--bg);
   color-scheme: dark;
   font-synthesis: none;
+  /* Cormorant defaults to old-style figures (its 1 reads as an I, its 3 drops below the line); use lining
+     figures everywhere, including the film leader's 3, 2, 1. */
+  font-variant-numeric: lining-nums;
   -webkit-font-smoothing: antialiased;
 }
 *, *::before, *::after { box-sizing: border-box; }
