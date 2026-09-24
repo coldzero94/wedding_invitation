@@ -139,7 +139,7 @@ const dates = Array.from({ length: daysInMonth }, (_, i) => i + 1);
           <h2 class="visually-hidden" id="invitation-heading">결혼식에 초대합니다</h2>
           <div class="save-date" data-reveal>
             <p class="eyebrow ruled-label" lang="en">SAVE THE DATE</p>
-            <p class="display-date">{shortDate}</p>
+            <p class="display-date"><span aria-hidden="true">{[...shortDate].map((char, i) => <span class="date-char" style={`--c: ${i}`}>{char}</span>)}</span><span class="visually-hidden">{shortDate}</span></p>
             <p class="save-date-when">{longDate} {time}</p>
             <p class="save-date-venue">{wedding.venue.name}</p>
           </div>
@@ -150,7 +150,7 @@ const dates = Array.from({ length: daysInMonth }, (_, i) => i + 1);
               <tbody>{Array.from({ length: Math.ceil((firstWeekday + daysInMonth) / 7) }, (_, week) => (
                 <tr>{Array.from({ length: 7 }, (_, col) => {
                   const date = week * 7 + col - emptyCells.length + 1;
-                  return <td>{dates.includes(date) ? (date === day ? <span class="wedding-day">{date}<span class="visually-hidden">일 결혼식</span></span> : <span>{date}</span>) : null}</td>;
+                  return <td>{dates.includes(date) ? (date === day ? <span class="wedding-day"><svg class="day-ring" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="15" pathLength="1" /></svg>{date}<span class="visually-hidden">일 결혼식</span></span> : <span>{date}</span>) : null}</td>;
                 })}</tr>
               ))}</tbody>
             </table>

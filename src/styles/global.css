@@ -122,7 +122,9 @@ h1, h2, h3 { font-weight: 400; }
 .calendar td { height: 38px; font-family: var(--serif); font-size: 17px; font-variant-numeric: lining-nums tabular-nums; }
 .calendar th:first-child, .calendar td:first-child { color: var(--sunday); }
 .calendar td > span { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; }
-.calendar .wedding-day { border-radius: 50%; color: var(--paper); background: var(--accent); animation: day-glow 2.6s ease-in-out 3; }
+.calendar .wedding-day { position: relative; border-radius: 50%; color: var(--paper); background: var(--accent); transition: background-color .6s var(--ease-out-soft) .75s, color .6s var(--ease-out-soft) .75s; }
+.day-ring { position: absolute; inset: -3px; width: calc(100% + 6px); height: calc(100% + 6px); transform: rotate(-90deg); overflow: visible; pointer-events: none; }
+.day-ring circle { fill: none; stroke: var(--accent); stroke-width: 1.2; stroke-dasharray: 1; stroke-dashoffset: 0; transition: stroke-dashoffset 1s var(--ease-out-soft) .2s; }
 .countdown { margin-top: 18px; font-family: var(--korean-serif); font-size: 15px; color: var(--accent); word-break: keep-all; }
 .calendar-link { margin-top: 4px; color: var(--text-muted); }
 .invitation-note { margin-top: 56px; }
@@ -264,6 +266,20 @@ dialog[open]::backdrop { opacity: 1; }
 .cover-venue { animation-delay: .93s; }
 .cover-button { animation-delay: 1.01s; }
 
+/* SAVE THE DATE: the digits arrive one by one, then a ring is drawn around the day before it fills. */
+.date-char { display: inline-block; transition: opacity .7s var(--ease-out-soft), transform .7s var(--ease-out-soft); transition-delay: calc(.15s + var(--c) * 45ms); }
+.js .save-date:not(.is-visible) .date-char { opacity: 0; transform: translateY(.25em); }
+.js .calendar:not(.is-visible) .wedding-day { color: inherit; background: transparent; transition: none; }
+.js .calendar:not(.is-visible) .day-ring circle { stroke-dashoffset: 1; transition: none; }
+
+/* Phones: the cover photo drifts a little slower than the page as it scrolls away. */
+@supports (animation-timeline: scroll()) {
+  @media (max-width: 999px) and (prefers-reduced-motion: no-preference) {
+    .cover-image { animation: photo-arrive 2.4s var(--ease-out-soft) both, cover-drift linear both; animation-timeline: auto, scroll(root); animation-range: normal, 0 100svh; }
+  }
+}
+@keyframes cover-drift { to { translate: 0 22%; } }
+
 /* Gallery: thumbnails arrive in reading order; the grid itself stays put. */
 .gallery-grid[data-reveal] { opacity: 1; transform: none; }
 .gallery-grid > li { transition: opacity .8s var(--ease-out-soft), transform .8s var(--ease-out-soft); transition-delay: calc(var(--i, 0) * 65ms); }
@@ -276,7 +292,6 @@ dialog[open]::backdrop { opacity: 1; }
 ::view-transition-group(gallery-photo) { animation-duration: .5s; animation-timing-function: var(--ease-out-soft); }
 ::view-transition-old(gallery-photo), ::view-transition-new(gallery-photo) { height: 100%; object-fit: cover; animation-duration: .35s; }
 ::view-transition-old(root), ::view-transition-new(root) { animation-duration: .4s; }
-@keyframes day-glow { 0%, 100% { box-shadow: 0 0 0 0 rgba(78, 90, 60, .35); } 50% { box-shadow: 0 0 0 7px rgba(78, 90, 60, 0); } }
 
 @media (max-width: 599px) and (max-height: 720px) {
   /* Short phone screens (KakaoTalk's toolbars included): keep the invitation button on the first screen. */
