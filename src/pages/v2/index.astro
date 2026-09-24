@@ -1,0 +1,377 @@
+---
+import { Image, getImage } from 'astro:assets';
+import cormorantRegular from '@fontsource/cormorant-garamond/files/cormorant-garamond-latin-400-normal.woff2?url';
+import pinyonRegular from '@fontsource/pinyon-script/files/pinyon-script-latin-400-normal.woff2?url';
+import '@fontsource/cormorant-garamond/latin-400.css';
+import '@fontsource/cormorant-garamond/latin-400-italic.css';
+import '@fontsource/pinyon-script/latin-400.css';
+import '@fontsource/bebas-neue/latin-400.css';
+import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css';
+import '../../styles/movie.css';
+import Icon from '../../components/Icon.astro';
+import { wedding } from '../../data/wedding';
+import { movie } from '../../data/movie';
+import { prepareInvitation } from '../../lib/invitation-data';
+import { year, month, day, longDate, time, shortDate, weekday, firstWeekday, daysInMonth, eventDate } from '../../lib/event';
+
+const root = import.meta.env.BASE_URL.replace(/\/$/, '') + '/';
+const canonical = new URL(root + 'v2/', Astro.site);
+const title = wedding.groom.name + ' & ' + wedding.bride.name + ', 결혼합니다';
+const data = await prepareInvitation(canonical, Astro.site);
+const { hero, og, kakao, photos, parkingGuide, venueWithHall, summary, accountGroups } = data;
+const timeEn = new Intl.DateTimeFormat('en-US', { timeZone: wedding.timeZone, hour: 'numeric', minute: '2-digit' }).format(eventDate);
+const monthEn = new Intl.DateTimeFormat('en-US', { timeZone: wedding.timeZone, month: 'short' }).format(eventDate).toUpperCase();
+
+const PREVIEW_COUNT = 9;
+const collapsible = photos.length > 12;
+const LIGHTBOX_SIZES = '100vw';
+const byId = new Map(photos.map((item) => [item.photo.id, item]));
+const pick = (id: string) => byId.get(id) ?? photos[0];
+// Film frames: small landscape crops, shown in black and white.
+const frames = async (ids: string[]) => Promise.all(ids.map(async (id) => {
+  const item = pick(id);
+  return { alt: item.photo.alt, image: await getImage({ src: item.photo.image, width: 300, height: 210, fit: 'cover', position: 'attention', format: 'webp' }) };
+}));
+const stripTop = await frames(movie.stripTop);
+const stripBottom = await frames(movie.stripBottom);
+const poster = pick(movie.poster);
+const cookie = pick(movie.cookie);
+const emptyCells = Array.from({ length: firstWeekday });
+const dates = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+const weeks = Math.ceil((firstWeekday + daysInMonth) / 7);
+---
+<!doctype html>
+<html lang="ko" class="movie">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0c0c0d" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="description" content={summary + '. 저희의 새로운 시작에 함께해 주세요.'} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={summary} />
+    <meta property="og:url" content={canonical.href} />
+    <meta property="og:image" content={og.url} />
+    <meta property="og:image:width" content={String(og.width)} />
+    <meta property="og:image:height" content={String(og.height)} />
+    <meta property="og:image:alt" content={wedding.hero.alt} />
+    <link rel="icon" type="image/png" sizes="32x32" href={root + 'favicon-32.png'} />
+    <link rel="icon" type="image/svg+xml" href={root + 'favicon.svg'} />
+    <link rel="apple-touch-icon" href={root + 'apple-touch-icon.png'} />
+    <link rel="canonical" href={canonical.href} />
+    <title>{movie.title} | {title}</title>
+    <script is:inline>if (location.hash === '#invitation') history.replaceState(null, '', location.pathname + location.search); document.documentElement.classList.add('js'); setTimeout(function () { document.documentElement.classList.add('cover-ready'); }, 2500);</script>
+    <link rel="preload" as="font" type="font/woff2" href={cormorantRegular} crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href={pinyonRegular} crossorigin />
+    {kakao.key && <script is:inline defer src="https://developers.kakao.com/sdk/js/kakao.js"></script>}
+    <noscript><style>[data-reveal] { opacity: 1 !important; transform: none !important; }</style></noscript>
+  </head>
+  <body>
+    <div id="top" class="page-top"></div>
+    <a class="skip-link" href="#invitation">본문 바로가기</a>
+    <!-- Film leader shown while the poster's photo and fonts load (skipped when they are cached). -->
+    <div class="leader" aria-hidden="true">
+      <div class="leader-frame">
+        <span class="leader-cross"></span>
+        <span class="leader-hand"></span>
+        <span class="leader-count"><span>3</span><span>2</span><span>1</span></span>
+      </div>
+    </div>
+
+    <header class="cover poster">
+      <div class="cover-lqip" style={`background-image: url(${hero.lqip}); background-position: ${wedding.hero.position}`}></div>
+      <Image class="cover-image" src={wedding.hero.image} alt={wedding.hero.alt} style={{ objectPosition: wedding.hero.position }} width={hero.width} height={hero.height} widths={hero.widths} sizes="(min-width: 600px) 520px, 100vw" format="webp" loading="eager" fetchpriority="high" />
+      <div class="poster-shade"></div>
+      <p class="poster-studio" lang="en">{movie.studio} <span>presents</span></p>
+      <div class="poster-body">
+        <h1 class="poster-title" lang="en" aria-label={movie.title}>
+          <span class="t-the">THE</span>
+          <span class="t-grandest">Grandest</span>
+          <span class="t-show">SHOW</span>
+          <span class="t-of">OF OUR</span>
+          <span class="t-love"><span class="brace">&#123;</span>love<span class="brace">&#125;</span></span>
+        </h1>
+        <div class="poster-credits">
+          <p><span class="script" lang="en">Groom</span><span class="credit-name">{wedding.groom.name}</span></p>
+          <p><span class="script" lang="en">Bride</span><span class="credit-name">{wedding.bride.name}</span></p>
+        </div>
+        <p class="poster-when"><span lang="en">{shortDate} {weekday}</span><span class="dot" aria-hidden="true">·</span>{time}</p>
+        <a class="poster-where" href="#location"><Icon name="pin" size={14} /><span>{venueWithHall}</span></a>
+        <a class="poster-cta" href="#invitation"><span lang="en">NOW PLAYING</span> 입장하기 <Icon name="down" size={16} /></a>
+        <p class="poster-billing" lang="en">STARRING <span lang="ko">{wedding.groom.name} · {wedding.bride.name}</span> · IN THEATERS {monthEn} {day}, {year}</p>
+      </div>
+    </header>
+    <script is:inline>
+      // Same readiness rule as the original page: wait for the poster photo and its fonts (1.5s cap);
+      // if they were already cached, show the finished poster at once with no entrance.
+      (function () {
+        var root = document.documentElement, cover = document.querySelector('.cover'), image = cover.querySelector('.cover-image');
+        var start = Date.now(), done = false;
+        var go = function () {
+          if (done) return;
+          done = true;
+          if (Date.now() - start < 200) root.classList.add('cover-instant');
+          root.classList.add('cover-ready');
+        };
+        var waits = [image.decode ? image.decode().catch(function () {}) : null];
+        if (document.fonts && document.fonts.load) {
+          ['400 1em "Cormorant Garamond"', '400 1em "Pinyon Script"', '300 1em "Pretendard Variable"'].forEach(function (font) {
+            waits.push(document.fonts.load(font, cover.textContent).catch(function () {}));
+          });
+        }
+        Promise.all(waits).then(go);
+        setTimeout(go, 1500);
+      })();
+    </script>
+
+    <main>
+      <section class="scene opening" id="invitation" aria-labelledby="opening-heading">
+        <h2 class="visually-hidden" id="opening-heading">초대의 글</h2>
+        <div class="film-strip strip-top" aria-hidden="true">
+          <div class="strip-track">
+            {[...stripTop, ...stripTop].map((frame) => <img src={frame.image.src} width="150" height="105" alt="" loading="lazy" decoding="async" />)}
+          </div>
+        </div>
+        <div class="opening-body">
+          <svg class="projector" viewBox="0 0 48 32" aria-hidden="true"><circle cx="11" cy="9" r="6.5" /><circle cx="25" cy="9" r="6.5" /><rect x="6" y="15.5" width="26" height="12" rx="2" /><path d="M32 19.5 42 15v13l-10-4.5" /></svg>
+          <blockquote class="quote" data-reveal>
+            <p>{movie.quote.text}</p>
+            <cite>— {movie.quote.source}</cite>
+          </blockquote>
+          <div class="greeting" data-reveal>
+            {wedding.introduction.map((line) => <p>{line}</p>)}
+          </div>
+          <p class="greeting-sign" data-reveal>{wedding.groom.name} <span lang="en">&amp;</span> {wedding.bride.name}</p>
+        </div>
+        <div class="film-strip strip-bottom" aria-hidden="true">
+          <div class="strip-track">
+            {[...stripBottom, ...stripBottom].map((frame) => <img src={frame.image.src} width="150" height="105" alt="" loading="lazy" decoding="async" />)}
+          </div>
+        </div>
+      </section>
+
+      <section class="scene ticket-scene" id="ticket" aria-labelledby="ticket-heading">
+        <header class="scene-head" data-reveal>
+          <p class="scene-eyebrow" lang="en">ADMISSION</p>
+          <h2 id="ticket-heading">당신을 초대합니다</h2>
+        </header>
+        <div class="ticket-wrap" data-arrive>
+          <button type="button" class="ticket" data-ticket aria-pressed="false">
+            <span class="visually-hidden">티켓을 누르면 뒤집혀서 예식 달력과 남은 시간이 나옵니다.</span>
+            <span class="ticket-inner">
+              <span class="ticket-face ticket-front">
+                <span class="ticket-top"><span lang="en">VIP TICKET</span><span lang="en">No. {String(month).padStart(2, '0')}{String(day).padStart(2, '0')}</span></span>
+                <span class="ticket-title" lang="en">The Grandest Show<br />of Our Love</span>
+                <span class="ticket-rows">
+                  <span class="ticket-row"><span class="k" lang="en">DATE</span><span class="v" lang="en">{shortDate} {weekday}</span></span>
+                  <span class="ticket-row"><span class="k" lang="en">TIME</span><span class="v" lang="en">{timeEn}</span></span>
+                  <span class="ticket-row"><span class="k" lang="en">SCREEN</span><span class="v">{wedding.venue.hall || wedding.venue.name}</span></span>
+                  <span class="ticket-row"><span class="k" lang="en">SEAT</span><span class="v">소중한 당신의 자리</span></span>
+                </span>
+                <span class="ticket-place"><span class="k" lang="en">PLACE</span><span class="v">{wedding.venue.name}<br />{wedding.venue.address}</span></span>
+                <span class="ticket-stub">
+                  <span class="barcode" aria-hidden="true"></span>
+                  <span class="stub-text" lang="en">ADMIT ALL WHO LOVE US</span>
+                </span>
+              </span>
+              <span class="ticket-face ticket-back">
+                <span class="ticket-top"><span lang="en">SHOWTIME</span><span lang="en">{year} / {String(month).padStart(2, '0')}</span></span>
+                <span class="mini-calendar" aria-label={year + '년 ' + month + '월 달력'}>
+                  {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d) => <span class="cal-head" lang="en">{d}</span>)}
+                  {emptyCells.map(() => <span></span>)}
+                  {dates.map((date) => date === day ? <span class="cal-day is-day">{date}</span> : <span class="cal-day">{date}</span>)}
+                  {Array.from({ length: weeks * 7 - firstWeekday - daysInMonth }).map(() => <span></span>)}
+                </span>
+                <span class="countdown" data-event-date={wedding.date} data-time-zone={wedding.timeZone}>
+                  <span class="countdown-label">결혼식까지 남은 시간</span>
+                  <span class="countdown-clock" role="timer" hidden>
+                    {[['d', 'DAYS'], ['h', 'HRS'], ['m', 'MIN'], ['s', 'SEC']].map(([unit, label]) => (
+                      <span class="countdown-unit"><span class="countdown-num" data-unit={unit}>00</span><span class="countdown-name" lang="en">{label}</span></span>
+                    ))}
+                  </span>
+                </span>
+                <span class="ticket-back-note">{longDate} {time}</span>
+              </span>
+            </span>
+          </button>
+          <p class="ticket-hint" aria-hidden="true"><span class="tap-dot"></span>티켓을 눌러 보세요</p>
+        </div>
+        <a class="text-link calendar-link" href={root + 'wedding.ics'} download="our-wedding.ics"><Icon name="calendar" size={17} /> 캘린더에 저장</a>
+      </section>
+
+      <section class="scene showing" id="gallery" aria-labelledby="gallery-heading">
+        <div class="marquee" data-reveal>
+          <p class="marquee-title" lang="en">NOW SHOWING</p>
+        </div>
+        <figure class="movie-poster" data-reveal>
+          <Image class="movie-poster-image" src={poster.photo.image} alt={poster.photo.alt} width={600} height={800} widths={[400, 600]} sizes="(min-width: 600px) 340px, 82vw" fit="cover" position="attention" format="webp" loading="lazy" decoding="async" />
+          <figcaption>
+            <span class="mp-names">{wedding.groom.name} <span lang="en">&amp;</span> {wedding.bride.name}</span>
+            <span class="mp-title" lang="en">WEDDING<br />DAY</span>
+            <span class="mp-date" lang="en">{shortDate} · IN THEATERS</span>
+          </figcaption>
+        </figure>
+        <header class="scene-head stills-head" data-reveal>
+          <p class="scene-eyebrow" lang="en">STILL CUTS</p>
+          <h2 id="gallery-heading">스틸컷</h2>
+          <p class="scene-lead">사진을 누르면 크게 볼 수 있어요.</p>
+        </header>
+        <ul class:list={['gallery-grid', { 'is-collapsible': collapsible }]} id="gallery-grid" data-reveal>
+          {photos.map((item, index) => (
+            <li class:list={{ 'is-extra': collapsible && index >= PREVIEW_COUNT }} style={`--i: ${collapsible && index >= PREVIEW_COUNT ? index - PREVIEW_COUNT : index}`}>
+              <a class="gallery-thumb" href={item.data.src} data-gallery={item.photo.id}>
+                <Image src={item.photo.image} alt={item.photo.alt} width={item.thumb.width} height={item.thumb.height} widths={item.thumb.widths} sizes="(min-width: 600px) 170px, 31vw" fit="cover" position={item.photo.position} format="webp" loading="lazy" decoding="async" />
+              </a>
+            </li>
+          ))}
+        </ul>
+        {collapsible && <button type="button" class="button outline-button gallery-more" data-gallery-more aria-controls="gallery-grid" aria-expanded="false" hidden>스틸컷 더보기 <span>+{photos.length - PREVIEW_COUNT}</span></button>}
+      </section>
+
+      <section class="scene theater" id="location" aria-labelledby="location-heading">
+        <header class="scene-head" data-reveal>
+          <p class="scene-eyebrow" lang="en">THEATER</p>
+          <h2 id="location-heading">상영관 안내</h2>
+        </header>
+        <div class="venue-card" data-reveal>
+          <p class="venue-screen" lang="en">SCREEN · {wedding.venue.hall || wedding.venue.name}</p>
+          <h3>{wedding.venue.name}</h3>
+          {wedding.venue.hall && <p class="venue-hall">{wedding.venue.hall}</p>}
+          <p class="venue-address">{wedding.venue.address}</p>
+          <button type="button" class="text-link" data-copy={wedding.venue.address} data-copy-message="주소를 복사했습니다."><Icon name="copy" size={16} /> 주소 복사</button>
+          <div class="map-links">{wedding.venue.mapLinks.map((map) => <a class="button outline-button" href={map.url} target="_blank" rel="noopener noreferrer">{map.label}<Icon name="arrow" size={16} /></a>)}</div>
+        </div>
+        <dl class="transport" data-reveal>
+          {wedding.venue.transport.map((item) => <div><dt>{item.title}</dt><dd>{item.description}</dd></div>)}
+        </dl>
+        {parkingGuide.length > 0 && (
+          <a class="button outline-button parking-button" href={parkingGuide[0].image.src} data-open-parking data-reveal><Icon name="parking" size={18} /> 주차 안내 보기</a>
+        )}
+      </section>
+
+      <section class="scene credits" id="credits" aria-labelledby="credits-heading">
+        <div class="credits-roll" data-arrive>
+          <div class="credits-reel">
+            <h2 class="credits-title" id="credits-heading" lang="en">CAST</h2>
+            <dl class="cast">
+              {movie.cast.map((member) => (
+                <div class="cast-row">
+                  <dt><span lang="en">{member.role}</span><span>{member.ko}</span></dt>
+                  <dd>{member.name}</dd>
+                </div>
+              ))}
+            </dl>
+            <dl class="crew">
+              {movie.crew.map((member) => <div class="crew-row"><dt lang="en">{member.role}</dt><dd>{member.name}</dd></div>)}
+            </dl>
+            <h2 class="credits-title credits-special" lang="en">SPECIAL THANKS</h2>
+            <p class="special-thanks">{movie.specialThanks.map((line) => <span>{line}</span>)}</p>
+            <p class="credits-studio" lang="en">{movie.studio} · {year}</p>
+          </div>
+        </div>
+        <p class="credits-hint" aria-hidden="true">누르고 있으면 크레딧이 멈춰요</p>
+      </section>
+
+      {accountGroups.length > 0 && (
+        <section class="scene accounts-scene" id="accounts" aria-labelledby="accounts-heading">
+          <header class="scene-head" data-reveal>
+            <p class="scene-eyebrow" lang="en">WITH GRATITUDE</p>
+            <h2 id="accounts-heading">마음 전하실 곳</h2>
+            <p class="scene-lead">참석이 어려우신 분들을 위해 계좌번호를 안내드립니다. 축하해 주시는 따뜻한 마음, 소중히 간직하겠습니다.</p>
+          </header>
+          <div class="account-groups" data-reveal>
+            {accountGroups.map((group) => (
+              <details class="accounts">
+                <summary>{group.side}측 계좌번호 <Icon name="plus" size={18} /></summary>
+                <ul class="account-list">
+                  {group.items.map((account) => (
+                    <li class="account-row">
+                      <p><span class="account-owner">{account.relation?.trim() || group.side} {account.name}</span><span class="account-number">{account.bank} {account.number}</span></p>
+                      <button type="button" class="copy-chip" data-copy={account.number} data-copy-message="계좌번호를 복사했습니다." aria-label={account.name + ' 계좌번호 복사'}><Icon name="copy" size={15} /> 복사</button>
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            ))}
+          </div>
+          <button type="button" class="button share-button" data-share data-reveal><Icon name="share" size={17} /> 이 영화 추천하기</button>
+        </section>
+      )}
+
+      <section class="scene cookie-scene" aria-labelledby="cookie-heading">
+        <header class="scene-head" data-reveal>
+          <p class="scene-eyebrow" lang="en">POST-CREDIT SCENE</p>
+          <h2 id="cookie-heading">쿠키 영상</h2>
+          <p class="scene-lead">자리를 뜨지 마세요. 아직 끝나지 않았어요.</p>
+        </header>
+        <button type="button" class="cookie" data-cookie aria-pressed="false" data-reveal>
+          <Image class="cookie-image" src={cookie.photo.image} alt={cookie.photo.alt} width={600} height={750} widths={[400, 600]} sizes="(min-width: 600px) 320px, 76vw" fit="cover" position="attention" format="webp" loading="lazy" decoding="async" />
+          <span class="cookie-cover" aria-hidden="true"><span lang="en">TAP TO PLAY</span></span>
+          <span class="visually-hidden">눌러서 쿠키 사진 보기</span>
+        </button>
+        <p class="cookie-note" aria-live="polite"></p>
+        <template data-cookie-note>{movie.cookieNote}</template>
+      </section>
+
+      <footer class="the-end">
+        <p class="end-title" lang="en" data-reveal><em>The End</em></p>
+        <p class="end-line" data-reveal>{wedding.closing}</p>
+        <a class="back-top text-link" href="#top">처음으로 <Icon name="arrow" size={16} /></a>
+        <p class="footer-mark" lang="en">{movie.studio} · {year}</p>
+      </footer>
+    </main>
+    <div class="grain" aria-hidden="true"></div>
+
+    <dialog class="gallery-dialog" id="gallery-dialog" aria-label="사진 크게 보기" autofocus>
+      <div class="gallery-header">
+        <p class="gallery-counter" id="gallery-counter" aria-live="polite"></p>
+        <button type="button" class="icon-button" data-close-gallery aria-label="사진 닫기"><Icon name="close" size={24} /></button>
+      </div>
+      <div class="gallery-image-wrap">
+        <img id="gallery-image" alt="" sizes={LIGHTBOX_SIZES} />
+        <div class="gallery-load-state"><p id="gallery-load-status" role="status" aria-live="polite"></p><button type="button" class="text-link" data-gallery-retry hidden>사진 다시 불러오기</button></div>
+        <button type="button" class="gallery-control gallery-prev" data-gallery-prev aria-label="이전 사진"><Icon name="left" size={24} /></button>
+        <button type="button" class="gallery-control gallery-next" data-gallery-next aria-label="다음 사진"><Icon name="right" size={24} /></button>
+      </div>
+      <p class="gallery-caption" id="gallery-caption" hidden></p>
+    </dialog>
+    {parkingGuide.length > 0 && <dialog class="parking-dialog" id="parking-dialog" aria-labelledby="parking-title" autofocus>
+      <div class="parking-header"><h2 id="parking-title">주차 안내</h2><button type="button" class="icon-button" data-close-parking aria-label="주차 안내 닫기"><Icon name="close" size={24} /></button></div>
+      <div class="parking-images">
+        {parkingGuide.map((item) => <img src={item.image.src} srcset={item.image.srcSet.attribute} sizes="(min-width: 760px) 720px, 100vw" width={item.image.attributes.width} height={item.image.attributes.height} alt={item.alt} loading="lazy" decoding="async" />)}
+      </div>
+    </dialog>}
+    <dialog
+      class="share-sheet"
+      id="share-sheet"
+      autofocus
+      aria-labelledby="share-title"
+      data-kakao-js-key={kakao.key || undefined}
+      data-kakao-title={title}
+      data-kakao-description={summary}
+      data-kakao-image={kakao.image.url}
+      data-kakao-image-width={String(kakao.image.width)}
+      data-kakao-image-height={String(kakao.image.height)}
+      data-kakao-url={canonical.href}
+      data-kakao-map-url={kakao.mapUrl}
+    >
+      <div class="share-sheet-header"><h2 id="share-title">청첩장 공유하기</h2><button type="button" class="icon-button" data-close-share aria-label="공유 닫기"><Icon name="close" size={22} /></button></div>
+      <div class="share-options">
+        <button type="button" class="share-option" data-share-kakao hidden>
+          <span class="share-option-icon is-kakao" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12 4C7 4 3 7.1 3 11c0 2.5 1.7 4.7 4.2 6l-.9 3.3c-.1.3.3.6.6.4l3.9-2.6c.4 0 .8.1 1.2.1 5 0 9-3.1 9-7s-4-7.2-9-7.2Z" /></svg></span>
+          카카오톡으로 보내기
+        </button>
+        <button type="button" class="share-option" data-share-native hidden><span class="share-option-icon" aria-hidden="true"><Icon name="share" size={19} /></span>다른 앱으로 공유</button>
+        <button type="button" class="share-option" data-share-copy><span class="share-option-icon" aria-hidden="true"><Icon name="copy" size={18} /></span>링크 복사</button>
+      </div>
+    </dialog>
+    <dialog class="copy-dialog" id="copy-dialog" aria-labelledby="copy-title">
+      <h2 id="copy-title">아래 내용을 복사해 주세요</h2><p>길게 누르거나 선택해 복사할 수 있어요.</p><input id="copy-value" aria-label="복사할 내용" readonly /><button type="button" class="button" data-close-copy>닫기</button>
+    </dialog>
+    <div class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+    <div id="gallery-data" hidden data-photos={JSON.stringify(photos.map((item) => item.data))} data-sizes={LIGHTBOX_SIZES}></div>
+    <script src="../../scripts/invitation.ts"></script>
+    <script src="../../scripts/movie.ts"></script>
+  </body>
+</html>
