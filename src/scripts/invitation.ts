@@ -106,10 +106,13 @@ const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
 // The invitation always opens on its cover. Older shared links carry #invitation (the 초대장 열기
 // target); drop it so they start at the top too. Other anchors (e.g. Kakao's #location) still apply.
+// (The head script already strips it before the browser can jump; this is the fallback.)
 if (location.hash === '#invitation') {
   history.replaceState(history.state, '', location.pathname + location.search);
   window.scrollTo({ top: 0, behavior: 'instant' });
 }
+// Set while an in-page link is smooth-scrolling, so on-screen moments wait for it to finish.
+let autoScrollUntil = 0;
 // In-page links scroll without writing their #fragment into the address, so a link copied or shared
 // from the address bar later still opens on the cover. The skip link keeps its native behaviour.
 document.querySelectorAll<HTMLAnchorElement>('a[href^="#"]:not(.skip-link)').forEach((link) => {
@@ -117,6 +120,7 @@ document.querySelectorAll<HTMLAnchorElement>('a[href^="#"]:not(.skip-link)').for
     const target = document.getElementById(link.hash.slice(1));
     if (!target || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
+    autoScrollUntil = performance.now() + 1500;
     target.scrollIntoView({ behavior: reduceMotion.matches ? 'instant' : 'smooth', block: 'start' });
   });
 });
@@ -334,23 +338,25 @@ if ('IntersectionObserver' in window) {
   document.querySelectorAll('[data-reveal]').forEach((el) => el.classList.add('is-visible'));
 }
 
-// Moments the guest should actually watch start only once the scroll has come to rest with them
-// on screen, so "초대장 열기" does not play them mid-scroll.
+// Moments the guest should actually watch (the date digits, the ring round the day) start as soon as
+// they are on screen, except during an automatic scroll such as 초대장 열기, where they wait until it
+// has come to rest instead of playing mid-scroll.
 const arriving = document.querySelectorAll<HTMLElement>('[data-arrive]');
 if ('IntersectionObserver' in window) {
   let lastScroll = 0;
   window.addEventListener('scroll', () => { lastScroll = performance.now(); }, { passive: true });
   const whenSettled = (run: () => void) => {
     const check = () => (performance.now() - lastScroll > 140 ? run() : setTimeout(check, 60));
-    check();
+    setTimeout(check, 60);
   };
   const arrivals = new IntersectionObserver((entries) => {
     for (const entry of entries) {
       if (!entry.isIntersecting) continue;
       arrivals.unobserve(entry.target);
-      whenSettled(() => entry.target.classList.add('is-arrived'));
+      const arrive = () => entry.target.classList.add('is-arrived');
+      if (performance.now() < autoScrollUntil) whenSettled(arrive); else arrive();
     }
-  }, { threshold: .6 });
+  }, { threshold: .4 });
   arriving.forEach((el) => arrivals.observe(el));
 } else {
   arriving.forEach((el) => el.classList.add('is-arrived'));

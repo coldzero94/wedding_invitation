@@ -300,9 +300,12 @@ test('shared links open on the cover: in-page buttons keep the address clean and
   await page.locator('.cover-button').click();
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(200);
   expect(page.url()).toBe(clean);
-  await page.goto('./#invitation');
+  // A fresh load (not a same-page hash change), as when the link is opened from a chat.
+  await page.goto('about:blank');
+  await page.goto(clean + '#invitation');
   await expect.poll(() => page.url()).toBe(clean);
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
-  await page.goto('./#location');
+  await page.goto('about:blank');
+  await page.goto(clean + '#location');
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(200);
 });

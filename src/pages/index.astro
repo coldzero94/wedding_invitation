@@ -108,7 +108,7 @@ const dates = Array.from({ length: daysInMonth }, (_, i) => i + 1);
     <link rel="apple-touch-icon" href={base + 'apple-touch-icon.png'} />
     <link rel="canonical" href={canonical.href} />
     <title>{title} | OUR SEASON</title>
-    <script is:inline>document.documentElement.classList.add('js'); setTimeout(function () { document.documentElement.classList.add('cover-ready'); }, 3000);</script>
+    <script is:inline>if (location.hash === '#invitation') history.replaceState(null, '', location.pathname + location.search); document.documentElement.classList.add('js'); setTimeout(function () { document.documentElement.classList.add('cover-ready'); }, 3000);</script>
     <link rel="preload" as="font" type="font/woff2" href={cormorantRegular} crossorigin />
     <link rel="preload" as="font" type="font/woff2" href={cormorantItalic} crossorigin />
     {kakaoJsKey && <script is:inline src="https://developers.kakao.com/sdk/js/kakao.js"></script>}

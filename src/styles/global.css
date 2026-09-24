@@ -275,18 +275,18 @@ dialog[open]::backdrop { opacity: 1; }
    only declared under .cover-ready: WebKit styles the page once before the stylesheet arrives, and a
    transition present from the start would visibly fade the cover *out* into its hidden state. */
 .cover h1 .cover-title-first, .cover h1 em { display: inline-block; }
-.cover-ready .cover-image { transition: opacity 1.4s var(--ease-out-soft), transform 2.4s var(--ease-out-soft); }
-.cover-ready :is(.cover-top, .cover-aside) { transition: opacity 1.2s var(--ease-out-soft) .3s; }
+.cover-ready .cover-image { transition: opacity .9s var(--ease-out-soft), transform 2.4s var(--ease-out-soft); }
+.cover-ready :is(.cover-top, .cover-aside) { transition: opacity 1.2s var(--ease-out-soft) .15s; }
 /* :where keeps this at low specificity so the per-line delays below apply. */
 .cover-ready :where(.cover-kicker, .cover-title-first, .cover h1 em, .couple-name, .cover-date, .cover-venue) { transition: opacity 1s var(--ease-out-soft), transform 1s var(--ease-out-soft); }
 /* The button only fades, so its hover lift keeps its own quick, undelayed transition. */
-.cover-ready .cover-button { transition: opacity 1s var(--ease-out-soft) 1.01s, background-color .2s, color .2s, transform .3s var(--ease-photo); }
-.cover-ready .cover-kicker { transition-delay: .35s; }
-.cover-ready .cover-title-first { transition-delay: .47s; }
-.cover-ready .cover h1 em { transition-delay: .59s; }
-.cover-ready .couple-name { transition-delay: .75s; }
-.cover-ready .cover-date { transition-delay: .85s; }
-.cover-ready .cover-venue { transition-delay: .93s; }
+.cover-ready .cover-button { transition: opacity 1s var(--ease-out-soft) .8s, background-color .2s, color .2s, transform .3s var(--ease-photo); }
+.cover-ready .cover-kicker { transition-delay: .12s; }
+.cover-ready .cover-title-first { transition-delay: .24s; }
+.cover-ready .cover h1 em { transition-delay: .36s; }
+.cover-ready .couple-name { transition-delay: .52s; }
+.cover-ready .cover-date { transition-delay: .62s; }
+.cover-ready .cover-venue { transition-delay: .7s; }
 .js:not(.cover-ready) .cover-image { opacity: 0; transform: scale(1.06); }
 .js:not(.cover-ready) :is(.cover-top, .cover-aside, .cover-button) { opacity: 0; }
 .js:not(.cover-ready) :is(.cover-kicker, .cover-title-first, .cover h1 em, .couple-name, .cover-date, .cover-venue) { opacity: 0; transform: translateY(14px); }
