@@ -16,13 +16,15 @@
   --focus-dark: #929e60;
   --ease-photo: cubic-bezier(.2, .65, .3, 1);
   --ease-out-soft: cubic-bezier(.16, 1, .3, 1);
-  --serif: 'Cormorant Garamond', 'Noto Serif KR', Georgia, serif;
-  --korean-serif: 'Noto Serif KR', Georgia, serif;
+  --serif: 'Cormorant Garamond', 'Pretendard Variable', Georgia, serif;
+  --korean: 'Pretendard Variable', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
   --sans: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
   --gutter: 24px;
   --section-space: 72px;
-  /* Two families only: Cormorant for Latin display and large numerals, Noto Serif KR for all Korean. */
-  font-family: var(--korean-serif);
+  /* Two families only: Cormorant for Latin display and large numerals, Pretendard (light) for all Korean. */
+  font-family: var(--korean);
+  font-weight: 300;
+  letter-spacing: -.01em;
   font-size: 16px;
   color: var(--paper);
   background: var(--ink);
@@ -47,6 +49,8 @@ img { display: block; max-width: 100%; height: auto; }
 svg { flex-shrink: 0; }
 p, h1, h2, h3, dl, dd { margin: 0; }
 h1, h2, h3 { font-weight: 400; }
+/* Pretendard is set light (300); small or tappable Korean text gets 400 so it stays crisp on phones. */
+:is(.button, .text-link, .copy-chip, .account-owner, .transport dt, .calendar th, .countdown-name, .cover-venue, .section-nav a, .toast, .share-option, summary) { font-weight: 400; }
 ::selection { color: var(--ink); background: var(--olive); }
 .visually-hidden { position: absolute !important; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 .skip-link { position: fixed; z-index: 50; top: 8px; left: 8px; transform: translateY(-150%); padding: 14px 20px; background: var(--paper); color: var(--ink); }
@@ -65,23 +69,23 @@ h1, h2, h3 { font-weight: 400; }
 .cover-line { height: 1px; flex: 1; background: #b2b8a5; opacity: .5; }
 .eyebrow { font-family: var(--serif); font-size: 11px; letter-spacing: .26em; line-height: 1.8; font-weight: 400; }
 .cover-top .eyebrow { font-size: 11px; letter-spacing: .14em; white-space: nowrap; }
-.cover-aside { margin: 44px 30px 0 auto; font-family: var(--korean-serif); font-size: 13px; line-height: 2.1; letter-spacing: .06em; text-shadow: 0 1px 10px #192013; }
+.cover-aside { margin: 44px 30px 0 auto; font-family: var(--korean); font-size: 13px; line-height: 2.1; letter-spacing: .06em; text-shadow: 0 1px 10px #192013; }
 .cover-bottom { margin-top: auto; padding: 90px 28px calc(40px + env(safe-area-inset-bottom)); text-align: center; }
 .cover-kicker { font-size: 12px; letter-spacing: .24em; margin-bottom: 14px; color: var(--muted-cream); text-shadow: 0 1px 8px #192013; }
 .cover h1 { font-family: var(--serif); font-size: clamp(76px, 20vw, 125px); line-height: .8; letter-spacing: -.055em; font-weight: 400; }
 .cover h1 em { font-weight: 400; overflow-wrap: anywhere; }
-.couple-name { margin-top: 28px; font-family: var(--korean-serif); font-size: 24px; letter-spacing: .12em; }
+.couple-name { margin-top: 28px; font-family: var(--korean); font-size: 24px; letter-spacing: .12em; }
 .couple-name span { display: inline-block; padding: 0 15px; font-family: var(--serif); font-size: 27px; }
 .cover-date { margin-top: 12px; font-family: var(--serif); font-size: 18px; letter-spacing: .03em; font-variant-numeric: lining-nums; }
 .cover-date .sep { margin: 0 9px; }
-.cover-date .ko { font-family: var(--korean-serif); font-size: 15px; letter-spacing: .02em; }
+.cover-date .ko { font-family: var(--korean); font-size: 15px; letter-spacing: .02em; }
 .cover-venue { display: flex; align-items: center; justify-content: center; gap: 7px; width: fit-content; max-width: 100%; min-height: 44px; margin: 3px auto 0; color: var(--muted-cream); font-size: 13px; line-height: 1.7; }
 .cover-venue span { word-break: keep-all; overflow-wrap: anywhere; }
 
 /* Buttons and links */
 .button { display: inline-flex; align-items: center; justify-content: center; gap: 12px; min-height: 50px; padding: 13px 20px; border: 1px solid transparent; border-radius: 3px; font-size: 14px; line-height: 1.6; transition: background-color .2s, color .2s, transform .3s var(--ease-photo); text-align: center; }
 .button:active { transform: translateY(0); }
-.cover-button { width: 100%; max-width: 400px; margin-top: 28px; background: var(--paper); color: var(--ink); font-family: var(--korean-serif); font-size: 16px; letter-spacing: .06em; }
+.cover-button { width: 100%; max-width: 400px; margin-top: 28px; background: var(--paper); color: var(--ink); font-family: var(--korean); font-size: 16px; letter-spacing: .06em; }
 .cover-button:hover { background: #fff; }
 .outline-button { border-color: var(--line-button); color: var(--text); background: transparent; }
 .outline-button:hover { background: var(--paper-dark); }
@@ -107,15 +111,15 @@ h1, h2, h3 { font-weight: 400; }
 .paper-section + .paper-section::before { content: ''; position: absolute; top: 0; left: 50%; width: 48px; height: 1px; background: var(--line-light); transform: translateX(-50%); }
 .section-head { margin-bottom: 32px; }
 .section-head .eyebrow { color: var(--accent); font-size: 12px; }
-.section-head h2 { margin-top: 8px; font-family: var(--korean-serif); font-size: 24px; line-height: 1.5; letter-spacing: -.02em; word-break: keep-all; text-wrap: balance; }
-.section-lead { max-width: 30em; margin: 14px auto 0; font-family: var(--korean-serif); font-size: 14px; line-height: 1.9; color: var(--text-muted); word-break: keep-all; text-wrap: balance; }
+.section-head h2 { margin-top: 8px; font-family: var(--korean); font-size: 24px; line-height: 1.5; letter-spacing: -.02em; word-break: keep-all; text-wrap: balance; }
+.section-lead { max-width: 30em; margin: 14px auto 0; font-family: var(--korean); font-size: 14px; line-height: 1.9; color: var(--text-muted); word-break: keep-all; text-wrap: balance; }
 
 /* SAVE THE DATE and greeting */
 .intro-section { padding-top: 80px; }
 .ruled-label { display: flex; align-items: center; justify-content: center; gap: 18px; color: var(--accent); font-size: 12px; letter-spacing: .34em; }
 .ruled-label::before, .ruled-label::after { content: ''; width: 28px; height: 1px; background: var(--line-light); }
 .display-date { margin-top: 16px; font-family: var(--serif); font-size: clamp(52px, 14vw, 72px); line-height: 1.05; letter-spacing: -.02em; font-variant-numeric: lining-nums; overflow-wrap: anywhere; }
-.save-date-when { margin-top: 14px; font-family: var(--korean-serif); font-size: 16px; line-height: 1.7; word-break: keep-all; }
+.save-date-when { margin-top: 14px; font-family: var(--korean); font-size: 16px; line-height: 1.7; word-break: keep-all; }
 .save-date-venue { margin-top: 2px; font-size: 14px; line-height: 1.7; color: var(--text-muted); word-break: keep-all; }
 .calendar { max-width: 320px; margin: 36px auto 0; padding: 20px 4px 14px; border-top: 1px solid var(--line-light); border-bottom: 1px solid var(--line-light); }
 .calendar-month { font-family: var(--serif); font-size: 22px; letter-spacing: .12em; margin-bottom: 14px; font-variant-numeric: lining-nums; }
@@ -128,7 +132,7 @@ h1, h2, h3 { font-weight: 400; }
 .calendar .wedding-day { position: relative; border-radius: 50%; color: var(--paper); background: var(--accent); transition: background-color .6s var(--ease-out-soft) .75s, color .6s var(--ease-out-soft) .75s; }
 .day-ring { position: absolute; inset: -3px; width: calc(100% + 6px); height: calc(100% + 6px); transform: rotate(-90deg); overflow: visible; pointer-events: none; }
 .day-ring circle { fill: none; stroke: var(--accent); stroke-width: 1.2; stroke-dasharray: 1; stroke-dashoffset: 0; transition: stroke-dashoffset 1s var(--ease-out-soft) .2s; }
-.countdown { margin-top: 22px; font-family: var(--korean-serif); color: var(--accent); word-break: keep-all; }
+.countdown { margin-top: 22px; font-family: var(--korean); color: var(--accent); word-break: keep-all; }
 .countdown-label { font-size: 15px; }
 .countdown-clock { display: flex; justify-content: center; gap: 6px; margin-top: 12px; }
 .countdown-clock[hidden] { display: none; }
@@ -141,9 +145,9 @@ h1, h2, h3 { font-weight: 400; }
 .invitation-note { margin-top: 56px; }
 /* Drawn as SVG: iOS renders the ✳ character as a green emoji. */
 .small-star { display: block; width: 17px; height: 17px; margin: 0 auto 22px; fill: none; stroke: var(--accent); stroke-width: 1.1; stroke-linecap: round; }
-.invitation-note > p:not(.signature) { font-family: var(--korean-serif); font-size: 16px; line-height: 2.2; word-break: keep-all; text-wrap: pretty; }
-.signature { margin-top: 28px; font-family: var(--korean-serif); font-size: 17px; letter-spacing: .12em; }
-.families { display: grid; gap: 10px; margin-top: 32px; font-family: var(--korean-serif); font-size: 15px; line-height: 1.8; word-break: keep-all; }
+.invitation-note > p:not(.signature) { font-family: var(--korean); font-size: 16px; line-height: 2.2; word-break: keep-all; text-wrap: pretty; }
+.signature { margin-top: 28px; font-family: var(--korean); font-size: 17px; letter-spacing: .12em; }
+.families { display: grid; gap: 10px; margin-top: 32px; font-family: var(--korean); font-size: 15px; line-height: 1.8; word-break: keep-all; }
 .families .parents { color: var(--text); }
 .families .relation { margin-left: 4px; color: var(--text-muted); font-size: 14px; }
 .families strong { margin-left: 4px; }
@@ -161,8 +165,8 @@ h1, h2, h3 { font-weight: 400; }
 .gallery-more[hidden] { display: none; }
 
 /* Location */
-.venue h3 { font-family: var(--korean-serif); font-size: 20px; line-height: 1.6; word-break: keep-all; }
-.venue-hall { margin-top: 2px; font-family: var(--korean-serif); font-size: 15px; color: var(--accent); }
+.venue h3 { font-family: var(--korean); font-size: 20px; line-height: 1.6; word-break: keep-all; }
+.venue-hall { margin-top: 2px; font-family: var(--korean); font-size: 15px; color: var(--accent); }
 .venue-address { margin-top: 8px; font-size: 15px; line-height: 1.7; word-break: keep-all; }
 .venue .text-link { color: var(--text-muted); }
 .map-links { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin-top: 16px; }
@@ -173,7 +177,7 @@ h1, h2, h3 { font-weight: 400; }
 /* Parking guide: full screen, scrolled vertically; the images are text-heavy, so they stay pinch-zoomable. */
 .parking-dialog { width: 100vw; height: 100vh; height: 100dvh; max-width: none; max-height: none; margin: 0; border: 0; border-radius: 0; color: var(--text); background: var(--paper); overflow-y: auto; overscroll-behavior: contain; }
 .parking-header { position: sticky; top: 0; z-index: 1; display: flex; align-items: center; justify-content: space-between; padding: max(6px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) 6px max(22px, env(safe-area-inset-left)); background: var(--paper); border-bottom: 1px solid var(--line-light); }
-.parking-header h2 { font-family: var(--korean-serif); font-size: 17px; }
+.parking-header h2 { font-family: var(--korean); font-size: 17px; }
 .parking-images { display: grid; gap: 16px; max-width: 720px; margin: 0 auto; padding: 16px 0 max(24px, env(safe-area-inset-bottom)); }
 .parking-images img { width: 100%; }
 .contact-button { width: 100%; margin-top: 28px; background: var(--accent); color: var(--paper); }
@@ -183,7 +187,7 @@ h1, h2, h3 { font-weight: 400; }
 .account-groups { max-width: 440px; margin: 0 auto; text-align: left; }
 .accounts { border-top: 1px solid var(--line-light); }
 .accounts:last-child { border-bottom: 1px solid var(--line-light); }
-.accounts summary { display: flex; justify-content: space-between; align-items: center; gap: 15px; min-height: 60px; font-family: var(--korean-serif); font-size: 16px; cursor: pointer; list-style: none; }
+.accounts summary { display: flex; justify-content: space-between; align-items: center; gap: 15px; min-height: 60px; font-family: var(--korean); font-size: 16px; cursor: pointer; list-style: none; }
 .accounts summary::-webkit-details-marker { display: none; }
 .accounts summary > svg { color: var(--text-muted); transition: transform .3s var(--ease-photo); }
 .accounts[open] summary > svg { transform: rotate(45deg); }
@@ -207,7 +211,7 @@ h1, h2, h3 { font-weight: 400; }
 .share-sheet[open] { transform: none; }
 @starting-style { .share-sheet[open] { opacity: 0; transform: translateY(24px); } }
 .share-sheet-header { display: flex; align-items: center; justify-content: space-between; padding: 6px 8px 6px 24px; }
-.share-sheet-header h2 { font-family: var(--korean-serif); font-size: 17px; }
+.share-sheet-header h2 { font-family: var(--korean); font-size: 17px; }
 .share-options { display: grid; padding: 0 12px; }
 .share-option { display: flex; align-items: center; gap: 14px; min-height: 58px; padding: 0 12px; border-radius: 10px; font-size: 15px; text-align: left; color: var(--text); }
 .share-option[hidden] { display: none; }
@@ -224,8 +228,8 @@ h1, h2, h3 { font-weight: 400; }
 /* Closing */
 .closing { text-align: center; padding-top: 80px; padding-bottom: 120px; background: var(--ink); color: var(--paper); color-scheme: dark; }
 .closing-title { font-family: var(--serif); font-size: clamp(52px, 13vw, 76px); line-height: .92; letter-spacing: -.035em; overflow-wrap: anywhere; }
-.closing-line { margin-top: 26px; font-family: var(--korean-serif); font-size: 15px; color: var(--muted-sage); word-break: keep-all; }
-.closing-names { margin-top: 20px; font-family: var(--korean-serif); font-size: 17px; letter-spacing: .08em; }
+.closing-line { margin-top: 26px; font-family: var(--korean); font-size: 15px; color: var(--muted-sage); word-break: keep-all; }
+.closing-names { margin-top: 20px; font-family: var(--korean); font-size: 17px; letter-spacing: .08em; }
 .closing-names span { margin: 0 10px; font-family: var(--serif); font-size: 24px; color: var(--olive); }
 .back-top { margin-top: 24px; color: var(--olive); }
 .back-top svg { transform: rotate(-90deg); }
@@ -259,15 +263,15 @@ dialog[open]::backdrop { opacity: 1; }
 .gallery-next { right: max(8px, env(safe-area-inset-right)); }
 .gallery-dialog :focus-visible { outline: 2px solid var(--paper); outline-offset: 2px; box-shadow: 0 0 0 4px rgb(0 0 0 / .55); }
 .gallery-control[hidden] { display: none; }
-.gallery-caption { padding: 14px 24px 18px; font-family: var(--korean-serif); font-size: 15px; line-height: 1.8; color: var(--muted-sage); text-align: center; word-break: keep-all; }
+.gallery-caption { padding: 14px 24px 18px; font-family: var(--korean); font-size: 15px; line-height: 1.8; color: var(--muted-sage); text-align: center; word-break: keep-all; }
 .gallery-caption[hidden] { display: none; }
 .contact-dialog, .copy-dialog { width: 430px; background: var(--paper); color: var(--text); padding: 23px; color-scheme: light; }
 .contact-dialog-header { display: flex; justify-content: space-between; align-items: center; color: var(--text-muted); margin-top: -7px; }
-.contact-dialog h2 { font-family: var(--korean-serif); font-size: 21px; margin: 17px 0 29px; }
+.contact-dialog h2 { font-family: var(--korean); font-size: 21px; margin: 17px 0 29px; }
 .person-contact { display: flex; align-items: center; justify-content: space-between; min-height: 75px; gap: 14px; border-top: 1px solid var(--line-light); }
 .person-contact > p { display: flex; align-items: center; gap: 14px; }
 .person-contact > p > span { font-size: 13px; color: var(--text-muted); }
-.person-contact strong { font-weight: 400; font-family: var(--korean-serif); font-size: 17px; }
+.person-contact strong { font-weight: 400; font-family: var(--korean); font-size: 17px; }
 .person-contact > div { display: flex; gap: 8px; }
 .copy-dialog h2 { font-size: 18px; }
 .copy-dialog p { margin-top: 12px; font-size: 14px; }

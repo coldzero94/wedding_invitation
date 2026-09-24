@@ -7,7 +7,8 @@ import cormorantRegular from '@fontsource/cormorant-garamond/files/cormorant-gar
 import cormorantItalic from '@fontsource/cormorant-garamond/files/cormorant-garamond-latin-400-italic.woff2?url';
 import '@fontsource/cormorant-garamond/latin-400.css';
 import '@fontsource/cormorant-garamond/latin-400-italic.css';
-import '@fontsource/noto-serif-kr/400.css';
+// Korean: Pretendard (variable weight), split into unicode-range subsets so only the needed ones load.
+import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css';
 import '../styles/global.css';
 import Icon from '../components/Icon.astro';
 import { wedding } from '../data/wedding';
@@ -161,7 +162,7 @@ const dates = Array.from({ length: daysInMonth }, (_, i) => i + 1);
           };
           var waits = [image.decode ? image.decode().catch(function () {}) : null];
           if (document.fonts && document.fonts.load) {
-            ['400 1em "Cormorant Garamond"', 'italic 400 1em "Cormorant Garamond"', '400 1em "Noto Serif KR"'].forEach(function (font) {
+            ['400 1em "Cormorant Garamond"', 'italic 400 1em "Cormorant Garamond"', '300 1em "Pretendard Variable"'].forEach(function (font) {
               waits.push(document.fonts.load(font, cover.textContent).catch(function () {}));
             });
           }

@@ -29,7 +29,7 @@ export const wedding = {
     ],
     transport: [
       { title: '지하철', description: '5호선 발산역에서 도보 3~5분 거리입니다.' },
-      { title: '주차', description: '예식장 건물 주차장을 이용해 주세요.\n만차 시에는 주차 안내원이 드리는 주차권을 받아 이대서울병원 주차장(C관 J·K·L 구역)을 이용하시고, 출차 전 컨벤션 1층 안내데스크에 주차권을 제출해 주세요.' },
+      { title: '주차', description: '예식장 건물 주차장을 이용해 주세요.\n만차 시에는 주차 안내원이 드리는 주차권을 받아 이대서울병원 주차장(C관 J·K·L 구역)을 이용하시고, 출차\u00a0전 컨벤션 1층 안내데스크에 주차권을 제출해 주세요.' },
     ] as { title: string; description: string }[],
     // Shown full screen from the 주차 안내 보기 button, in this order.
     parkingGuide: [
