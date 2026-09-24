@@ -285,3 +285,11 @@ test('the parking guide opens full screen with both images and closes with Back'
   await page.goBack();
   await expect(dialog).toBeHidden();
 });
+
+test('처음으로 returns to the very top even beside the sticky desktop cover', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('./');
+  await page.evaluate(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'instant' }));
+  await page.locator('.back-top').click();
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
+});

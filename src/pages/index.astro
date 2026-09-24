@@ -115,9 +115,11 @@ const dates = Array.from({ length: daysInMonth }, (_, i) => i + 1);
     <noscript><style>[data-reveal] { opacity: 1 !important; transform: none !important; }</style></noscript>
   </head>
   <body>
+    <!-- 처음으로 targets this, not the cover: on desktop the cover is sticky, so jumping to it barely scrolls. -->
+    <span id="top"></span>
     <a class="skip-link" href="#invitation">본문 바로가기</a>
     <div class="invitation-shell">
-      <header class="cover" id="top">
+      <header class="cover">
         <Image class="cover-image" src={wedding.hero.image} alt={wedding.hero.alt} style={{ objectPosition: wedding.hero.position }} width={heroWidth} height={heroHeight} widths={heroWidths} sizes="(min-width: 1000px) 44vw, 100vw" format="webp" loading="eager" fetchpriority="high" />
         <div class="cover-shade"></div>
         <div class="cover-top">
