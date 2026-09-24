@@ -71,4 +71,18 @@ test.describe('the movie edition (/v2/)', () => {
     await expect(page.locator('.leader')).toBeHidden();
     await expect(page.locator('html')).toHaveClass(/cover-ready/, { timeout: 2000 });
   });
+
+  test('account numbers are shown with hyphens but copied as digits only, on both editions', async ({ page }) => {
+    await page.addInitScript(() => {
+      Object.defineProperty(navigator, 'clipboard', { value: { writeText: async (text: string) => { (window as any).__copied = text; } } });
+    });
+    for (const path of ['./', './v2/']) {
+      await page.goto(path);
+      const row = page.locator('.account-row', { hasText: '최효안' });
+      await page.locator('.accounts summary', { hasText: '신랑측' }).click();
+      await expect(row).toContainText('830-24-0107-431');
+      await row.locator('.copy-chip').click();
+      await expect.poll(() => page.evaluate(() => (window as any).__copied)).toBe('830240107431');
+    }
+  });
 });

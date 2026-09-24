@@ -325,7 +325,7 @@ const marqueeBulbs = (() => {
                   {group.items.map((account) => (
                     <li class="account-row">
                       <p><span class="account-owner">{account.relation?.trim() || group.side} {account.name}</span><span class="account-number">{account.bank} {account.number}</span></p>
-                      <button type="button" class="copy-chip" data-copy={account.number} data-copy-message="계좌번호를 복사했습니다." aria-label={account.name + ' 계좌번호 복사'}><Icon name="copy" size={15} /> 복사</button>
+                      <button type="button" class="copy-chip" data-copy={account.number.replace(/\D/g, '')} data-copy-message="계좌번호를 복사했습니다." aria-label={account.name + ' 계좌번호 복사'}><Icon name="copy" size={15} /> 복사</button>
                     </li>
                   ))}
                 </ul>

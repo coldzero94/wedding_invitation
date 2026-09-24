@@ -92,7 +92,8 @@ test.describe('real-mode rendering with fictional fixtures', () => {
         await page.locator('.accounts summary').click();
         await expect(page.locator('.account-owner')).toHaveText(['신랑 테스트 예금주', '아버지 이테스트']);
         await page.getByRole('button', { name: '테스트 예금주 계좌번호 복사' }).click();
-        expect(await page.evaluate(() => (window as any).__copied)).toBe('000-000000-00');
+        // Account numbers are shown with hyphens but copied as digits only.
+        expect(await page.evaluate(() => (window as any).__copied)).toBe('00000000000');
       }
       await page.locator('.gallery-thumb').first().click();
       await expect(page.locator('#gallery-dialog')).toBeVisible();
