@@ -40,6 +40,9 @@ export const wedding = {
   // relation(아버지·어머니 등)을 비우면 신랑·신부 본인 계좌로 표시합니다.
   accounts: [
     { side: '신랑', relation: '', name: '이찬영', bank: '신한', number: '110-235-729687' },
+    { side: '신랑', relation: '아버지', name: '이기만', bank: '신한', number: '110-004-601620' },
+    // Former 국민은행 12-digit account (branch-subject-serial+check), written 3-2-4-3 per the KFTC CMS table.
+    { side: '신랑', relation: '어머니', name: '최효안', bank: '국민', number: '830-24-0107-431' },
     { side: '신부', relation: '', name: '임예지', bank: '국민', number: '373301-01-415845' },
   ] as { side: '신랑' | '신부'; relation?: string; name: string; bank: string; number: string }[],
   introduction: ['서로의 하루에 가장 먼저 떠오르는 사람.', '이제는 같은 내일을 함께 그리려 합니다.', '저희의 새로운 시작에 함께해 주세요.'],

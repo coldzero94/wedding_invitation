@@ -137,6 +137,8 @@ test('contact is hidden without phone numbers, and accounts are grouped by side'
   await expect(page.locator('.accounts')).toHaveCount(2);
   await page.locator('.accounts summary', { hasText: '신랑측' }).click();
   await expect(page.locator('.account-row', { hasText: '이찬영' })).toContainText('신한 110-235-729687');
+  await expect(page.locator('.account-row', { hasText: '이기만' })).toContainText('아버지 이기만신한 110-004-601620');
+  await expect(page.locator('.account-row', { hasText: '최효안' })).toContainText('어머니 최효안국민 830-24-0107-431');
   await page.locator('.accounts summary', { hasText: '신부측' }).click();
   await expect(page.locator('.account-row', { hasText: '임예지' })).toContainText('국민 373301-01-415845');
 });
