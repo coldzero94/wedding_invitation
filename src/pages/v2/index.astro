@@ -20,7 +20,6 @@ const title = wedding.groom.name + ' & ' + wedding.bride.name + ', 결혼합니�
 const data = await prepareInvitation(canonical, Astro.site);
 const { hero, og, kakao, photos, parkingGuide, venueWithHall, summary, accountGroups } = data;
 const timeEn = new Intl.DateTimeFormat('en-US', { timeZone: wedding.timeZone, hour: 'numeric', minute: '2-digit' }).format(eventDate);
-const monthEn = new Intl.DateTimeFormat('en-US', { timeZone: wedding.timeZone, month: 'short' }).format(eventDate).toUpperCase();
 
 const PREVIEW_COUNT = 9;
 const collapsible = photos.length > 12;
@@ -113,7 +112,7 @@ const marqueeBulbs = (() => {
         <p class="poster-when"><span lang="en">{shortDate} {weekday}</span><span class="dot" aria-hidden="true">·</span>{time}</p>
         <a class="poster-where" href="#location"><Icon name="pin" size={14} /><span>{venueWithHall}</span></a>
         <a class="poster-cta" href="#invitation"><span lang="en">NOW PLAYING</span> 입장하기 <Icon name="down" size={16} /></a>
-        <p class="poster-billing" lang="en">STARRING <span lang="ko">{wedding.groom.name} · {wedding.bride.name}</span> · IN THEATERS {monthEn} {day}, {year}</p>
+        <p class="poster-billing" lang="en">STARRING {movie.namesEn.groom} &amp; {movie.namesEn.bride} · IN {movie.venueEn}</p>
       </div>
     </header>
     <script is:inline>
@@ -230,9 +229,9 @@ const marqueeBulbs = (() => {
         <figure class="movie-poster" data-reveal>
           <Image class="movie-poster-image" src={poster.photo.image} alt={poster.photo.alt} width={600} height={800} widths={[400, 600]} sizes="(min-width: 600px) 340px, 82vw" fit="cover" position="attention" format="webp" loading="lazy" decoding="async" />
           <figcaption>
-            <span class="mp-names">{wedding.groom.name} <span lang="en">&amp;</span> {wedding.bride.name}</span>
+            <span class="mp-names" lang="en">{movie.namesEn.groom} <span>&amp;</span> {movie.namesEn.bride}</span>
             <span class="mp-title" lang="en">WEDDING<br />DAY</span>
-            <span class="mp-date" lang="en">{shortDate} · IN THEATERS</span>
+            <span class="mp-date" lang="en">{shortDate}<span class="mp-venue">IN {movie.venueEn}</span></span>
           </figcaption>
         </figure>
         <header class="scene-head stills-head" data-reveal>

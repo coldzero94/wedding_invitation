@@ -5,6 +5,9 @@ import { wedding } from './wedding';
 export const movie = {
   title: 'The Grandest Show of Our Love',
   studio: 'OUR SEASON PICTURES',
+  // English billing on the posters: the couple in capitals, and the venue in place of "in theaters".
+  namesEn: { groom: 'CHANYOUNG', bride: 'YEJI' },
+  venueEn: 'THE NEW CONVENTION',
   quote: { text: '나는 3000만큼 사랑해.', source: '영화 〈어벤져스: 엔드게임〉 중' },
   // Names come from wedding.ts, so both designs always credit the same people; empty entries are skipped.
   cast: [
