@@ -129,22 +129,13 @@ test('Back closes a dialog, Forward restores its selection, and close consumes i
 test('contact is hidden without phone numbers, and accounts are grouped by side', async ({ page }) => {
   await page.goto('./');
   await expect(page.locator('[data-open-contact], #contact-dialog')).toHaveCount(0);
-  await expect(page.locator('.mobile-dock [data-share]')).toBeVisible();
+  await expect(page.locator('.share-section [data-share]')).toBeVisible();
+  await expect(page.locator('.mobile-dock')).toHaveCount(0);
   await expect(page.locator('.accounts')).toHaveCount(2);
   await page.locator('.accounts summary', { hasText: '신랑측' }).click();
   await expect(page.locator('.account-row', { hasText: '이찬영' })).toContainText('신한 110-235-729687');
   await page.locator('.accounts summary', { hasText: '신부측' }).click();
   await expect(page.locator('.account-row', { hasText: '임예지' })).toContainText('국민 373301-01-415845');
-});
-
-test('the dock stays off the cover and appears once the invitation is on screen', async ({ page }) => {
-  await page.goto('./');
-  const dock = page.locator('.mobile-dock');
-  await expect(dock).not.toHaveClass(/is-shown/);
-  expect(await dock.evaluate((el) => (el as HTMLElement).inert)).toBe(true);
-  await page.locator('#gallery').evaluate((el) => el.scrollIntoView());
-  await expect(dock).toHaveClass(/is-shown/);
-  expect(await dock.evaluate((el) => (el as HTMLElement).inert)).toBe(false);
 });
 
 test('sharing falls back to a copyable URL when browser permissions fail', async ({ page, baseURL }) => {
@@ -220,8 +211,6 @@ test('layout reflows at narrow, tablet and desktop widths', async ({ page }) => 
     await page.setViewportSize({ width, height: 900 });
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
     expect(overflow, 'horizontal overflow at ' + width).toBe(false);
-    if (width < 1000) await expect(page.locator('.mobile-dock')).toBeVisible();
-    else await expect(page.locator('.mobile-dock')).not.toBeVisible();
   }
   const cover = await page.locator('.cover').boundingBox();
   const content = await page.locator('.invitation-content').boundingBox();

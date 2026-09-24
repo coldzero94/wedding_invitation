@@ -70,7 +70,7 @@ test.describe('real-mode rendering with fictional fixtures', () => {
       await expect(page.locator('.demo-note')).toHaveCount(0);
       if (mode === 'empty') {
         await expect(page.locator('[data-open-contact], #contact-dialog, .accounts')).toHaveCount(0);
-        await expect(page.locator('.mobile-dock [data-share]')).toBeVisible();
+        await expect(page.locator('.share-section [data-share]')).toBeVisible();
       } else {
         await page.locator('.contact-button').click();
         await expect(page.locator('.person-contact')).toHaveCount(2);

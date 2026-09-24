@@ -1,5 +1,7 @@
 ---
 import { Image, getImage } from 'astro:assets';
+import { join } from 'node:path';
+import sharp from 'sharp';
 // Same files the @fontsource CSS points at; preloaded so the cover title does not swap fonts mid-entrance.
 import cormorantRegular from '@fontsource/cormorant-garamond/files/cormorant-garamond-latin-400-normal.woff2?url';
 import cormorantItalic from '@fontsource/cormorant-garamond/files/cormorant-garamond-latin-400-italic.woff2?url';
@@ -20,6 +22,9 @@ const heroSource = (await getImage({ src: wedding.hero.image })).attributes;
 const heroWidth = Math.min(1200, Number(heroSource.width));
 const heroHeight = Math.round(heroWidth * Number(heroSource.height) / Number(heroSource.width));
 const heroWidths = [...new Set([480, 800, heroWidth].filter((w) => w <= heroWidth))];
+// A ~1KB blurred copy of the cover inlined in the HTML: the very first paint already shows the photo,
+// softly, and the real image fades in over it. (Same file wedding.ts imports as hero.image.)
+const lqip = 'data:image/webp;base64,' + (await sharp(join(process.cwd(), 'src/assets/photos/hero.jpg')).rotate().resize(24).webp({ quality: 50 }).toBuffer()).toString('base64');
 const ogWidth = heroWidth;
 const ogHeight = Math.round(ogWidth * 630 / 1200);
 // hero.og is an optional landscape crop for link previews; otherwise sharp picks the focus.
@@ -108,10 +113,10 @@ const dates = Array.from({ length: daysInMonth }, (_, i) => i + 1);
     <link rel="apple-touch-icon" href={base + 'apple-touch-icon.png'} />
     <link rel="canonical" href={canonical.href} />
     <title>{title} | OUR SEASON</title>
-    <script is:inline>if (location.hash === '#invitation') history.replaceState(null, '', location.pathname + location.search); document.documentElement.classList.add('js'); setTimeout(function () { document.documentElement.classList.add('cover-ready'); }, 3000);</script>
+    <script is:inline>if (location.hash === '#invitation') history.replaceState(null, '', location.pathname + location.search); document.documentElement.classList.add('js'); setTimeout(function () { document.documentElement.classList.add('cover-ready'); }, 2500);</script>
     <link rel="preload" as="font" type="font/woff2" href={cormorantRegular} crossorigin />
     <link rel="preload" as="font" type="font/woff2" href={cormorantItalic} crossorigin />
-    {kakaoJsKey && <script is:inline src="https://developers.kakao.com/sdk/js/kakao.js"></script>}
+    {kakaoJsKey && <script is:inline defer src="https://developers.kakao.com/sdk/js/kakao.js"></script>}
     <noscript><style>[data-reveal] { opacity: 1 !important; transform: none !important; }</style></noscript>
   </head>
   <body>
@@ -120,6 +125,7 @@ const dates = Array.from({ length: daysInMonth }, (_, i) => i + 1);
     <a class="skip-link" href="#invitation">본문 바로가기</a>
     <div class="invitation-shell">
       <header class="cover">
+        <div class="cover-lqip" style={`background-image: url(${lqip}); background-position: ${wedding.hero.position}`}></div>
         <Image class="cover-image" src={wedding.hero.image} alt={wedding.hero.alt} style={{ objectPosition: wedding.hero.position }} width={heroWidth} height={heroHeight} widths={heroWidths} sizes="(min-width: 1000px) 44vw, 100vw" format="webp" loading="eager" fetchpriority="high" />
         <div class="cover-shade"></div>
         <div class="cover-top">
@@ -137,6 +143,22 @@ const dates = Array.from({ length: daysInMonth }, (_, i) => i + 1);
           <a class="button cover-button" href="#invitation">초대장 열기 <Icon name="arrow" size={18} /></a>
         </div>
       </header>
+      <script is:inline>
+        // Runs as soon as the cover is parsed, with no separate file to fetch or to be served stale:
+        // start the entrance once the photo is decoded and the cover's fonts are in, at most 1.5s.
+        (function () {
+          var root = document.documentElement, cover = document.querySelector('.cover'), image = cover.querySelector('.cover-image');
+          var go = function () { root.classList.add('cover-ready'); };
+          var waits = [image.decode ? image.decode().catch(function () {}) : null];
+          if (document.fonts && document.fonts.load) {
+            ['400 1em "Cormorant Garamond"', 'italic 400 1em "Cormorant Garamond"', '400 1em "Noto Serif KR"'].forEach(function (font) {
+              waits.push(document.fonts.load(font, cover.textContent).catch(function () {}));
+            });
+          }
+          Promise.all(waits).then(go);
+          setTimeout(go, 1500);
+        })();
+      </script>
 
       <main id="content" class="invitation-content">
         <nav class="section-nav" aria-label="청첩장 메뉴">
@@ -294,10 +316,6 @@ const dates = Array.from({ length: daysInMonth }, (_, i) => i + 1);
         </footer>
       </main>
     </div>
-    <nav class="mobile-dock" aria-label="빠른 메뉴">
-      <a href="#location"><Icon name="pin" size={17} /> 오시는 길</a>
-      {showContact ? <button type="button" data-open-contact><Icon name="phone" size={16} /> 연락하기</button> : <button type="button" data-share><Icon name="share" size={16} /> 공유하기</button>}
-    </nav>
 
     <dialog class="gallery-dialog" id="gallery-dialog" aria-label="사진 크게 보기">
       <div class="gallery-header">

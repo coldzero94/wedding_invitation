@@ -90,17 +90,6 @@ galleryImage.addEventListener('error', () => {
   retryPhoto.hidden = false;
 });
 retryPhoto.addEventListener('click', () => updatePhoto(selection.index));
-// Start the cover entrance once the photo is decoded and the fonts are in (at most 1.8s), instead of
-// the photo popping in mid-animation and the title re-rendering in its web font.
-const coverImage = document.querySelector<HTMLImageElement>('.cover-image');
-// Only the cover's own faces (and the Korean subsets its text needs), not every font on the page.
-const coverText = document.querySelector('.cover')?.textContent || '';
-const coverFonts = document.fonts ? ['400 1em "Cormorant Garamond"', 'italic 400 1em "Cormorant Garamond"', '400 1em "Noto Serif KR"']
-  .map((font) => document.fonts.load(font, coverText).catch(() => {})) : [];
-void Promise.race([
-  Promise.all([...coverFonts, coverImage?.decode().catch(() => {})]),
-  new Promise((resolve) => setTimeout(resolve, 1800)),
-]).then(() => document.documentElement.classList.add('cover-ready'));
 
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
@@ -362,19 +351,3 @@ if ('IntersectionObserver' in window) {
   arriving.forEach((el) => el.classList.add('is-arrived'));
 }
 
-// The dock stays out of the way on the cover and appears once the invitation itself is on screen.
-const dock = document.querySelector<HTMLElement>('.mobile-dock');
-const cover = document.querySelector<HTMLElement>('.cover');
-if (dock && cover) {
-  let queued = false;
-  const syncDock = () => {
-    queued = false;
-    const shown = cover.getBoundingClientRect().bottom < window.innerHeight * 0.6;
-    dock.classList.toggle('is-shown', shown);
-    dock.inert = !shown;
-  };
-  const queue = () => { if (!queued) { queued = true; requestAnimationFrame(syncDock); } };
-  window.addEventListener('scroll', queue, { passive: true });
-  window.addEventListener('resize', queue);
-  syncDock();
-}
