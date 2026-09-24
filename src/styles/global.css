@@ -173,7 +173,7 @@ h1, h2, h3 { font-weight: 400; }
 .parking-header { position: sticky; top: 0; z-index: 1; display: flex; align-items: center; justify-content: space-between; padding: max(6px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) 6px max(22px, env(safe-area-inset-left)); background: var(--paper); border-bottom: 1px solid var(--line-light); }
 .parking-header h2 { font-family: var(--korean-serif); font-size: 17px; }
 .parking-images { display: grid; gap: 16px; max-width: 720px; margin: 0 auto; padding: 16px 0 max(24px, env(safe-area-inset-bottom)); }
-.parking-images img { width: 100%; background: #fff; }
+.parking-images img { width: 100%; }
 .contact-button { width: 100%; margin-top: 28px; background: var(--accent); color: var(--paper); }
 .contact-button:hover { background: #3f4a30; }
 
