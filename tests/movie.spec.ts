@@ -58,4 +58,15 @@ test.describe('the movie edition (/v2/)', () => {
     await expect(page).toHaveURL(baseURL!);
     await expect(page.locator('h1')).toContainText('The next');
   });
+
+  test('the film leader plays when arriving but not on a reload', async ({ page }) => {
+    await page.goto('./v2/');
+    await expect(page.locator('html')).not.toHaveClass(/no-leader/);
+    await expect(page.locator('.leader')).toBeVisible();
+    await expect(page.locator('html')).toHaveClass(/cover-ready/, { timeout: 5000 });
+    await page.reload();
+    await expect(page.locator('html')).toHaveClass(/no-leader/);
+    await expect(page.locator('.leader')).toBeHidden();
+    await expect(page.locator('html')).toHaveClass(/cover-ready/, { timeout: 2000 });
+  });
 });

@@ -75,6 +75,7 @@ h1, h2, h3 { font-weight: 400; }
 /* Film leader on every visit: 3, 2, 1 once (0.6s each) with a sweeping hand, then it fades to the poster. */
 .leader { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; background: var(--bg); opacity: 0; visibility: hidden; pointer-events: none; }
 .js:not(.cover-ready) .leader { opacity: 1; visibility: visible; }
+.no-leader .leader { display: none; }
 .cover-ready .leader { transition: opacity .7s var(--ease), visibility 0s .7s; }
 .leader-frame { position: relative; width: 170px; aspect-ratio: 1; border-radius: 50%; border: 2px solid rgb(239 232 218 / .55); box-shadow: 0 0 0 12px rgb(239 232 218 / .05), inset 0 0 0 24px rgb(239 232 218 / .04); }
 .leader-cross::before, .leader-cross::after { content: ''; position: absolute; left: 50%; top: 50%; background: rgb(239 232 218 / .28); transform: translate(-50%, -50%); }
@@ -121,7 +122,8 @@ h1, h2, h3 { font-weight: 400; }
 .poster-billing { margin-top: 12px; text-wrap: balance; font-family: var(--marquee); font-size: 11px; line-height: 1.5; letter-spacing: .14em; color: var(--dim); }
 
 /* Poster entrance: hidden until html.cover-ready; transitions exist only after it, so WebKit never fades the
-   poster out into its hidden state before showing it. The film leader covers the first paint, so the entrance plays on every visit. */
+   poster out into its hidden state before showing it. On arrival the film leader covers the first paint; on a reload a poster that
+   is ready at once is shown finished (cover-instant). */
 .js:not(.cover-ready) .cover-image { opacity: 0; }
 .js:not(.cover-ready) :is(.poster-studio, .poster-credits, .poster-when, .poster-where, .poster-cta, .poster-billing) { opacity: 0; }
 .js:not(.cover-ready) :is(.t-the, .t-show, .t-of) { opacity: 0; transform: translateY(12px); }
@@ -144,6 +146,7 @@ h1, h2, h3 { font-weight: 400; }
 .cover-ready .poster-where { transition-delay: 1.5s; }
 .cover-ready .poster-cta { transition-delay: 1.6s; }
 .cover-ready .poster-billing { transition-delay: 1.7s; }
+.cover-instant .cover :is(.cover-image, .poster-studio, .t-the, .t-grandest, .t-show, .t-of, .t-love, .poster-credits, .poster-when, .poster-where, .poster-cta, .poster-billing) { transition: none !important; }
 
 /* Scenes */
 .scene { position: relative; padding: 92px var(--gutter); text-align: center; }
