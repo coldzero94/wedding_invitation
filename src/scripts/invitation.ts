@@ -265,20 +265,36 @@ if (kakaoButton && window.Kakao) {
 }
 
 const countdown = document.querySelector<HTMLElement>('[data-event-date]');
+const countdownLabel = countdown?.querySelector<HTMLElement>('.countdown-label');
+const countdownClock = countdown?.querySelector<HTMLElement>('.countdown-clock');
+const countdownUnits = Object.fromEntries([...(countdown?.querySelectorAll<HTMLElement>('[data-unit]') ?? [])].map((el) => [el.dataset.unit!, el]));
+// Live time left until the ceremony; on the day itself and afterwards, a short line instead.
 function updateCountdown() {
-  if (!countdown?.dataset.eventDate) return;
+  if (!countdown?.dataset.eventDate || !countdownLabel || !countdownClock) return;
   const ceremony = new Date(countdown.dataset.eventDate);
+  const now = new Date();
+  const left = ceremony.getTime() - now.getTime();
   const todayKorea = new Intl.DateTimeFormat('en-CA', { timeZone: countdown.dataset.timeZone || 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit' });
-  const dateKey = (date: Date) => {
-    const parts = todayKorea.formatToParts(date);
-    const get = (type: string) => Number(parts.find((part) => part.type === type)?.value);
-    return Date.UTC(get('year'), get('month') - 1, get('day'));
-  };
-  const days = Math.round((dateKey(ceremony) - dateKey(new Date())) / 86400000);
-  countdown.textContent = days > 0 ? '결혼식까지 ' + days + '일 남았습니다' : days === 0 ? '오늘, 저희 결혼합니다' : '함께해 주셔서 감사합니다';
+  const sameDay = todayKorea.format(ceremony) === todayKorea.format(now);
+  if (left > 0) {
+    // Round up so the display reaches 00 exactly at the ceremony time, not a second early.
+    const total = Math.ceil(left / 1000);
+    const values = { d: Math.floor(total / 86400), h: Math.floor(total / 3600) % 24, m: Math.floor(total / 60) % 60, s: total % 60 };
+    for (const [unit, value] of Object.entries(values)) {
+      const text = unit === 'd' ? String(value) : String(value).padStart(2, '0');
+      if (countdownUnits[unit] && countdownUnits[unit].textContent !== text) countdownUnits[unit].textContent = text;
+    }
+    countdownLabel.textContent = sameDay ? '오늘, 저희 결혼합니다' : '결혼식까지 남은 시간';
+    countdownClock.hidden = false;
+    countdownClock.setAttribute('aria-label', values.d + '일 ' + values.h + '시간 ' + values.m + '분 남았습니다');
+    // Tick on the second boundary so the seconds change evenly.
+    setTimeout(updateCountdown, 1000 - (Date.now() % 1000) + 5);
+  } else {
+    countdownLabel.textContent = sameDay ? '오늘, 저희 결혼합니다' : '함께해 주셔서 감사합니다';
+    countdownClock.hidden = true;
+  }
 }
 updateCountdown();
-setInterval(updateCountdown, 60_000);
 
 if ('IntersectionObserver' in window) {
   const observer = new IntersectionObserver((entries) => {

@@ -10,7 +10,9 @@ test('photos and required information work without JavaScript errors', async ({ 
   await expect(page).toHaveTitle(/찬영 & 예지/);
   await expect(page.locator('h1')).toContainText('The next');
   await expect(page.locator('.cover-image')).toBeVisible();
-  await expect(page.locator('.cover-venue')).toHaveText('발산 더뉴컨벤션 · 서울 강서구');
+  await expect(page.locator('.cover-venue')).toHaveText('발산 더뉴컨벤션 · 5층 제니스홀');
+  await expect(page.locator('.save-date-venue')).toHaveText('발산 더뉴컨벤션 5층 제니스홀');
+  await expect(page.locator('.venue-hall')).toHaveText('5층 제니스홀');
   await expect(page.locator('.cover-venue')).toHaveAttribute('href', '#location');
   await expect(page.locator('.cover-button')).toHaveAttribute('href', '#invitation');
   await expect(page.locator('.save-date-when')).toContainText('2027년 3월 13일 토요일');
@@ -172,17 +174,31 @@ test('calendar download uses Korea event time and March 13 is Saturday', async (
   await expect(page.locator('td:nth-child(7) .wedding-day')).toHaveText('13일 결혼식');
 });
 
-test('the D-day line counts down in Korea time and changes on the day', async ({ page }) => {
-  const countdown = page.locator('.countdown');
-  await page.clock.setFixedTime(new Date('2027-03-11T23:30:00+09:00'));
+test('the countdown ticks down to the ceremony in Korea time and changes on the day', async ({ page }) => {
+  const label = page.locator('.countdown-label');
+  const unit = (name: string) => page.locator(`[data-unit="${name}"]`);
+  await page.clock.install({ time: new Date('2027-03-11T23:29:00+09:00') });
+  await page.clock.pauseAt(new Date('2027-03-11T23:30:00+09:00'));
   await page.goto('./');
-  await expect(countdown).toHaveText('결혼식까지 2일 남았습니다');
+  await expect(label).toHaveText('결혼식까지 남은 시간');
+  await expect(unit('d')).toHaveText('1');
+  await expect(unit('h')).toHaveText('12');
+  await expect(unit('m')).toHaveText('40');
+  await expect(unit('s')).toHaveText('00');
+  await page.clock.runFor(1100);
+  await expect(unit('s')).toHaveText('59');
+  await expect(unit('m')).toHaveText('39');
   await page.clock.setFixedTime(new Date('2027-03-13T09:00:00+09:00'));
   await page.reload();
-  await expect(countdown).toHaveText('오늘, 저희 결혼합니다');
+  await expect(label).toHaveText('오늘, 저희 결혼합니다');
+  await expect(unit('h')).toHaveText('03');
+  await page.clock.setFixedTime(new Date('2027-03-13T13:00:00+09:00'));
+  await page.reload();
+  await expect(label).toHaveText('오늘, 저희 결혼합니다');
+  await expect(page.locator('.countdown-clock')).toBeHidden();
   await page.clock.setFixedTime(new Date('2027-03-14T09:00:00+09:00'));
   await page.reload();
-  await expect(countdown).toHaveText('함께해 주셔서 감사합니다');
+  await expect(label).toHaveText('함께해 주셔서 감사합니다');
 });
 
 test('the share image frames the couple and its declared size matches the file', async ({ page, request }) => {

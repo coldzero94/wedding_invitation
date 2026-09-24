@@ -25,8 +25,9 @@ const ogHeight = Math.round(ogWidth * 630 / 1200);
 // hero.og is an optional landscape crop for link previews; otherwise sharp picks the focus.
 const og = await getImage({ src: wedding.hero.og || wedding.hero.image, width: ogWidth, height: ogHeight, fit: 'cover', position: 'attention', format: 'jpg' });
 const ogUrl = new URL(og.src, Astro.site).href;
-const venueLabel = [wedding.venue.name, wedding.venue.detail].filter(Boolean).join(' · ');
-const summary = longDate + ' ' + time + ' · ' + wedding.venue.name;
+const venueWithHall = [wedding.venue.name, wedding.venue.hall].filter(Boolean).join(' ');
+const venueLabel = [wedding.venue.name, wedding.venue.hall || wedding.venue.detail].filter(Boolean).join(' · ');
+const summary = longDate + ' ' + time + ' · ' + venueWithHall;
 const kakaoJsKey = (process.env.KAKAO_JS_KEY || '').trim();
 // Kakao crops feed images to a square unless told the size, so the share card gets its own 3:4 portrait (hero.kakao when set).
 // Always generated: an imported image that is never transformed would be published as the original.
@@ -148,7 +149,7 @@ const dates = Array.from({ length: daysInMonth }, (_, i) => i + 1);
             <p class="eyebrow ruled-label" lang="en">SAVE THE DATE</p>
             <p class="display-date"><span aria-hidden="true">{[...shortDate].map((char, i) => <span class="date-char" style={`--c: ${i}`}>{char}</span>)}</span><span class="visually-hidden">{shortDate}</span></p>
             <p class="save-date-when">{longDate} {time}</p>
-            <p class="save-date-venue">{wedding.venue.name}</p>
+            <p class="save-date-venue">{venueWithHall}</p>
           </div>
           <div class="calendar" data-reveal data-arrive>
             <p class="calendar-month">{year}<span> / </span>{String(month).padStart(2, '0')}</p>
@@ -162,7 +163,14 @@ const dates = Array.from({ length: daysInMonth }, (_, i) => i + 1);
               ))}</tbody>
             </table>
           </div>
-          <p class="countdown" data-event-date={wedding.date} data-time-zone={wedding.timeZone} aria-live="off">소중한 당신을 초대합니다</p>
+          <div class="countdown" data-event-date={wedding.date} data-time-zone={wedding.timeZone}>
+            <p class="countdown-label">소중한 당신을 초대합니다</p>
+            <div class="countdown-clock" role="timer" hidden>
+              {[['d', '일'], ['h', '시간'], ['m', '분'], ['s', '초']].map(([unit, label]) => (
+                <span class="countdown-unit"><span class="countdown-num" data-unit={unit}>00</span><span class="countdown-name">{label}</span></span>
+              ))}
+            </div>
+          </div>
           <a class="text-link calendar-link" href={base + 'wedding.ics'} download="our-wedding.ics"><Icon name="calendar" size={17} /> 캘린더에 저장</a>
 
           <div class="invitation-note" data-reveal>
@@ -205,6 +213,7 @@ const dates = Array.from({ length: daysInMonth }, (_, i) => i + 1);
           </header>
           <div class="venue" data-reveal>
             <h3>{wedding.venue.name}</h3>
+            {wedding.venue.hall && <p class="venue-hall">{wedding.venue.hall}</p>}
             <p class="venue-address">{wedding.venue.address || '예식장 상세 주소는 추후 안내드리겠습니다.'}</p>
             {wedding.venue.address && <button type="button" class="text-link" data-copy={wedding.venue.address} data-copy-message="주소를 복사했습니다."><Icon name="copy" size={16} /> 주소 복사</button>}
             {wedding.venue.mapLinks.length > 0 && <div class="map-links">{wedding.venue.mapLinks.map((map) => <a class="button outline-button" href={map.url} target="_blank" rel="noopener noreferrer">{map.label}<Icon name="arrow" size={16} /></a>)}</div>}

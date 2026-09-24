@@ -125,7 +125,15 @@ h1, h2, h3 { font-weight: 400; }
 .calendar .wedding-day { position: relative; border-radius: 50%; color: var(--paper); background: var(--accent); transition: background-color .6s var(--ease-out-soft) .75s, color .6s var(--ease-out-soft) .75s; }
 .day-ring { position: absolute; inset: -3px; width: calc(100% + 6px); height: calc(100% + 6px); transform: rotate(-90deg); overflow: visible; pointer-events: none; }
 .day-ring circle { fill: none; stroke: var(--accent); stroke-width: 1.2; stroke-dasharray: 1; stroke-dashoffset: 0; transition: stroke-dashoffset 1s var(--ease-out-soft) .2s; }
-.countdown { margin-top: 18px; font-family: var(--korean-serif); font-size: 15px; color: var(--accent); word-break: keep-all; }
+.countdown { margin-top: 22px; font-family: var(--korean-serif); color: var(--accent); word-break: keep-all; }
+.countdown-label { font-size: 15px; }
+.countdown-clock { display: flex; justify-content: center; gap: 6px; margin-top: 12px; }
+.countdown-clock[hidden] { display: none; }
+.countdown-unit { display: flex; flex-direction: column; align-items: center; min-width: 58px; padding: 2px 4px; }
+.countdown-unit + .countdown-unit { border-left: 1px solid var(--line-light); }
+/* Fixed-width digits so the seconds ticking over never nudge the layout. */
+.countdown-num { font-family: var(--serif); font-size: 30px; line-height: 1.15; color: var(--text); font-variant-numeric: lining-nums tabular-nums; }
+.countdown-name { margin-top: 2px; font-size: 11px; letter-spacing: .08em; color: var(--text-muted); }
 .calendar-link { margin-top: 4px; color: var(--text-muted); }
 .invitation-note { margin-top: 56px; }
 /* Drawn as SVG: iOS renders the ✳ character as a green emoji. */
@@ -151,6 +159,7 @@ h1, h2, h3 { font-weight: 400; }
 
 /* Location */
 .venue h3 { font-family: var(--korean-serif); font-size: 20px; line-height: 1.6; word-break: keep-all; }
+.venue-hall { margin-top: 2px; font-family: var(--korean-serif); font-size: 15px; color: var(--accent); }
 .venue-address { margin-top: 8px; font-size: 15px; line-height: 1.7; word-break: keep-all; }
 .venue .text-link { color: var(--text-muted); }
 .map-links { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin-top: 16px; }
@@ -282,13 +291,6 @@ dialog[open]::backdrop { opacity: 1; }
 .js .calendar:not(.is-arrived) .wedding-day { color: inherit; background: transparent; transition: none; }
 .js .calendar:not(.is-arrived) .day-ring circle { stroke-dashoffset: 1; transition: none; }
 
-/* Phones: the cover photo drifts a little slower than the page as it scrolls away. */
-@supports (animation-timeline: scroll()) {
-  @media (max-width: 999px) and (prefers-reduced-motion: no-preference) {
-    .cover-image { animation: cover-drift linear both; animation-timeline: scroll(root); animation-range: 0 100svh; }
-  }
-}
-@keyframes cover-drift { to { translate: 0 22%; } }
 
 /* Gallery: thumbnails arrive in reading order; the grid itself stays put. */
 .gallery-grid[data-reveal] { opacity: 1; transform: none; }

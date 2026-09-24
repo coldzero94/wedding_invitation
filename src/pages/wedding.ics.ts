@@ -22,7 +22,7 @@ export const GET: APIRoute = () => {
     'DTSTAMP:' + utc(new Date()), 'DTSTART:' + utc(start),
     'DTEND:' + utc(new Date(start.getTime() + wedding.durationMinutes * 60000)),
     'SUMMARY:' + escape((wedding.isDemo ? '[샘플] ' : '') + wedding.groom.name + ' & ' + wedding.bride.name + ' 결혼식'),
-    'LOCATION:' + escape([wedding.venue.name, wedding.venue.address.startsWith(wedding.venue.detail) ? '' : wedding.venue.detail, wedding.venue.address].filter(Boolean).join(', ')),
+    'LOCATION:' + escape([wedding.venue.name + (wedding.venue.hall ? ' ' + wedding.venue.hall : ''), wedding.venue.address.startsWith(wedding.venue.detail) ? '' : wedding.venue.detail, wedding.venue.address].filter(Boolean).join(', ')),
     'DESCRIPTION:' + escape(wedding.isDemo ? '청첩장 미리보기용 일정입니다.' : wedding.introduction.join('\n')),
     'END:VEVENT', 'END:VCALENDAR',
   ];

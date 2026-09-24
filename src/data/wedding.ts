@@ -18,6 +18,7 @@ export const wedding = {
   timeZone: 'Asia/Seoul',
   venue: {
     name: '발산 더뉴컨벤션',
+    hall: '5층 제니스홀',
     detail: '서울 강서구',
     address: '서울 강서구 공항대로36길 57',
     mapLinks: [
