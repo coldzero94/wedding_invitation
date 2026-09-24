@@ -25,7 +25,8 @@ test.describe('real-mode rendering with fictional fixtures', () => {
       const extra = mode === 'filled'
         ? `
         groom: { ...demoWedding.groom, phone: '010-0000-0000', father: '이테스트', mother: '故 김테스트', relation: '장남' },
-        bride: { ...demoWedding.bride, phone: '010-1111-1111' },
+        // One side without parents, to cover the name-only line.
+        bride: { ...demoWedding.bride, phone: '010-1111-1111', father: '', mother: '' },
         accounts: [
           { side: '신랑', name: '테스트 예금주', bank: '테스트 은행', number: '000-000000-00' },
           { side: '신랑', relation: '아버지', name: '이테스트', bank: '테스트 은행', number: '111-111111-11' },
@@ -33,8 +34,8 @@ test.describe('real-mode rendering with fictional fixtures', () => {
         gallery: { '02': { caption: '테스트 사진 설명' } },
       `
         : `
-        groom: { ...demoWedding.groom, phone: '' },
-        bride: { ...demoWedding.bride, phone: '' },
+        groom: { ...demoWedding.groom, phone: '', father: '', mother: '' },
+        bride: { ...demoWedding.bride, phone: '', father: '', mother: '' },
         accounts: [],
       `;
       const fixture = `
@@ -71,6 +72,9 @@ test.describe('real-mode rendering with fictional fixtures', () => {
       if (mode === 'empty') {
         await expect(page.locator('[data-open-contact], #contact-dialog, .accounts')).toHaveCount(0);
         await expect(page.locator('.share-section [data-share]')).toBeVisible();
+        // No parents: the greeting ends with the couple's names instead of the family lines.
+        await expect(page.locator('.families')).toHaveCount(0);
+        await expect(page.locator('.signature')).toHaveText('찬영 & 예지');
       } else {
         await page.locator('.contact-button').click();
         await expect(page.locator('.person-contact')).toHaveCount(2);

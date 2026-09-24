@@ -4,7 +4,7 @@
 
 [배포된 미리보기](https://coldzero94.github.io/wedding_invitation/) · [공개 저장소](https://github.com/coldzero94/wedding_invitation) · [배포·QR 기록](research/deployment.md)
 
-현재 배포는 실제 이름·일정·장소에 샘플 사진 3장을 넣은 미리보기입니다. 사진, 부모님 성함, 나머지 계좌를 채운 뒤 발송용으로 전환합니다.
+실제 이름·일정·장소·부모님 성함과 웨딩 사진 30장을 넣어 발송용(release)으로 배포하고 있습니다. 기본 버전은 `/`, 영화관 콘셉트 버전은 `/v2/`에 있고 두 버전은 `src/data/wedding.ts`를 함께 씁니다. 양가 혼주 계좌는 받는 대로 추가합니다.
 
 ## 로컬 실행
 

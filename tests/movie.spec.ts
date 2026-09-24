@@ -12,6 +12,8 @@ test.describe('the movie edition (/v2/)', () => {
     await expect(page.locator('.film-strip img').first()).toBeAttached();
     await expect(page.locator('.cast')).toContainText('이기만');
     await expect(page.locator('.cast')).toContainText('정해숙');
+    await expect(page.locator('.cast')).toContainText('임원섭');
+    await expect(page.locator('.cast')).not.toContainText('임OO');
     await expect(page.locator('.gallery-thumb')).toHaveCount(30);
     expect(errors).toEqual([]);
   });

@@ -6,16 +6,15 @@ export const movie = {
   title: 'The Grandest Show of Our Love',
   studio: 'OUR SEASON PICTURES',
   quote: { text: '나는 3000만큼 사랑해.', source: '영화 〈어벤져스: 엔드게임〉 중' },
-  // Parents live here for now: putting them in wedding.ts would also print them on the original page,
-  // and the bride's father is still a placeholder. Move them to wedding.ts once 임OO is confirmed.
+  // Names come from wedding.ts, so both designs always credit the same people; empty entries are skipped.
   cast: [
     { role: 'GROOM', ko: '신랑', name: wedding.groom.fullName },
     { role: 'BRIDE', ko: '신부', name: wedding.bride.fullName },
-    { role: "GROOM'S FATHER", ko: '신랑 아버지', name: '이기만' },
-    { role: "GROOM'S MOTHER", ko: '신랑 어머니', name: '최효안' },
-    { role: "BRIDE'S FATHER", ko: '신부 아버지', name: '임OO' },
-    { role: "BRIDE'S MOTHER", ko: '신부 어머니', name: '정해숙' },
-  ],
+    { role: "GROOM'S FATHER", ko: '신랑 아버지', name: wedding.groom.father },
+    { role: "GROOM'S MOTHER", ko: '신랑 어머니', name: wedding.groom.mother },
+    { role: "BRIDE'S FATHER", ko: '신부 아버지', name: wedding.bride.father },
+    { role: "BRIDE'S MOTHER", ko: '신부 어머니', name: wedding.bride.mother },
+  ].filter((member) => member.name.trim()),
   crew: [
     { role: 'DIRECTED BY', name: `${wedding.groom.fullName} · ${wedding.bride.fullName}` },
     { role: 'PRODUCED BY', name: '사랑하는 양가 부모님' },

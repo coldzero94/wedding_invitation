@@ -13,8 +13,8 @@ export const wedding = {
   isDemo: false,
   // father·mother에 부모님 성함을 넣으면 "이○○ · 김○○ 의 장남 찬영"처럼 표시됩니다.
   // relation을 비우면 '아들'·'딸'로 표시합니다. 고인은 '故 이○○'처럼 적어 주세요.
-  groom: { name: '찬영', fullName: '이찬영', phone: '', father: '', mother: '', relation: '' },
-  bride: { name: '예지', fullName: '임예지', phone: '', father: '', mother: '', relation: '' },
+  groom: { name: '찬영', fullName: '이찬영', phone: '', father: '이기만', mother: '최효안', relation: '' },
+  bride: { name: '예지', fullName: '임예지', phone: '', father: '임원섭', mother: '정해숙', relation: '' },
   date: '2027-03-13T12:10:00+09:00',
   durationMinutes: 90,
   timeZone: 'Asia/Seoul',

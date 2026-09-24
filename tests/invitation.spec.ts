@@ -21,6 +21,9 @@ test('photos and required information work without JavaScript errors', async ({ 
   await expect(page.locator('#story, .album-feature, .feed-post, .like-button')).toHaveCount(0);
   await expect(page.locator('video, iframe')).toHaveCount(0);
   await expect(page.locator('.demo-note')).toHaveCount(0);
+  // Parents from wedding.ts, shared with the movie edition's credits.
+  await expect(page.locator('.families')).toContainText('이기만 · 최효안의 아들 찬영');
+  await expect(page.locator('.families')).toContainText('임원섭 · 정해숙의 딸 예지');
   expect(errors).toEqual([]);
   const image = page.locator('.cover-image');
   expect(await image.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);

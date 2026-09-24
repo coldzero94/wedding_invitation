@@ -169,7 +169,8 @@ h1, h2, h3 { font-weight: 400; }
 .greeting-sign span { margin: 0 6px; font-family: var(--script); font-size: 24px; letter-spacing: 0; color: var(--gold); }
 
 /* Ticket: tap to flip for the showtime */
-.ticket-scene { padding-top: 70px; }
+/* The tilted ticket's stub notches reach past the edge on 320px screens; clip so the page never scrolls sideways. */
+.ticket-scene { padding-top: 70px; overflow-x: hidden; overflow-x: clip; }
 .ticket-wrap { max-width: 330px; margin: 0 auto; }
 .ticket { display: block; width: 100%; padding: 0; color: var(--sage-ink); text-align: left; -webkit-appearance: none; appearance: none; perspective: 1400px; transform: perspective(1000px) rotate(-3deg); }
 /* The flip eases symmetrically, so the ticket is edge-on exactly halfway; the faces swap there (visibility with
