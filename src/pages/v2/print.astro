@@ -1,0 +1,187 @@
+---
+// Printable paper invitation for the movie edition: two A5 pages (poster front, ticket back).
+// Open /v2/print/ and print to PDF (A5, no margins, background graphics on).
+import { getImage } from 'astro:assets';
+import QRCode from 'qrcode';
+import '@fontsource/cormorant-garamond/latin-400.css';
+import '@fontsource/cormorant-garamond/latin-400-italic.css';
+import '@fontsource/cormorant-garamond/latin-500-italic.css';
+import '@fontsource/bebas-neue/latin-400.css';
+import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css';
+import { wedding } from '../../data/wedding';
+import { movie } from '../../data/movie';
+import { day, month, year, longDate, time, shortDate, weekday, eventDate } from '../../lib/event';
+import { loadGallery } from '../../lib/gallery';
+
+const root = import.meta.env.BASE_URL.replace(/\/$/, '') + '/';
+const mobileUrl = new URL(root + 'v2/', Astro.site).href;
+const qr = await QRCode.toString(mobileUrl, { type: 'svg', margin: 0, errorCorrectionLevel: 'M', color: { dark: '#1f2619', light: '#0000' } });
+// The main photo (gallery no. 1) at its full size; the cover is cropped to A5 in CSS.
+const mainPhoto = loadGallery(wedding.gallery, { groom: wedding.groom.name, bride: wedding.bride.name })[0].image;
+const poster = await getImage({ src: mainPhoto, width: Number((await getImage({ src: mainPhoto })).attributes.width), format: 'jpg', quality: 95 });
+const timeEn = new Intl.DateTimeFormat('en-US', { timeZone: wedding.timeZone, hour: 'numeric', minute: '2-digit' }).format(eventDate);
+const parents = [
+  { father: wedding.groom.father, mother: wedding.groom.mother, child: '아들', name: wedding.groom.name },
+  { father: wedding.bride.father, mother: wedding.bride.mother, child: '딸', name: wedding.bride.name },
+];
+const subway = wedding.venue.transport.find((item) => item.title === '지하철')?.description ?? '';
+---
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>{movie.title} · 지류 청첩장 (인쇄용)</title>
+    <style>
+      @page { size: 148mm 210mm; margin: 0; }
+      :root { --ink: #0c0c0d; --cream: #efe8da; --cream-2: #d6cebf; --muted: #9c9587; --gold: #e2c07c; --gold-soft: #f3dca6; --sage: #c3c9a8; --sage-ink: #1f2619;
+        --display: 'Cormorant Garamond', Georgia, serif; --marquee: 'Bebas Neue', sans-serif; --korean: 'Pretendard Variable', 'Apple SD Gothic Neo', sans-serif; }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; background: #555; -webkit-print-color-adjust: exact; print-color-adjust: exact; font-variant-numeric: lining-nums; }
+      body { font-family: var(--korean); font-weight: 300; color: var(--cream); }
+      p, h1, h2 { margin: 0; font-weight: 400; }
+      .page { position: relative; width: 148mm; height: 210mm; margin: 10mm auto; overflow: hidden; background: var(--ink); break-after: page; }
+      .page:last-child { break-after: auto; }
+      @media print { html, body { background: none; } .page { margin: 0; } }
+
+      /* Page 1: poster */
+      .poster-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 28%; }
+      .poster-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgb(8 8 9 / .55) 0%, rgb(8 8 9 / 0) 16%, rgb(8 8 9 / 0) 40%, rgb(8 8 9 / .55) 55%, rgb(8 8 9 / .9) 74%, var(--ink) 100%); }
+      .studio { position: absolute; top: 9mm; left: 0; right: 0; text-align: center; font-family: var(--display); font-size: 7.5pt; letter-spacing: .34em; color: var(--cream-2); }
+      .studio em { letter-spacing: .08em; }
+      .poster-body { position: absolute; left: 10mm; right: 10mm; bottom: 10mm; text-align: center; }
+      .title { display: grid; justify-items: center; line-height: .9; }
+      .t-small { font-family: var(--display); font-size: 9pt; letter-spacing: .55em; margin-right: -.55em; }
+      .t-italic { font-family: var(--display); font-style: italic; font-weight: 500; font-size: 44pt; line-height: 1.05; }
+      .t-show { font-family: var(--display); font-size: 30pt; letter-spacing: .3em; margin-right: -.3em; }
+      .t-love .brace { font-style: normal; font-weight: 400; font-size: .78em; color: var(--gold-soft); margin: 0 .12em; }
+      .credits { display: flex; justify-content: space-between; margin-top: -9mm; }
+      .credits p { display: grid; justify-items: start; }
+      .credits p + p { justify-items: end; }
+      .credits .role { font-family: var(--display); font-style: italic; font-weight: 500; font-size: 15pt; color: var(--cream-2); }
+      .credits .name { font-size: 10pt; font-weight: 400; letter-spacing: .3em; }
+      .when { margin-top: 6mm; font-family: var(--display); font-size: 12pt; letter-spacing: .06em; }
+      .when .dot { color: var(--gold); margin: 0 2mm; }
+      .when .ko { font-family: var(--korean); font-size: 10pt; }
+      .where { margin-top: 1.5mm; font-size: 8.5pt; font-weight: 400; color: var(--cream-2); }
+      .billing { margin-top: 5mm; padding-top: 3mm; border-top: .2mm solid rgb(239 232 218 / .25); font-family: var(--marquee); font-size: 7pt; letter-spacing: .16em; color: var(--muted); }
+
+      /* Page 2: invitation and ticket */
+      .back { padding: 13mm 12mm 10mm; text-align: center; }
+      .eyebrow { font-family: var(--display); font-size: 7.5pt; letter-spacing: .4em; margin-right: -.4em; color: var(--gold); }
+      .quote { margin-top: 3mm; font-size: 13pt; letter-spacing: -.02em; }
+      .quote::before, .quote::after { font-family: var(--display); color: var(--gold); }
+      .quote::before { content: '\201C'; margin-right: 1mm; }
+      .quote::after { content: '\201D'; margin-left: 1mm; }
+      .cite { margin-top: 1.5mm; font-size: 6.5pt; font-weight: 400; color: var(--muted); }
+      .greeting { margin-top: 6mm; font-size: 8.5pt; line-height: 2; color: var(--cream-2); }
+      .families { display: grid; gap: 1mm; margin-top: 5mm; font-size: 9pt; line-height: 1.8; }
+      .families .rel { font-size: 8pt; color: var(--muted); margin: 0 1mm 0 .5mm; }
+      .families strong { font-weight: 500; letter-spacing: .06em; }
+
+      .ticket { position: relative; display: flex; margin: 9mm auto 0; width: 124mm; height: 58mm; color: var(--sage-ink); text-align: left; transform: rotate(-1.5deg); }
+      .ticket-main, .ticket-stub { position: relative; background: var(--sage); }
+      .ticket-main { flex: 1; padding: 5mm 5mm 4mm 6mm; border-radius: 2mm 0 0 2mm; }
+      .ticket-stub { width: 30mm; padding: 5mm 3mm 4mm; border-radius: 0 2mm 2mm 0; border-left: .5mm dashed rgb(31 38 25 / .45); display: grid; justify-items: center; align-content: space-between; }
+      /* Punched notches where the stub tears off. */
+      .ticket-stub::before, .ticket-stub::after { content: ''; position: absolute; left: -2.6mm; width: 4.6mm; height: 4.6mm; border-radius: 50%; background: var(--ink); }
+      .ticket-stub::before { top: -2.3mm; }
+      .ticket-stub::after { bottom: -2.3mm; }
+      .ticket-top { display: flex; justify-content: space-between; padding-bottom: 2mm; border-bottom: .2mm solid rgb(31 38 25 / .3); font-family: var(--marquee); font-size: 8pt; letter-spacing: .16em; }
+      .ticket-title { margin: 2.5mm 0 3mm; font-family: var(--display); font-style: italic; font-weight: 500; font-size: 15pt; line-height: 1.1; }
+      .ticket-rows { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2mm 3mm; }
+      .ticket-rows .k { display: block; font-family: var(--marquee); font-size: 6.5pt; letter-spacing: .16em; opacity: .65; }
+      .ticket-rows .v { font-size: 8pt; font-weight: 500; }
+      .ticket-rows .v.en { font-family: var(--display); font-size: 10.5pt; font-weight: 400; }
+      .ticket-place { grid-column: 1 / -1; }
+      .ticket-stub { width: 34mm; }
+      .ticket-main { display: flex; flex-direction: column; }
+      .ticket-foot { display: flex; align-items: center; gap: 4mm; margin-top: auto; }
+      .ticket-foot .barcode { flex: 1; height: 8mm; background: repeating-linear-gradient(90deg, var(--sage-ink) 0 .5mm, transparent .5mm 1mm, var(--sage-ink) 1mm 1.25mm, transparent 1.25mm 2mm, var(--sage-ink) 2mm 2.75mm, transparent 2.75mm 3.25mm); opacity: .8; }
+      .ticket-foot span[lang] { font-family: var(--marquee); font-size: 7pt; letter-spacing: .12em; line-height: 1.15; text-align: right; }
+      .stub-head { font-family: var(--marquee); font-size: 8.5pt; letter-spacing: .16em; text-align: center; line-height: 1.1; }
+      .stub-head span { display: block; font-size: 5.8pt; letter-spacing: .2em; opacity: .65; }
+      /* The QR framed like a camera viewfinder: four corner brackets around the code. */
+      .viewfinder { position: relative; padding: 1.8mm; background:
+        linear-gradient(var(--sage-ink), var(--sage-ink)) 0 0 / 3mm .45mm, linear-gradient(var(--sage-ink), var(--sage-ink)) 0 0 / .45mm 3mm,
+        linear-gradient(var(--sage-ink), var(--sage-ink)) 100% 0 / 3mm .45mm, linear-gradient(var(--sage-ink), var(--sage-ink)) 100% 0 / .45mm 3mm,
+        linear-gradient(var(--sage-ink), var(--sage-ink)) 0 100% / 3mm .45mm, linear-gradient(var(--sage-ink), var(--sage-ink)) 0 100% / .45mm 3mm,
+        linear-gradient(var(--sage-ink), var(--sage-ink)) 100% 100% / 3mm .45mm, linear-gradient(var(--sage-ink), var(--sage-ink)) 100% 100% / .45mm 3mm; background-repeat: no-repeat; }
+      .qr { width: 19mm; height: 19mm; }
+      .qr svg { width: 100%; height: 100%; display: block; }
+      .stub-cta { display: grid; justify-items: center; gap: .3mm; font-size: 7.5pt; font-weight: 600; text-align: center; }
+      .stub-cta span[lang] { font-family: var(--marquee); font-size: 7pt; font-weight: 400; letter-spacing: .16em; }
+      .play { display: inline-block; width: 0; height: 0; margin-left: .8mm; border-left: 1.6mm solid var(--sage-ink); border-top: 1mm solid transparent; border-bottom: 1mm solid transparent; vertical-align: .1mm; }
+      .stub-cta { display: block; }
+      .stub-cta span[lang] { display: block; }
+      .stub-seat { font-size: 5.8pt; font-weight: 500; opacity: .75; }
+      .stub-seat span { font-family: var(--marquee); letter-spacing: .14em; }
+      .info { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; margin-top: 9mm; text-align: left; }
+      .info h2 { font-family: var(--marquee); font-size: 8pt; letter-spacing: .2em; color: var(--gold); }
+      .info p { margin-top: 1mm; font-size: 7.5pt; line-height: 1.7; color: var(--cream-2); word-break: keep-all; }
+      .closing { margin-top: 10mm; font-size: 8.5pt; color: var(--cream-2); }
+      .closing .end { display: block; margin-bottom: 1.5mm; font-family: var(--display); font-style: italic; font-size: 20pt; color: var(--cream); }
+      .back-footer { position: absolute; left: 0; right: 0; bottom: 8mm; font-family: var(--marquee); font-size: 6.5pt; letter-spacing: .3em; color: var(--muted); }
+    </style>
+  </head>
+  <body>
+    <section class="page">
+      <img class="poster-photo" src={poster.src} alt={wedding.hero.alt} />
+      <div class="poster-shade"></div>
+      <p class="studio" lang="en">{movie.studio} <em>presents</em></p>
+      <div class="poster-body">
+        <h1 class="title" lang="en">
+          <span class="t-small">THE</span>
+          <span class="t-italic">Grandest</span>
+          <span class="t-show">SHOW</span>
+          <span class="t-small">OF OUR</span>
+          <span class="t-italic t-love"><span class="brace">&#123;</span>love<span class="brace">&#125;</span></span>
+        </h1>
+        <div class="credits">
+          <p><span class="role" lang="en">Groom</span><span class="name">{wedding.groom.name}</span></p>
+          <p><span class="role" lang="en">Bride</span><span class="name">{wedding.bride.name}</span></p>
+        </div>
+        <p class="when"><span lang="en">{shortDate} {weekday}</span><span class="dot">·</span><span class="ko">{time}</span></p>
+        <p class="where">{wedding.venue.name} {wedding.venue.hall}</p>
+        <p class="billing" lang="en">STARRING {movie.namesEn.groom} &amp; {movie.namesEn.bride} · IN {movie.venueEn}</p>
+      </div>
+    </section>
+
+    <section class="page back">
+      <p class="eyebrow" lang="en">NOW SHOWING</p>
+      <p class="quote">{movie.quote.text}</p>
+      <p class="cite">{movie.quote.source}</p>
+      <div class="greeting">{wedding.introduction.map((line) => <p>{line}</p>)}</div>
+      <div class="families">
+        {parents.map((p) => <p>{p.father} · {p.mother}<span class="rel">의 {p.child}</span><strong>{p.name}</strong></p>)}
+      </div>
+
+      <div class="ticket">
+        <div class="ticket-main">
+          <div class="ticket-top"><span>VIP TICKET</span><span>NO. {String(month).padStart(2, '0')}{String(day).padStart(2, '0')}</span></div>
+          <p class="ticket-title" lang="en">The Grandest Show of Our Love</p>
+          <div class="ticket-rows">
+            <p><span class="k">DATE</span><span class="v en">{shortDate} {weekday}</span></p>
+            <p><span class="k">TIME</span><span class="v en">{timeEn}</span></p>
+            <p><span class="k">SCREEN</span><span class="v">{wedding.venue.hall}</span></p>
+            <p class="ticket-place"><span class="k">PLACE</span><span class="v">{wedding.venue.name} · {wedding.venue.address}</span></p>
+          </div>
+          <div class="ticket-foot"><span class="barcode" aria-hidden="true"></span><span lang="en">ADMIT ALL<br />WHO LOVE US</span></div>
+        </div>
+        <div class="ticket-stub">
+          <p class="stub-head" lang="en">ADMIT ONE<span>MOBILE THEATER</span></p>
+          <div class="viewfinder"><div class="qr" set:html={qr}></div></div>
+          <p class="stub-cta"><span lang="en">SCAN TO WATCH</span>영화 보러 가기 <span class="play" aria-hidden="true"></span></p>
+          <p class="stub-seat"><span lang="en">SEAT</span> 모바일 상영관</p>
+        </div>
+      </div>
+
+      <div class="info">
+        <div><h2 lang="en">SUBWAY</h2><p>{subway}</p></div>
+        <div><h2 lang="en">PARKING</h2><p>예식장 건물 주차장 이용 · 만차 시 이대서울병원 주차장(안내원 주차권 지참)</p></div>
+      </div>
+      <p class="closing"><span class="end" lang="en">The End</span>{wedding.closing}</p>
+      <p class="back-footer" lang="en">{movie.studio} · {year}</p>
+    </section>
+  </body>
+</html>
