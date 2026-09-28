@@ -21,6 +21,19 @@ const mainPhoto = loadGallery(wedding.gallery, { groom: wedding.groom.name, brid
 const poster = await getImage({ src: mainPhoto, width: Number((await getImage({ src: mainPhoto })).attributes.width), format: 'jpg', quality: 95 });
 const timeEn = new Intl.DateTimeFormat('en-US', { timeZone: wedding.timeZone, hour: 'numeric', minute: '2-digit' }).format(eventDate);
 const { paper } = movie;
+// Barcode drawn as SVG bars: a repeating CSS gradient on the tilted ticket broke up when printed to PDF.
+// A fixed pseudo-random run of bar and gap widths (1-3 units), so every build draws the same code.
+const barcode = (() => {
+  let seed = 20270313, x = 0;
+  const next = () => (seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648;
+  const bars: { x: number; w: number }[] = [];
+  while (x < 190) {
+    const w = 1 + Math.floor(next() * 3);
+    bars.push({ x, w });
+    x += w + 1 + Math.floor(next() * 2.4);
+  }
+  return { width: x, bars };
+})();
 const parents = [
   { father: wedding.groom.father, mother: wedding.groom.mother, child: paper.relation.groom, name: wedding.groom.name },
   { father: wedding.bride.father, mother: wedding.bride.mother, child: paper.relation.bride, name: wedding.bride.name },
@@ -87,7 +100,7 @@ const parents = [
       .ticket-rows .v.en { font-family: var(--serif); font-size: 7.4pt; font-weight: 400; }
       .ticket-place { grid-column: 1 / -1; }
       .ticket-foot { display: flex; align-items: center; gap: 2.5mm; margin-top: auto; padding-top: 1.8mm; }
-      .barcode { flex: 1; height: 4.4mm; background: repeating-linear-gradient(90deg, var(--sage-ink) 0 .35mm, transparent .35mm .7mm, var(--sage-ink) .7mm .9mm, transparent .9mm 1.4mm, var(--sage-ink) 1.4mm 1.9mm, transparent 1.9mm 2.3mm); opacity: .8; }
+      .barcode { flex: 1 1 0; width: 0; min-width: 0; height: 4.4mm; fill: var(--sage-ink); opacity: .85; }
       .ticket-foot .label { font-size: 4.8pt; letter-spacing: .12em; line-height: 1.25; text-align: right; }
       .stub-head { font-family: var(--serif); font-size: 6pt; letter-spacing: .14em; text-align: center; line-height: 1.15; }
       .stub-head span { display: block; font-size: 4.4pt; letter-spacing: .16em; opacity: .65; }
@@ -151,7 +164,7 @@ const parents = [
             <p><span class="label" lang="en">SCREEN</span><span class="v">{wedding.venue.hall}</span></p>
             <p class="ticket-place"><span class="label" lang="en">PLACE</span><span class="v">{wedding.venue.name} · {wedding.venue.address}</span></p>
           </div>
-          <div class="ticket-foot"><span class="barcode" aria-hidden="true"></span><span class="label" lang="en">ADMIT ALL<br />WHO LOVE US</span></div>
+          <div class="ticket-foot"><svg class="barcode" viewBox={`0 0 ${barcode.width} 10`} preserveAspectRatio="none" aria-hidden="true">{barcode.bars.map((bar) => <rect x={bar.x} y="0" width={bar.w} height="10" />)}</svg><span class="label" lang="en">ADMIT ALL<br />WHO LOVE US</span></div>
         </div>
         <div class="ticket-stub">
           <p class="stub-head" lang="en">ADMIT ONE<span>MOBILE THEATER</span></p>
