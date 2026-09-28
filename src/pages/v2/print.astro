@@ -128,7 +128,8 @@ const parents = [
       .location-head { font-family: var(--serif); font-size: var(--fs-body); letter-spacing: .34em; margin-right: -.34em; color: var(--gold); }
       /* The list is as wide as its longest line and centred, so it sits under the centred heading. */
       .location dl { display: grid; gap: 1.6mm; width: max-content; max-width: 100%; margin: 2.2mm auto 0; text-align: left; }
-      .loc-row { display: grid; grid-template-columns: 13mm 1fr; gap: 2.2mm; align-items: start; }
+      /* Each label sits at the vertical middle of its block of lines. */
+      .loc-row { display: grid; grid-template-columns: 13mm 1fr; gap: 2.2mm; align-items: center; }
       .loc-row dt { font-size: var(--fs-detail); font-weight: 500; line-height: 1.6; color: var(--gold); text-align: right; }
       .loc-row dd { display: grid; padding-left: 2.2mm; border-left: .15mm solid rgb(226 192 124 / .35); font-size: var(--fs-detail); line-height: 1.6; color: var(--cream-2); word-break: keep-all; }
     </style>
