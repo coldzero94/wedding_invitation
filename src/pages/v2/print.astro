@@ -1,8 +1,8 @@
 ---
 // Printable paper invitation for the movie edition: a 4x6 portrait card (102x152 mm), front and back,
 // laid out on 106x156 mm sheets that include 2 mm of bleed on every side.
-// Open /v2/print/ to preview with the trim (solid) and safe-area (dashed) guides; they are hidden when
-// printing unless <html> has the print-guides class. Print to PDF with no margins and backgrounds on.
+// The trim (solid) and safe-area (dashed) guides are part of the output, on screen and in print.
+// Open /v2/print/ and print to PDF with no margins and backgrounds on.
 import { getImage } from 'astro:assets';
 import QRCode from 'qrcode';
 import '@fontsource/dm-serif-display/latin-400.css';
@@ -49,7 +49,6 @@ const parents = [
       .guides { position: absolute; inset: 0; z-index: 10; pointer-events: none; }
       .guides::before { content: ''; position: absolute; inset: var(--bleed); border: .25mm solid #3ec1e6; }
       .guides::after { content: ''; position: absolute; inset: var(--safe); border: .25mm dashed rgb(255 255 255 / .75); }
-      @media print { html:not(.print-guides) .guides { display: none; } }
 
       /* Front */
       .photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 50%; }
