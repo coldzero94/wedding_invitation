@@ -69,11 +69,12 @@ const parents = [
       /* No text-shadow on the front: Chrome writes blurred shadows into the PDF as soft-masked tiles, and macOS
          Preview draws those as dark boxes behind the text. The shade alone keeps the white type legible. */
       .front-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgb(10 14 10 / .5) 0%, rgb(10 14 10 / .12) 24%, rgb(10 14 10 / 0) 34%, rgb(10 14 10 / 0) 64%, rgb(10 14 10 / .58) 84%, rgb(10 14 10 / .8) 100%); }
-      .front-title { position: absolute; top: 11mm; left: var(--safe); right: var(--safe); display: grid; justify-items: center; font-family: var(--serif); color: #fff; line-height: .92; }
+      .front-title { position: absolute; top: 11mm; left: var(--safe); right: var(--safe); display: grid; justify-items: center; font-family: var(--serif); color: var(--cream); line-height: .92; }
       .front-title .caps { font-size: 29pt; letter-spacing: .01em; }
       .front-title .italic { font-style: italic; font-size: 27pt; margin: .6mm 0 .2mm; }
-      .front-foot { position: absolute; left: var(--safe); right: var(--safe); bottom: 11mm; display: grid; justify-items: center; gap: .8mm; font-family: var(--serif); font-size: 7.2pt; letter-spacing: .04em; color: #fff; text-align: center; }
-      .front-foot .rule { width: 3mm; height: .25mm; margin: .8mm 0; background: #fff; }
+      .front-foot { position: absolute; left: var(--safe); right: var(--safe); bottom: 11mm; display: grid; justify-items: center; gap: .8mm; font-family: var(--serif); font-size: 7.2pt; letter-spacing: .04em; color: var(--cream-2); text-align: center; }
+      /* Same palette as the back: cream type, a gold rule. */
+      .front-foot .rule { width: 3mm; height: .25mm; margin: .8mm 0; background: var(--gold); }
 
       /* Back */
       .back { display: flex; flex-direction: column; justify-content: center; padding: calc(var(--safe) + 2mm) calc(var(--safe) + 1mm); text-align: center; }
