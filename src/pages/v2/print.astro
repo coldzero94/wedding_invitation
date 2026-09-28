@@ -11,7 +11,7 @@ import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css';
 import { wedding } from '../../data/wedding';
 import { movie } from '../../data/movie';
 import { loadGallery } from '../../lib/gallery';
-import { day, month, year, shortDate, weekday, eventDate } from '../../lib/event';
+import { day, month, shortDate, weekday, eventDate } from '../../lib/event';
 
 const root = import.meta.env.BASE_URL.replace(/\/$/, '') + '/';
 const mobileUrl = new URL(root + 'v2/', Astro.site).href;
@@ -60,7 +60,7 @@ const parents = [
       .front-foot .rule { width: 3mm; height: .25mm; margin: .8mm 0; background: #fff; }
 
       /* Back */
-      .back { padding: 8.5mm calc(var(--safe) + 1mm) 0; text-align: center; }
+      .back { display: flex; flex-direction: column; justify-content: center; padding: calc(var(--safe) + 2mm) calc(var(--safe) + 1mm); text-align: center; }
       .eyebrow { font-family: var(--serif); font-size: 6.5pt; letter-spacing: .34em; margin-right: -.34em; color: var(--gold); }
       .verse { display: grid; margin-top: 2.6mm; font-size: 8pt; line-height: 1.55; letter-spacing: -.02em; }
       .verse span:first-child::before, .verse span:last-child::after { font-family: var(--serif); font-size: 1.15em; color: var(--gold); }
@@ -72,7 +72,7 @@ const parents = [
       .families .rel { font-size: 6pt; color: var(--muted); margin: 0 .8mm 0 .3mm; }
       .families strong { font-weight: 500; letter-spacing: .06em; }
 
-      .ticket { position: relative; display: flex; margin: 4mm auto 0; width: 88mm; height: 39.5mm; color: var(--sage-ink); text-align: left; transform: rotate(-1.5deg); }
+      .ticket { position: relative; display: flex; flex-shrink: 0; margin: 5mm auto 0; width: 88mm; height: 39.5mm; color: var(--sage-ink); text-align: left; transform: rotate(-1.5deg); }
       .ticket-main, .ticket-stub { position: relative; background: var(--sage); }
       .ticket-main { flex: 1; display: flex; flex-direction: column; padding: 3.2mm 3.2mm 2.6mm 4mm; border-radius: 1.5mm 0 0 1.5mm; }
       .ticket-stub { width: 24mm; padding: 3mm 1.8mm 2.4mm; border-radius: 0 1.5mm 1.5mm 0; border-left: .35mm dashed rgb(31 38 25 / .45); display: grid; justify-items: center; align-content: space-between; }
@@ -105,17 +105,14 @@ const parents = [
       .play { display: inline-block; width: 0; height: 0; margin-left: .6mm; border-left: 1.2mm solid var(--sage-ink); border-top: .75mm solid transparent; border-bottom: .75mm solid transparent; }
       .stub-seat { font-size: 4.4pt; font-weight: 500; opacity: .75; }
 
-      .qr-hint { display: flex; align-items: center; justify-content: center; gap: 1.2mm; margin-top: 2.6mm; font-size: 5.6pt; color: var(--muted); }
-      .qr-hint .arrow { width: 0; height: 0; border-left: 1.1mm solid var(--gold); border-top: .7mm solid transparent; border-bottom: .7mm solid transparent; }
       /* Location set like a theater's information board: English label over Korean, details alongside. */
-      .location { margin-top: 3.2mm; padding-top: 2.8mm; border-top: .15mm solid rgb(239 232 218 / .18); }
+      .location { margin-top: 5.5mm; padding-top: 3.4mm; border-top: .15mm solid rgb(239 232 218 / .18); }
       .location-head { font-family: var(--serif); font-size: 6.5pt; letter-spacing: .34em; margin-right: -.34em; color: var(--gold); }
-      .location dl { display: grid; gap: 1.6mm; margin-top: 2.2mm; text-align: left; }
-      .loc-row { display: grid; grid-template-columns: 15mm 1fr; gap: 2.2mm; align-items: start; }
-      .loc-row dt { display: grid; font-size: 6pt; font-weight: 500; color: var(--cream); text-align: right; line-height: 1.35; }
-      .loc-row dt span { font-family: var(--serif); font-size: 4.8pt; font-weight: 400; letter-spacing: .16em; color: var(--gold); }
+      /* The list is as wide as its longest line and centred, so it sits under the centred heading. */
+      .location dl { display: grid; gap: 1.6mm; width: max-content; max-width: 100%; margin: 2.2mm auto 0; text-align: left; }
+      .loc-row { display: grid; grid-template-columns: 13mm 1fr; gap: 2.2mm; align-items: start; }
+      .loc-row dt { font-size: 6pt; font-weight: 500; line-height: 1.6; color: var(--gold); text-align: right; }
       .loc-row dd { display: grid; padding-left: 2.2mm; border-left: .15mm solid rgb(226 192 124 / .35); font-size: 5.8pt; line-height: 1.6; color: var(--cream-2); word-break: keep-all; }
-      .back-footer { position: absolute; left: 0; right: 0; bottom: 8mm; font-family: var(--serif); font-size: 4.8pt; letter-spacing: .3em; color: var(--muted); }
     </style>
   </head>
   <body>
@@ -164,17 +161,15 @@ const parents = [
           <p class="stub-seat"><span class="label" lang="en">SEAT</span> 모바일 상영관</p>
         </div>
       </div>
-      <p class="qr-hint"><span class="arrow" aria-hidden="true"></span>{paper.qrNote}</p>
 
       <div class="location">
         <p class="location-head" lang="en">LOCATION</p>
         <dl>
           {paper.location.map((row) => (
-            <div class="loc-row"><dt><span lang="en">{row.en}</span>{row.ko}</dt><dd>{row.lines.map((line) => <span>{line}</span>)}</dd></div>
+            <div class="loc-row"><dt>{row.label}</dt><dd>{row.lines.map((line) => <span>{line}</span>)}</dd></div>
           ))}
         </dl>
       </div>
-      <p class="back-footer" lang="en">{movie.studio} · {year}</p>
       <div class="guides" aria-hidden="true"></div>
     </section>
   </body>
