@@ -32,4 +32,20 @@ export const movie = {
   poster: '03',
   cookie: '22',
   cookieNote: '끝까지 봐 주셔서 고마워요. 식장에서 만나요!',
+  // Copy for the printed paper invitation's back page (/v2/print/), from the couple's own draft.
+  paper: {
+    // Front (4x6 card): white title over the full main photo, English billing at the foot.
+    front: { top: 'THE', italic: 'Greatest', bottom: 'LOVE STORY', venue: 'THE NEW CONVENTION, 5F ZENITH HALL', names: 'CHANYOUNG & YEJI' },
+    ticketTitle: 'The Greatest Love Story',
+    heading: 'WEDDING INVITATION',
+    verse: { lines: ['이 모든 것 위에 사랑을 더하라.', '이는 온전하게 매는 띠니라.'], source: '골로새서 3:14' },
+    greeting: ['사랑으로 서로를 단단히 잇고,', '하나 되어 평생을 함께 걸어가겠습니다.', '저희의 새로운 시작을 축복해 주시면 감사하겠습니다.'],
+    relation: { groom: '차남', bride: '차녀' },
+    location: [
+      { en: 'BY CAR', ko: '자차', lines: ['서울 강서구 공항대로 36길 57 (내발산동 655-2)', '더뉴컨벤션 5층 제니스홀'] },
+      { en: 'PARKING', ko: '주차', lines: ['웨딩홀 건물 지하 4층 ~ 지하 1층 이용', '만차 시 이대서울병원 주차장 이용 · 2시간 무료', '외부 주차장 이용 시 웨딩홀 1층에서 주차 등록 필수'] },
+      { en: 'TRANSIT', ko: '대중교통', lines: ['지하철 5호선 발산역 7번 출구 (도보 2분)', '버스 발산역(발산역 사거리) 정류장 하차'] },
+    ],
+    qrNote: '자세한 위치와 상세 안내는 QR코드를 확인해 주세요.',
+  },
 };
