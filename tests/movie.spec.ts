@@ -117,12 +117,20 @@ test.describe('the movie edition (/v2/)', () => {
     await expect(page.locator('.transport')).toContainText('2시간 무료');
   });
 
-  test('the paper invitation has the new title and a bare QR code, no ticket', async ({ page }) => {
+  test('the paper invitation has the new title, and one ticket on the back holds the location and the QR code', async ({ page }) => {
     await page.goto('./v2/print/');
     await expect(page.locator('.front-title')).toHaveAttribute('aria-label', 'Love wins all, Happy Ever After');
     await expect(page.locator('.front-title .t-main')).toHaveText('Love wins all');
-    await expect(page.locator('.ticket, .barcode')).toHaveCount(0);
-    await expect(page.locator('.qr-tile svg')).toHaveCount(1);
+    const ticket = page.locator('.sheet.back .ticket');
+    await expect(ticket).toHaveCount(1);
+    await expect(ticket.locator('dl')).toContainText('이대서울병원');
+    await expect(ticket.locator('.ticket-stub .qr svg')).toHaveCount(1);
+    await expect(page.locator('.barcode, .qr-tile, .location')).toHaveCount(0);
+    // The code sits beside the location on the stub, not in a row of its own.
+    const list = await ticket.locator('dl').boundingBox();
+    const code = await ticket.locator('.qr').boundingBox();
+    expect(code!.x).toBeGreaterThan(list!.x + list!.width);
+    expect(code!.y).toBeLessThan(list!.y + list!.height);
     await expect(page.locator('.sheet.back')).not.toContainText('Greatest');
   });
 });
