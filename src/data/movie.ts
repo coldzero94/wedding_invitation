@@ -3,10 +3,10 @@ import { wedding } from './wedding';
 // Content only the movie-theater design uses. Everything factual (names, date, venue, accounts, photos)
 // still comes from wedding.ts.
 export const movie = {
-  // The film's title: the mobile cover and ticket and the paper invitation's front all set it the same way,
-  // the main line in italic and the second line in capitals.
-  title: { main: 'Love wins all', sub: 'Happy Ever After' },
-  titleText: 'Love wins all, Happy Ever After',
+  // The film's title. The mobile cover and the paper invitation's front stack it one word per line, in italic;
+  // the ticket and the page title use titleText.
+  title: ['Love', 'wins', 'all'],
+  titleText: 'Love wins all',
   studio: 'OUR SEASON PICTURES',
   // English billing on the posters: the couple in capitals, and the venue in place of "in theaters".
   namesEn: { groom: 'CHANYOUNG', bride: 'YEJI' },

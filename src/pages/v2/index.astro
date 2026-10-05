@@ -8,7 +8,6 @@ import '@fontsource/cormorant-garamond/latin-400-italic.css';
 import '@fontsource/cormorant-garamond/latin-500-italic.css';
 import '@fontsource/bebas-neue/latin-400.css';
 // The film's title typeface, the same as on the paper invitation.
-import '@fontsource/dm-serif-display/latin-400.css';
 import '@fontsource/dm-serif-display/latin-400-italic.css';
 import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css';
 import '../../styles/movie.css';
@@ -114,8 +113,7 @@ const marqueeBulbs = (() => {
       <div class="poster-shade"></div>
       <p class="poster-studio" lang="en">{movie.studio} <span>presents</span></p>
       <h1 class="poster-title" lang="en" aria-label={movie.titleText}>
-        <span class="t-main">{movie.title.main}</span>
-        <span class="t-sub">{movie.title.sub}</span>
+        {movie.title.map((word) => <span class="t-line">{word}</span>)}
       </h1>
       <div class="poster-body">
         <div class="poster-credits">
@@ -141,7 +139,7 @@ const marqueeBulbs = (() => {
         var leaderDone = new Promise(function (resolve) { setTimeout(resolve, leader ? 1800 : 0); });
         var waits = [image.decode ? image.decode().catch(function () {}) : null];
         if (document.fonts && document.fonts.load) {
-          ['400 1em "Cormorant Garamond"', 'italic 500 1em "Cormorant Garamond"', '400 1em "DM Serif Display"', 'italic 400 1em "DM Serif Display"', '300 1em "Pretendard Variable"'].forEach(function (font) {
+          ['400 1em "Cormorant Garamond"', 'italic 500 1em "Cormorant Garamond"', 'italic 400 1em "DM Serif Display"', '300 1em "Pretendard Variable"'].forEach(function (font) {
             waits.push(document.fonts.load(font, cover.textContent).catch(function () {}));
           });
         }
@@ -190,7 +188,7 @@ const marqueeBulbs = (() => {
             <span class="ticket-inner">
               <span class="ticket-face ticket-front">
                 <span class="ticket-top"><span lang="en">VIP TICKET</span><span lang="en">No. {String(month).padStart(2, '0')}{String(day).padStart(2, '0')}</span></span>
-                <span class="ticket-title" lang="en"><span class="tt-main">{movie.title.main}</span><span class="tt-sub">{movie.title.sub}</span></span>
+                <span class="ticket-title" lang="en">{movie.titleText}</span>
                 <span class="ticket-rows">
                   <span class="ticket-row"><span class="k" lang="en">DATE</span><span class="v" lang="en">{shortDate} {weekday}</span></span>
                   <span class="ticket-row"><span class="k" lang="en">TIME</span><span class="v" lang="en">{timeEn}</span></span>

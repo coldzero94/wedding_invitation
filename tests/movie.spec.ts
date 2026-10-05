@@ -6,10 +6,10 @@ test.describe('the movie edition (/v2/)', () => {
     const errors: string[] = [];
     page.on('pageerror', (error) => errors.push(error.message));
     await page.goto('./v2/');
-    await expect(page).toHaveTitle(/Love wins all, Happy Ever After/);
-    await expect(page.locator('.poster-title')).toHaveAttribute('aria-label', 'Love wins all, Happy Ever After');
-    await expect(page.locator('.poster-title .t-main')).toHaveText('Love wins all');
-    await expect(page.locator('.poster-title .t-sub')).toHaveText('Happy Ever After');
+    await expect(page).toHaveTitle(/^Love wins all \|/);
+    await expect(page.locator('.poster-title')).toHaveAttribute('aria-label', 'Love wins all');
+    // One word per line, as on the paper invitation's front.
+    await expect(page.locator('.poster-title .t-line')).toHaveText(['Love', 'wins', 'all']);
     await expect(page.locator('.quote')).toContainText('3000만큼 사랑해');
     await expect(page.locator('.film-strip img').first()).toBeAttached();
     await expect(page.locator('.cast')).toContainText('이기만');
@@ -108,8 +108,7 @@ test.describe('the movie edition (/v2/)', () => {
       // The heart is decorative; a hidden word keeps the names apart for screen readers and copied text.
       await expect(page.locator(sel + ' .visually-hidden')).toHaveText(sel === '.greeting-sign' ? ' 그리고 ' : ' and ', { useInnerText: false });
     }
-    await expect(page.locator('.ticket-title')).toContainText('Love wins all');
-    await expect(page.locator('.ticket-title')).toContainText('Happy Ever After');
+    await expect(page.locator('.ticket-title')).toHaveText('Love wins all');
     await expect(page.locator('.ticket-row', { hasText: 'SEAT' })).toContainText('초대석');
     await expect(page.locator('.ticket')).not.toContainText('소중한 당신의 자리');
     await expect(page.locator('.transport')).toContainText('5호선 발산역 하차 7번 출구 (도보 3분~5분)');
@@ -119,8 +118,12 @@ test.describe('the movie edition (/v2/)', () => {
 
   test('the paper invitation has the new title, and a ticket stub with the QR code beside the location', async ({ page }) => {
     await page.goto('./v2/print/');
-    await expect(page.locator('.front-title')).toHaveAttribute('aria-label', 'Love wins all, Happy Ever After');
-    await expect(page.locator('.front-title .t-main')).toHaveText('Love wins all');
+    await expect(page.locator('.front-title')).toHaveAttribute('aria-label', 'Love wins all');
+    await expect(page.locator('.front-title span')).toHaveText(['Love', 'wins', 'all']);
+    // The back in three bands: the heading at the top, the message, the location at the foot.
+    const top = (sel: string) => page.locator('.sheet.back ' + sel).evaluate((el) => el.getBoundingClientRect().top);
+    expect(await top('.eyebrow')).toBeLessThan(await top('.message'));
+    expect(await top('.message')).toBeLessThan(await top('.location'));
     const location = page.locator('.sheet.back .location');
     await expect(location.locator('.location-head')).toHaveText('LOCATION');
     await expect(location.locator('dl')).toContainText('이대서울병원');
@@ -146,8 +149,9 @@ test.describe('the movie edition (/v2/)', () => {
     await page.goto('./v2/print/?back=paper');
     await expect(page.locator('html')).toHaveClass(/paper-back/);
     expect(await back()).toEqual(['rgba(0, 0, 0, 0)', 'rgb(35, 32, 27)']);
-    // The front and the QR stub are the same in both versions.
+    // The front is the same in both versions; on bare paper the QR code drops the cream stub behind it.
     await expect(page.locator('.sheet.front .photo')).toBeVisible();
-    expect(await page.locator('.stub-shape path').evaluate((el) => getComputedStyle(el).fill)).toBe('rgb(239, 232, 218)');
+    await expect(page.locator('.stub-shape')).toBeHidden();
+    await expect(page.locator('.stub .qr svg')).toBeVisible();
   });
 });
