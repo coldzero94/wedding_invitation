@@ -117,20 +117,22 @@ test.describe('the movie edition (/v2/)', () => {
     await expect(page.locator('.transport')).toContainText('2시간 무료');
   });
 
-  test('the paper invitation has the new title, and one ticket on the back holds the location and the QR code', async ({ page }) => {
+  test('the paper invitation has the new title, and a ticket stub with the QR code beside the location', async ({ page }) => {
     await page.goto('./v2/print/');
     await expect(page.locator('.front-title')).toHaveAttribute('aria-label', 'Love wins all, Happy Ever After');
     await expect(page.locator('.front-title .t-main')).toHaveText('Love wins all');
-    const ticket = page.locator('.sheet.back .ticket');
-    await expect(ticket).toHaveCount(1);
-    await expect(ticket.locator('dl')).toContainText('이대서울병원');
-    await expect(ticket.locator('.ticket-stub .qr svg')).toHaveCount(1);
-    await expect(page.locator('.barcode, .qr-tile, .location')).toHaveCount(0);
-    // The code sits beside the location on the stub, not in a row of its own.
-    const list = await ticket.locator('dl').boundingBox();
-    const code = await ticket.locator('.qr').boundingBox();
+    const location = page.locator('.sheet.back .location');
+    await expect(location.locator('.location-head')).toHaveText('LOCATION');
+    await expect(location.locator('dl')).toContainText('이대서울병원');
+    await expect(location.locator('.stub .qr svg')).toHaveCount(1);
+    await expect(location.locator('.stub')).toContainText('영화 보러 가기');
+    await expect(page.locator('.ticket, .barcode, .qr-tile')).toHaveCount(0);
+    // The code sits beside the location list, not in a row of its own.
+    const list = await location.locator('dl').boundingBox();
+    const code = await location.locator('.qr').boundingBox();
     expect(code!.x).toBeGreaterThan(list!.x + list!.width);
     expect(code!.y).toBeLessThan(list!.y + list!.height);
+    expect(code!.y + code!.height).toBeGreaterThan(list!.y);
     await expect(page.locator('.sheet.back')).not.toContainText('Greatest');
   });
 });

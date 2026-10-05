@@ -11,7 +11,7 @@ import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css';
 import { wedding } from '../../data/wedding';
 import { movie } from '../../data/movie';
 import { loadGallery } from '../../lib/gallery';
-import { day, month, shortDate, weekday, eventDate } from '../../lib/event';
+import { shortDate, weekday, eventDate } from '../../lib/event';
 
 const root = import.meta.env.BASE_URL.replace(/\/$/, '') + '/';
 const mobileUrl = new URL(root + 'v2/', Astro.site).href;
@@ -78,26 +78,27 @@ const parents = [
       .families .rel { font-size: var(--fs-detail); color: var(--muted); margin: 0 .8mm 0 .3mm; }
       .families strong { font-weight: 500; letter-spacing: .06em; }
 
-      /* The location and the QR code share one movie ticket, the details on its body and the code on the stub,
-         so the code needs no row of its own. The ticket is as wide as its longest line needs. */
-      .ticket { position: relative; display: flex; flex-shrink: 0; width: max-content; max-width: 100%; margin: 6mm auto 0; color: var(--sage-ink); text-align: left; transform: rotate(-1.5deg); }
-      .ticket-main, .ticket-stub { position: relative; background: var(--sage); }
-      .ticket-main { flex: 1; padding: 3mm 6mm 3.2mm 3.6mm; border-radius: 1.5mm 0 0 1.5mm; }
-      .ticket-stub { display: grid; justify-items: center; align-content: center; gap: 1.8mm; width: 22mm; padding: 3mm 1.5mm; border-left: .35mm dashed rgb(31 38 25 / .45); border-radius: 0 1.5mm 1.5mm 0; }
-      /* Half-circle notches at both ends of the perforation, in the page colour. */
-      .ticket-stub::before, .ticket-stub::after { content: ''; position: absolute; left: -1.9mm; width: 3.4mm; height: 3.4mm; border-radius: 50%; background: var(--ink); }
-      .ticket-stub::before { top: -1.7mm; }
-      .ticket-stub::after { bottom: -1.7mm; }
-      .ticket-top { display: flex; justify-content: space-between; padding-bottom: 1.2mm; border-bottom: .15mm solid rgb(31 38 25 / .3); font-family: var(--serif); font-size: var(--fs-detail); letter-spacing: .18em; }
-      /* One grid for all rows, so the labels share a column; each label sits at the middle of its lines. */
-      .ticket dl { display: grid; grid-template-columns: max-content 1fr; gap: 1.3mm 1.8mm; align-items: center; margin-top: 2mm; }
-      .loc-row { display: contents; }
-      .loc-row dt { font-size: var(--fs-detail); font-weight: 600; line-height: 1.55; text-align: right; }
-      .loc-row dd { display: grid; padding-left: 1.8mm; border-left: .15mm solid rgb(31 38 25 / .3); font-size: var(--fs-detail); line-height: 1.55; word-break: keep-all; }
-      .qr { width: 16mm; height: 16mm; }
+      /* Location set like a theater's information board, with the QR code on a ticket stub beside it. */
+      .location { display: flex; align-items: center; justify-content: center; gap: 6mm; margin-top: 5.5mm; padding-top: 3.4mm; border-top: .15mm solid rgb(239 232 218 / .18); }
+      .location-head { font-family: var(--serif); font-size: var(--fs-body); letter-spacing: .34em; margin-right: -.34em; color: var(--gold); }
+      /* The list is as wide as its longest line and centred, so it sits under the centred heading. */
+      .location dl { display: grid; gap: 1.6mm; width: max-content; max-width: 100%; margin: 2.2mm auto 0; text-align: left; }
+      /* Each label sits at the vertical middle of its block of lines. */
+      .loc-row { display: grid; grid-template-columns: 13mm 1fr; gap: 2.2mm; align-items: center; }
+      .loc-row dt { font-size: var(--fs-detail); font-weight: 500; line-height: 1.6; color: var(--gold); text-align: right; }
+      .loc-row dd { display: grid; padding-left: 2.2mm; border-left: .15mm solid rgb(226 192 124 / .35); font-size: var(--fs-detail); line-height: 1.6; color: var(--cream-2); word-break: keep-all; }
+
+      /* A torn-off ticket stub: scan the code to "watch the film", the mobile invitation. */
+      .stub { position: relative; flex-shrink: 0; display: grid; justify-items: center; gap: 1.4mm; padding: 2.4mm 2mm 2.4mm 3.4mm; border-radius: 0 1.5mm 1.5mm 0; background: var(--sage); color: var(--sage-ink); transform: rotate(-1.5deg); }
+      /* The perforation along the torn edge, with half-circle notches at both ends in the page colour. */
+      .perf { position: absolute; top: 0; bottom: 0; left: 1.2mm; border-left: .35mm dashed rgb(31 38 25 / .45); }
+      .perf::before, .perf::after { content: ''; position: absolute; left: -1.875mm; width: 3.4mm; height: 3.4mm; border-radius: 50%; background: var(--ink); }
+      .perf::before { top: -1.7mm; }
+      .perf::after { bottom: -1.7mm; }
+      .qr { width: 14mm; height: 14mm; }
       .qr :global(svg) { display: block; width: 100%; height: 100%; }
       .stub-cta { font-size: var(--fs-detail); font-weight: 600; line-height: 1.3; text-align: center; }
-      .stub-cta .label { display: block; font-family: var(--serif); font-size: var(--fs-label); font-weight: 400; letter-spacing: .14em; }
+      .stub-cta .label { display: block; font-family: var(--serif); font-size: var(--fs-label); font-weight: 400; letter-spacing: .12em; }
       .play { display: inline-block; width: 0; height: 0; margin-left: .6mm; border-left: 1.2mm solid var(--sage-ink); border-top: .75mm solid transparent; border-bottom: .75mm solid transparent; }
     </style>
   </head>
@@ -127,16 +128,17 @@ const parents = [
         {parents.map((p) => <p>{p.father} · {p.mother}<span class="rel">의 {p.child}</span><strong>{p.name}</strong></p>)}
       </div>
 
-      <div class="ticket">
-        <div class="ticket-main">
-          <p class="ticket-top" lang="en"><span>LOCATION</span><span>NO. {String(month).padStart(2, '0')}{String(day).padStart(2, '0')}</span></p>
+      <div class="location">
+        <div>
+          <p class="location-head" lang="en">LOCATION</p>
           <dl>
             {paper.location.map((row) => (
               <div class="loc-row"><dt>{row.label}</dt><dd>{row.lines.map((line) => <span>{line}</span>)}</dd></div>
             ))}
           </dl>
         </div>
-        <div class="ticket-stub">
+        <div class="stub">
+          <span class="perf" aria-hidden="true"></span>
           <div class="qr" role="img" aria-label="모바일 청첩장으로 가는 QR 코드" set:html={qr}></div>
           <p class="stub-cta"><span class="label" lang="en">SCAN TO WATCH</span>영화 보러 가기<span class="play" aria-hidden="true"></span></p>
         </div>
