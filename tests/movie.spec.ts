@@ -8,8 +8,11 @@ test.describe('the movie edition (/v2/)', () => {
     await page.goto('./v2/');
     await expect(page).toHaveTitle(/^Love wins all \|/);
     await expect(page.locator('.poster-title')).toHaveAttribute('aria-label', 'Love wins all');
-    // One word per line, as on the paper invitation's front.
+    // One word per line in the brush script, as on the paper invitation's front; the ticket uses the script too.
     await expect(page.locator('.poster-title .t-line')).toHaveText(['Love', 'wins', 'all']);
+    for (const sel of ['.poster-title .t-line', '.ticket-title']) {
+      expect(await page.locator(sel).first().evaluate((el) => getComputedStyle(el).fontFamily)).toContain('Ms Madi');
+    }
     await expect(page.locator('.quote')).toContainText('3000만큼 사랑해');
     await expect(page.locator('.film-strip img').first()).toBeAttached();
     await expect(page.locator('.cast')).toContainText('이기만');
@@ -116,42 +119,33 @@ test.describe('the movie edition (/v2/)', () => {
     await expect(page.locator('.transport')).toContainText('2시간 무료');
   });
 
-  test('the paper invitation has the new title, and a ticket stub with the QR code beside the location', async ({ page }) => {
+  test('the paper invitation: the script title, a white back in two halves, nothing under 8 pt', async ({ page }) => {
     await page.goto('./v2/print/');
-    await expect(page.locator('.front-title')).toHaveAttribute('aria-label', 'Love wins all');
-    await expect(page.locator('.front-title span')).toHaveText(['Love', 'wins', 'all']);
-    // The back in three bands: the heading at the top, the message, the location at the foot.
-    const top = (sel: string) => page.locator('.sheet.back ' + sel).evaluate((el) => el.getBoundingClientRect().top);
-    expect(await top('.eyebrow')).toBeLessThan(await top('.message'));
-    expect(await top('.message')).toBeLessThan(await top('.location'));
-    const location = page.locator('.sheet.back .location');
-    await expect(location.locator('.location-head')).toHaveText('LOCATION');
-    await expect(location.locator('dl')).toContainText('이대서울병원');
-    await expect(location.locator('.stub .qr svg')).toHaveCount(1);
-    await expect(location.locator('.stub')).toContainText('영화 보러 가기');
-    // Set square to the list, in the card's cream (the couple's choice over the tilted sage stub).
-    expect(await location.locator('.stub').evaluate((el) => getComputedStyle(el).transform)).toBe('none');
-    expect(await location.locator('.stub-shape path').evaluate((el) => getComputedStyle(el).fill)).toBe('rgb(239, 232, 218)');
-    await expect(page.locator('.ticket, .barcode, .qr-tile')).toHaveCount(0);
-    // The code sits beside the location list, not in a row of its own.
-    const list = await location.locator('dl').boundingBox();
-    const code = await location.locator('.qr').boundingBox();
-    expect(code!.x).toBeGreaterThan(list!.x + list!.width);
-    expect(code!.y).toBeLessThan(list!.y + list!.height);
-    expect(code!.y + code!.height).toBeGreaterThan(list!.y);
-    await expect(page.locator('.sheet.back')).not.toContainText('Greatest');
-  });
-
-  test('the paper invitation back can leave its ground unprinted (?back=paper), with dark type', async ({ page }) => {
-    const back = () => page.locator('.sheet.back').evaluate((el) => [getComputedStyle(el).backgroundColor, getComputedStyle(el).color]);
-    await page.goto('./v2/print/');
-    expect(await back()).toEqual(['rgb(12, 12, 13)', 'rgb(239, 232, 218)']);
-    await page.goto('./v2/print/?back=paper');
-    await expect(page.locator('html')).toHaveClass(/paper-back/);
-    expect(await back()).toEqual(['rgba(0, 0, 0, 0)', 'rgb(35, 32, 27)']);
-    // The front is the same in both versions; on bare paper the QR code drops the cream stub behind it.
-    await expect(page.locator('.sheet.front .photo')).toBeVisible();
-    await expect(page.locator('.stub-shape')).toBeHidden();
-    await expect(page.locator('.stub .qr svg')).toBeVisible();
+    const title = page.locator('.front-title');
+    await expect(title).toHaveAttribute('aria-label', 'Love wins all');
+    await expect(title.locator('span')).toHaveText(['Love', 'wins', 'all']);
+    expect(await title.evaluate((el) => getComputedStyle(el).fontFamily)).toContain('Ms Madi');
+    const back = page.locator('.sheet.back');
+    expect(await back.evaluate((el) => getComputedStyle(el).backgroundColor)).toBe('rgb(255, 255, 255)');
+    // WEDDING INVITATION opens the top half and LOCATION the bottom half (the couple's "반반").
+    await expect(back.locator('.section-head')).toHaveText(['WEDDING INVITATION', 'LOCATION']);
+    const sheet = (await back.boundingBox())!;
+    const location = (await back.locator('.section-head').nth(1).boundingBox())!;
+    expect((location.y - sheet.y) / sheet.height).toBeGreaterThan(.45);
+    expect((location.y - sheet.y) / sheet.height).toBeLessThan(.58);
+    await expect(back.locator('dl strong')).toHaveText('[이대서울병원]');
+    // The QR code alone, at the foot of the list and on its left edge.
+    await expect(back.locator('.qr svg')).toHaveCount(1);
+    await expect(page.locator('.stub, .ticket, .barcode, .qr-tile')).toHaveCount(0);
+    const list = (await back.locator('dl').boundingBox())!;
+    const code = (await back.locator('.qr').boundingBox())!;
+    expect(Math.abs(code.x - list.x)).toBeLessThan(1);
+    expect(code.y).toBeGreaterThan(list.y + list.height);
+    // Type that is printed small reads poorly: every size on the back and the front's billing is at least 8 pt.
+    const smallest = await page.evaluate(() => Math.min(...[...document.querySelectorAll('.sheet.back *, .front-foot *')]
+      .filter((el) => [...el.childNodes].some((node) => node.nodeType === 3 && node.textContent!.trim()))
+      .map((el) => parseFloat(getComputedStyle(el).fontSize) * .75)));
+    expect(smallest).toBeGreaterThanOrEqual(8);
+    await expect(back).not.toContainText('Greatest');
   });
 });

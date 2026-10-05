@@ -19,8 +19,8 @@
   --script: 'Cormorant Garamond', Georgia, serif;
   --script-weight: 500;
   --marquee: 'Bebas Neue', 'Pretendard Variable', sans-serif;
-  /* The film's title (cover and ticket), set as on the paper invitation's front. */
-  --title: 'DM Serif Display', 'Cormorant Garamond', Georgia, serif;
+  /* The film's title (cover and ticket), in the brush script of the paper invitation's front. */
+  --title: 'Ms Madi', 'Cormorant Garamond', Georgia, cursive;
   --korean: 'Pretendard Variable', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
   --ease: cubic-bezier(.16, 1, .3, 1);
   --ease-photo: cubic-bezier(.2, .65, .3, 1);
@@ -104,10 +104,11 @@ h1, h2, h3 { font-weight: 400; }
 .poster-studio { padding: max(24px, env(safe-area-inset-top)) 20px 0; text-align: center; font-family: var(--display); font-size: 11px; letter-spacing: .34em; color: var(--cream-2); text-shadow: 0 1px 10px rgb(0 0 0 / .6); }
 .poster-studio span { font-style: italic; letter-spacing: .1em; }
 .poster-body { margin-top: auto; padding: 0 22px calc(20px + env(safe-area-inset-bottom)); text-align: center; }
-.poster-title { display: grid; justify-items: center; margin-top: clamp(12px, 4vw, 22px); padding: 0 18px; font-family: var(--title); font-weight: 400; color: var(--cream); line-height: 1; text-align: center; text-shadow: 0 2px 22px rgb(0 0 0 / .45); }
+.poster-title { --t-size: clamp(76px, 22.4vw, 106px); display: grid; justify-items: center; margin-top: calc(clamp(12px, 4vw, 22px) + var(--t-size) * .15); padding: 0 18px; font-family: var(--title); font-weight: 400; color: var(--cream); line-height: 1; text-align: center; text-shadow: 0 2px 22px rgb(0 0 0 / .45); }
 .poster-title > span { display: block; }
-/* One word per line, as on the paper invitation's front. */
-.t-line { font-style: italic; font-size: clamp(54px, 16vw, 76px); line-height: .92; letter-spacing: -.005em; padding: 0 .1em; }
+/* One word per line, as on the paper invitation's front. The script's loops reach well past its tight lines (the
+   L about .15em above the box, hence the extra top margin above). */
+.t-line { font-size: var(--t-size); line-height: .66; padding: 0 .1em; }
 .poster-credits { display: flex; justify-content: space-between; margin: 0 2px; }
 .poster-credits p { display: grid; justify-items: start; }
 .poster-credits p + p { justify-items: end; }
@@ -126,10 +127,10 @@ h1, h2, h3 { font-weight: 400; }
 .js:not(.cover-ready) .cover-image { opacity: 0; }
 .js:not(.cover-ready) :is(.poster-studio, .poster-credits, .poster-when, .poster-where, .poster-cta, .poster-billing) { opacity: 0; }
 /* Each word of the title is written on left to right, one after another. Both ends use the same inset() shape
-   (WebKit jumps instead of animating to 'none'), with room around the box so the italic overhang is never
+   (WebKit jumps instead of animating to 'none'), with room around the box so the script's loops are never
    clipped once revealed. */
-.js .t-line { clip-path: inset(-25% -15% -25% -15%); }
-.js:not(.cover-ready) .t-line { clip-path: inset(-25% 115% -25% -15%); }
+.js .t-line { clip-path: inset(-70% -25% -70% -25%); }
+.js:not(.cover-ready) .t-line { clip-path: inset(-70% 125% -70% -25%); }
 .cover-ready .cover-image { transition: opacity 1s var(--ease); }
 .cover-ready :where(.poster-studio, .poster-credits, .poster-when, .poster-where, .poster-cta, .poster-billing) { transition: opacity 1s var(--ease); }
 .cover-ready :where(.t-line) { transition: clip-path .9s cubic-bezier(.6, .05, .25, 1); }
@@ -197,7 +198,7 @@ h1, h2, h3 { font-weight: 400; }
 .ticket-face::before { top: -5px; }
 .ticket-face::after { bottom: -5px; }
 .ticket-top { display: flex; justify-content: space-between; padding-bottom: 11px; border-bottom: 1px solid rgb(31 38 25 / .25); font-family: var(--marquee); font-size: 15px; letter-spacing: .16em; }
-.ticket-title { display: block; margin: 14px 0 16px; font-family: var(--title); font-style: italic; font-weight: 400; font-size: 31px; line-height: 1.05; }
+.ticket-title { display: block; margin: 12px 0 14px; font-family: var(--title); font-weight: 400; font-size: 44px; line-height: 1; }
 .ticket-rows { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 14px; }
 .ticket-row, .ticket-place { display: grid; gap: 2px; }
 .ticket-rows .k, .ticket-place .k { font-family: var(--marquee); font-size: 12px; letter-spacing: .16em; opacity: .62; }

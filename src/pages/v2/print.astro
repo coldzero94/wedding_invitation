@@ -2,12 +2,11 @@
 // Printable paper invitation for the movie edition: a 4x6 portrait card (102x152 mm), front and back,
 // laid out on 106x156 mm sheets that include 2 mm of bleed on every side.
 // The trim (cut) line is part of the output, on screen and in print; text keeps 4 mm inside it.
-// Open /v2/print/ and print to PDF with no margins and backgrounds on. /v2/print/?back=paper leaves the back's
-// ground unprinted: dark type straight on the paper.
+// Open /v2/print/ and print to PDF with no margins and backgrounds on.
 import { getImage } from 'astro:assets';
 import QRCode from 'qrcode';
 import '@fontsource/dm-serif-display/latin-400.css';
-import '@fontsource/dm-serif-display/latin-400-italic.css';
+import '@fontsource/ms-madi/latin-400.css';
 import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css';
 import { wedding } from '../../data/wedding';
 import { movie } from '../../data/movie';
@@ -23,18 +22,12 @@ const mainPhoto = (gallery.find((photo) => photo.id === movie.cover.photo) ?? ga
 const poster = await getImage({ src: mainPhoto, width: Number((await getImage({ src: mainPhoto })).attributes.width), format: 'jpg', quality: 95 });
 const timeEn = new Intl.DateTimeFormat('en-US', { timeZone: wedding.timeZone, hour: 'numeric', minute: '2-digit' }).format(eventDate);
 const { paper } = movie;
-// The QR ticket stub, in mm: rounded outer corners, and half-circle notches where the perforation meets the
-// top and bottom edges. Drawn as a path so the notches are cut out, whatever the ground behind the stub.
-const stub = { w: 20.6, h: 25.2, perf: 1.2, notch: 1.7, corner: 1.5 };
-const mm = (value: number) => Number(value.toFixed(3));
-const notchEdge = mm(Math.sqrt(stub.notch ** 2 - stub.perf ** 2)); // where each notch meets the left edge
-const stubPath = `M${mm(stub.perf + stub.notch)} 0H${mm(stub.w - stub.corner)}A${stub.corner} ${stub.corner} 0 0 1 ${stub.w} ${stub.corner}`
-  + `V${mm(stub.h - stub.corner)}A${stub.corner} ${stub.corner} 0 0 1 ${mm(stub.w - stub.corner)} ${stub.h}H${mm(stub.perf + stub.notch)}`
-  + `A${stub.notch} ${stub.notch} 0 0 0 0 ${mm(stub.h - notchEdge)}V${notchEdge}A${stub.notch} ${stub.notch} 0 0 0 ${mm(stub.perf + stub.notch)} 0Z`;
 const parents = [
   { father: wedding.groom.father, mother: wedding.groom.mother, child: paper.relation.groom, name: wedding.groom.name },
   { father: wedding.bride.father, mother: wedding.bride.mother, child: paper.relation.bride, name: wedding.bride.name },
 ];
+// Words in [brackets] in the location lines are set in bold, as on the mobile invitation.
+const emphasise = (line: string) => line.split(/(\[[^\]]+\])/);
 ---
 <!doctype html>
 <html lang="ko">
@@ -42,25 +35,18 @@ const parents = [
     <meta charset="UTF-8" />
     <meta name="robots" content="noindex, nofollow" />
     <title>{movie.titleText} · 지류 청첩장 4x6 (인쇄용)</title>
-    <script is:inline>
-      if (new URLSearchParams(location.search).get('back') === 'paper') document.documentElement.classList.add('paper-back');
-    </script>
     <style>
       @page { size: 106mm 156mm; margin: 0; }
-      :root { --ink: #0c0c0d; --cream: #efe8da; --cream-2: #d6cebf; --muted: #9c9587; --gold: #e2c07c;
+      :root { --ink: #0c0c0d; --cream: #efe8da; --cream-2: #d6cebf; --gold: #e2c07c;
         --serif: 'DM Serif Display', Georgia, serif; --korean: 'Pretendard Variable', 'Apple SD Gothic Neo', sans-serif;
         --bleed: 2mm; --safe: 6mm;
-        /* Back-page type scale: every size on the back is one of these four. */
-        --fs-lead: 8pt; --fs-body: 6.5pt; --fs-detail: 5.8pt; --fs-label: 4.8pt;
-        /* The back's palette: cream and gold type on the dark ground. */
-        --back-ground: var(--ink); --back-text: var(--cream); --back-text-2: var(--cream-2); --back-muted: var(--muted);
-        --back-accent: var(--gold); --back-rule: rgb(239 232 218 / .18); --back-accent-rule: rgb(226 192 124 / .35); }
-      /* ?back=paper: no ink on the back's ground, so the type turns dark and the gold deepens to read on paper. */
-      :root.paper-back { --back-ground: transparent; --back-text: #23201b; --back-text-2: #4a443b; --back-muted: #8b8376;
-        --back-accent: #977434; --back-rule: rgb(35 32 27 / .16); --back-accent-rule: rgb(151 116 52 / .45); }
+        /* The back: dark type on white, with the gold deepened so it reads on paper. */
+        --text: #23201b; --text-2: #4a443b; --muted: #8b8376; --accent: #977434;
+        /* Back-page type scale. Nothing is under 8 pt, the smallest size that still reads easily once printed. */
+        --fs-head: 11pt; --fs-lead: 9pt; --fs-body: 8.5pt; --fs-small: 8pt; }
       * { box-sizing: border-box; }
       html, body { margin: 0; background: #555; -webkit-print-color-adjust: exact; print-color-adjust: exact; font-variant-numeric: lining-nums; }
-      body { font-family: var(--korean); font-weight: 300; color: var(--cream); }
+      body { font-family: var(--korean); font-weight: 400; }
       p, h1, h2, dl, dd { margin: 0; font-weight: 400; }
       .sheet { position: relative; width: 106mm; height: 156mm; margin: 10mm auto; overflow: hidden; background: var(--ink); break-after: page; }
       .sheet:last-child { break-after: auto; }
@@ -75,56 +61,42 @@ const parents = [
       /* No text-shadow on the front: Chrome writes blurred shadows into the PDF as soft-masked tiles, and macOS
          Preview draws those as dark boxes behind the text. The shade alone keeps the white type legible. */
       .front-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgb(10 14 10 / .5) 0%, rgb(10 14 10 / .12) 24%, rgb(10 14 10 / 0) 34%, rgb(10 14 10 / 0) 64%, rgb(10 14 10 / .58) 84%, rgb(10 14 10 / .8) 100%); }
-      /* The film's title, one word per line in italic, as on the mobile cover. */
-      .front-title { position: absolute; top: 11mm; left: var(--safe); right: var(--safe); display: grid; justify-items: center; font-family: var(--serif); font-style: italic; font-size: 40pt; line-height: .9; color: var(--cream); }
-      .front-foot { position: absolute; left: var(--safe); right: var(--safe); bottom: 11mm; display: grid; justify-items: center; gap: .8mm; font-family: var(--serif); font-size: 7.2pt; letter-spacing: .04em; color: var(--cream-2); text-align: center; }
-      /* Same palette as the back: cream type, a gold rule. */
+      /* The film's title in a brush script, one word per line, as on the mobile cover. The L's loop reaches about
+         .15em above the tight lines, so at 11 mm its top still keeps to the safe area. */
+      .front-title { position: absolute; top: 11mm; left: var(--safe); right: var(--safe); display: grid; justify-items: center; font-family: 'Ms Madi', var(--serif); font-size: 56pt; line-height: .66; color: var(--cream); }
+      .front-foot { position: absolute; left: var(--safe); right: var(--safe); bottom: 11mm; display: grid; justify-items: center; gap: .8mm; font-family: var(--serif); font-size: 8pt; letter-spacing: .04em; color: var(--cream-2); text-align: center; }
       .front-foot .rule { width: 3mm; height: .25mm; margin: .8mm 0; background: var(--gold); }
 
-      /* Back */
-      .back { display: flex; flex-direction: column; padding: 14mm calc(var(--safe) + 1mm) 13mm; background: var(--back-ground); color: var(--back-text); text-align: center; }
-      /* Three bands, like the front's title and billing: the heading at the top, the location at the foot, and the
-         message centred between them. */
-      .message { margin: auto 0; }
-      .eyebrow { font-family: var(--serif); font-size: var(--fs-body); letter-spacing: .34em; margin-right: -.34em; color: var(--back-accent); }
-      .verse { display: grid; font-size: var(--fs-lead); line-height: 1.55; letter-spacing: -.02em; }
-      .verse span:first-child::before, .verse span:last-child::after { font-family: var(--serif); font-size: 1.15em; color: var(--back-accent); }
+      /* Back: white, split into two halves, the invitation above and the location below. */
+      .back { display: grid; grid-template-rows: 1fr 1fr; padding: 16mm 7mm 11mm; background: #fff; color: var(--text); }
+      .section-head { font-family: var(--serif); font-size: var(--fs-head); letter-spacing: .22em; margin-right: -.22em; color: var(--accent); text-align: center; }
+      .invite { text-align: center; }
+      .verse { display: grid; margin-top: 4mm; font-size: var(--fs-lead); line-height: 1.55; letter-spacing: -.02em; }
+      .verse span:first-child::before, .verse span:last-child::after { font-family: var(--serif); font-size: 1.15em; color: var(--accent); }
       .verse span:first-child::before { content: '\201C'; margin-right: .8mm; }
       .verse span:last-child::after { content: '\201D'; margin-left: .8mm; }
-      .cite { margin-top: 1mm; font-size: var(--fs-detail); font-weight: 400; color: var(--back-muted); }
-      .greeting { margin-top: 3mm; font-size: var(--fs-body); line-height: 1.8; color: var(--back-text-2); }
-      .families { display: grid; gap: .2mm; margin-top: 2.6mm; font-size: var(--fs-body); line-height: 1.75; }
-      .families .rel { font-size: var(--fs-detail); color: var(--back-muted); margin: 0 .8mm 0 .3mm; }
-      .families strong { font-weight: 500; letter-spacing: .06em; }
+      .cite { margin-top: 1mm; font-size: var(--fs-small); color: var(--muted); }
+      .greeting { margin-top: 3.6mm; font-size: var(--fs-body); line-height: 1.7; color: var(--text-2); }
+      .families { display: grid; margin-top: 3.2mm; font-size: var(--fs-lead); line-height: 1.65; }
+      .families .rel { font-size: var(--fs-small); color: var(--muted); margin: 0 1mm 0 .4mm; }
+      .families strong { font-weight: 600; letter-spacing: .06em; }
 
-      /* Location set like a theater's information board: the heading on the card's centre line, and below it the
-         list with the QR code beside it, centred together. */
-      .location { padding-top: 3.4mm; border-top: .15mm solid var(--back-rule); }
-      .location-row { display: flex; align-items: center; justify-content: center; gap: 6mm; margin-top: 2.2mm; }
-      .location-head { font-family: var(--serif); font-size: var(--fs-body); letter-spacing: .34em; margin-right: -.34em; color: var(--back-accent); }
-      .location dl { display: grid; gap: 1.6mm; text-align: left; }
-      /* Each label sits at the vertical middle of its block of lines. */
-      .loc-row { display: grid; grid-template-columns: 13mm 1fr; gap: 2.2mm; align-items: center; }
-      .loc-row dt { font-size: var(--fs-detail); font-weight: 500; line-height: 1.6; color: var(--back-accent); text-align: right; }
-      .loc-row dd { display: grid; padding-left: 2.2mm; border-left: .15mm solid var(--back-accent-rule); font-size: var(--fs-detail); line-height: 1.6; color: var(--back-text-2); word-break: keep-all; }
-
-      /* A torn-off ticket stub in the card's cream, set square to the list: scan the code to "watch the film",
-         the mobile invitation. Dark on cream also gives the code the most contrast. */
-      .stub { position: relative; flex-shrink: 0; display: grid; justify-items: center; align-content: center; gap: 1.4mm; padding: 0 2mm 0 3.4mm; color: var(--ink); }
-      /* The stub's shape behind its content, and the dashed perforation along the torn edge. */
-      .stub-shape { position: absolute; inset: 0; width: 100%; height: 100%; }
-      .stub-shape path { fill: var(--cream); }
-      .stub-shape line { stroke: rgb(12 12 13 / .35); stroke-width: .35; stroke-dasharray: .9 .6; }
-      .qr, .stub-cta { position: relative; }
-      .qr { width: 14mm; height: 14mm; }
+      /* Location: the list and the QR code below it share one left edge, and that block is centred. */
+      .location { display: flex; flex-direction: column; }
+      .location-body { display: flex; flex: 1; flex-direction: column; width: max-content; max-width: 100%; margin: 4.5mm auto 0; }
+      /* One grid for all rows, so the labels share a column; each label sits at the middle of its lines. */
+      .location dl { display: grid; grid-template-columns: max-content max-content; gap: 2.8mm 4mm; align-items: center; }
+      .loc-row { display: contents; }
+      .loc-row dt { font-size: var(--fs-body); font-weight: 600; line-height: 1.65; }
+      .loc-row dd { display: grid; font-size: var(--fs-small); line-height: 1.65; color: var(--text-2); word-break: keep-all; }
+      .loc-row dd strong { font-weight: 600; color: var(--text); }
+      /* The QR code at the foot of the list, its caption beside it. */
+      .qr-row { display: flex; align-items: center; gap: 3mm; margin-top: auto; padding-top: 4mm; }
+      .qr { flex-shrink: 0; width: 14mm; height: 14mm; }
       .qr :global(svg) { display: block; width: 100%; height: 100%; }
-      .stub-cta { font-size: var(--fs-detail); font-weight: 600; line-height: 1.3; text-align: center; }
-      .stub-cta .label { display: block; font-family: var(--serif); font-size: var(--fs-label); font-weight: 400; letter-spacing: .12em; }
-      .play { display: inline-block; width: 0; height: 0; margin-left: .6mm; border-left: 1.2mm solid currentColor; border-top: .75mm solid transparent; border-bottom: .75mm solid transparent; }
-      /* On bare paper the code needs no ground of its own: just the code and its caption, in the back's ink. (The dark
-         back keeps the cream stub, since a light-on-dark code is one many phone scanners miss.) */
-      :root.paper-back .stub { gap: 1.8mm; padding: 0 2.7mm; color: var(--back-text); }
-      :root.paper-back .stub-shape { display: none; }
+      .qr-cta { font-size: var(--fs-body); font-weight: 600; line-height: 1.45; }
+      .qr-cta .label { display: block; font-family: var(--serif); font-size: var(--fs-small); font-weight: 400; letter-spacing: .12em; color: var(--accent); }
+      .play { display: inline-block; width: 0; height: 0; margin-left: .8mm; border-left: 1.4mm solid currentColor; border-top: .9mm solid transparent; border-bottom: .9mm solid transparent; }
     </style>
   </head>
   <body>
@@ -144,8 +116,8 @@ const parents = [
     </section>
 
     <section class="sheet back">
-      <p class="eyebrow" lang="en">{paper.heading}</p>
-      <div class="message">
+      <div class="invite">
+        <p class="section-head" lang="en">{paper.heading}</p>
         <p class="verse">{paper.verse.lines.map((line) => <span>{line}</span>)}</p>
         <p class="cite">{paper.verse.source}</p>
         <div class="greeting">{paper.greeting.map((line) => <p>{line}</p>)}</div>
@@ -155,20 +127,16 @@ const parents = [
       </div>
 
       <div class="location">
-        <p class="location-head" lang="en">LOCATION</p>
-        <div class="location-row">
+        <p class="section-head" lang="en">LOCATION</p>
+        <div class="location-body">
           <dl>
             {paper.location.map((row) => (
-              <div class="loc-row"><dt>{row.label}</dt><dd>{row.lines.map((line) => <span>{line}</span>)}</dd></div>
+              <div class="loc-row"><dt>{row.label}</dt><dd>{row.lines.map((line) => <span>{emphasise(line).map((part) => /^\[.+\]$/.test(part) ? <strong>{part}</strong> : part)}</span>)}</dd></div>
             ))}
           </dl>
-          <div class="stub" style={`width: ${stub.w}mm; height: ${stub.h}mm`}>
-            <svg class="stub-shape" viewBox={`0 0 ${stub.w} ${stub.h}`} aria-hidden="true">
-              <path d={stubPath} />
-              <line x1={stub.perf} y1={stub.notch + .5} x2={stub.perf} y2={mm(stub.h - stub.notch - .5)} />
-            </svg>
+          <div class="qr-row">
             <div class="qr" role="img" aria-label="모바일 청첩장으로 가는 QR 코드" set:html={qr}></div>
-            <p class="stub-cta"><span class="label" lang="en">SCAN TO WATCH</span>영화 보러 가기<span class="play" aria-hidden="true"></span></p>
+            <p class="qr-cta"><span class="label" lang="en">SCAN TO WATCH</span>영화 보러 가기<span class="play" aria-hidden="true"></span></p>
           </div>
         </div>
       </div>
