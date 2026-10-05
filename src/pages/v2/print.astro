@@ -2,7 +2,8 @@
 // Printable paper invitation for the movie edition: a 4x6 portrait card (102x152 mm), front and back,
 // laid out on 106x156 mm sheets that include 2 mm of bleed on every side.
 // The trim (cut) line is part of the output, on screen and in print; text keeps 4 mm inside it.
-// Open /v2/print/ and print to PDF with no margins and backgrounds on.
+// Open /v2/print/ and print to PDF with no margins and backgrounds on. /v2/print/?back=paper leaves the back's
+// ground unprinted: dark type straight on the paper.
 import { getImage } from 'astro:assets';
 import QRCode from 'qrcode';
 import '@fontsource/dm-serif-display/latin-400.css';
@@ -22,6 +23,14 @@ const mainPhoto = (gallery.find((photo) => photo.id === movie.cover.photo) ?? ga
 const poster = await getImage({ src: mainPhoto, width: Number((await getImage({ src: mainPhoto })).attributes.width), format: 'jpg', quality: 95 });
 const timeEn = new Intl.DateTimeFormat('en-US', { timeZone: wedding.timeZone, hour: 'numeric', minute: '2-digit' }).format(eventDate);
 const { paper } = movie;
+// The QR ticket stub, in mm: rounded outer corners, and half-circle notches where the perforation meets the
+// top and bottom edges. Drawn as a path so the notches are cut out, whatever the ground behind the stub.
+const stub = { w: 20.6, h: 25.2, perf: 1.2, notch: 1.7, corner: 1.5 };
+const mm = (value: number) => Number(value.toFixed(3));
+const notchEdge = mm(Math.sqrt(stub.notch ** 2 - stub.perf ** 2)); // where each notch meets the left edge
+const stubPath = `M${mm(stub.perf + stub.notch)} 0H${mm(stub.w - stub.corner)}A${stub.corner} ${stub.corner} 0 0 1 ${stub.w} ${stub.corner}`
+  + `V${mm(stub.h - stub.corner)}A${stub.corner} ${stub.corner} 0 0 1 ${mm(stub.w - stub.corner)} ${stub.h}H${mm(stub.perf + stub.notch)}`
+  + `A${stub.notch} ${stub.notch} 0 0 0 0 ${mm(stub.h - notchEdge)}V${notchEdge}A${stub.notch} ${stub.notch} 0 0 0 ${mm(stub.perf + stub.notch)} 0Z`;
 const parents = [
   { father: wedding.groom.father, mother: wedding.groom.mother, child: paper.relation.groom, name: wedding.groom.name },
   { father: wedding.bride.father, mother: wedding.bride.mother, child: paper.relation.bride, name: wedding.bride.name },
@@ -33,13 +42,22 @@ const parents = [
     <meta charset="UTF-8" />
     <meta name="robots" content="noindex, nofollow" />
     <title>{movie.titleText} · 지류 청첩장 4x6 (인쇄용)</title>
+    <script is:inline>
+      if (new URLSearchParams(location.search).get('back') === 'paper') document.documentElement.classList.add('paper-back');
+    </script>
     <style>
       @page { size: 106mm 156mm; margin: 0; }
       :root { --ink: #0c0c0d; --cream: #efe8da; --cream-2: #d6cebf; --muted: #9c9587; --gold: #e2c07c;
         --serif: 'DM Serif Display', Georgia, serif; --korean: 'Pretendard Variable', 'Apple SD Gothic Neo', sans-serif;
         --bleed: 2mm; --safe: 6mm;
         /* Back-page type scale: every size on the back is one of these four. */
-        --fs-lead: 8pt; --fs-body: 6.5pt; --fs-detail: 5.8pt; --fs-label: 4.8pt; }
+        --fs-lead: 8pt; --fs-body: 6.5pt; --fs-detail: 5.8pt; --fs-label: 4.8pt;
+        /* The back's palette: cream and gold type on the dark ground. */
+        --back-ground: var(--ink); --back-text: var(--cream); --back-text-2: var(--cream-2); --back-muted: var(--muted);
+        --back-accent: var(--gold); --back-rule: rgb(239 232 218 / .18); --back-accent-rule: rgb(226 192 124 / .35); }
+      /* ?back=paper: no ink on the back's ground, so the type turns dark and the gold deepens to read on paper. */
+      :root.paper-back { --back-ground: transparent; --back-text: #23201b; --back-text-2: #4a443b; --back-muted: #8b8376;
+        --back-accent: #977434; --back-rule: rgb(35 32 27 / .16); --back-accent-rule: rgb(151 116 52 / .45); }
       * { box-sizing: border-box; }
       html, body { margin: 0; background: #555; -webkit-print-color-adjust: exact; print-color-adjust: exact; font-variant-numeric: lining-nums; }
       body { font-family: var(--korean); font-weight: 300; color: var(--cream); }
@@ -66,36 +84,36 @@ const parents = [
       .front-foot .rule { width: 3mm; height: .25mm; margin: .8mm 0; background: var(--gold); }
 
       /* Back */
-      .back { display: flex; flex-direction: column; justify-content: center; padding: calc(var(--safe) + 2mm) calc(var(--safe) + 1mm); text-align: center; }
-      .eyebrow { font-family: var(--serif); font-size: var(--fs-body); letter-spacing: .34em; margin-right: -.34em; color: var(--gold); }
+      .back { display: flex; flex-direction: column; justify-content: center; padding: calc(var(--safe) + 2mm) calc(var(--safe) + 1mm); background: var(--back-ground); color: var(--back-text); text-align: center; }
+      .eyebrow { font-family: var(--serif); font-size: var(--fs-body); letter-spacing: .34em; margin-right: -.34em; color: var(--back-accent); }
       .verse { display: grid; margin-top: 2.6mm; font-size: var(--fs-lead); line-height: 1.55; letter-spacing: -.02em; }
-      .verse span:first-child::before, .verse span:last-child::after { font-family: var(--serif); font-size: 1.15em; color: var(--gold); }
+      .verse span:first-child::before, .verse span:last-child::after { font-family: var(--serif); font-size: 1.15em; color: var(--back-accent); }
       .verse span:first-child::before { content: '\201C'; margin-right: .8mm; }
       .verse span:last-child::after { content: '\201D'; margin-left: .8mm; }
-      .cite { margin-top: 1mm; font-size: var(--fs-detail); font-weight: 400; color: var(--muted); }
-      .greeting { margin-top: 3mm; font-size: var(--fs-body); line-height: 1.8; color: var(--cream-2); }
+      .cite { margin-top: 1mm; font-size: var(--fs-detail); font-weight: 400; color: var(--back-muted); }
+      .greeting { margin-top: 3mm; font-size: var(--fs-body); line-height: 1.8; color: var(--back-text-2); }
       .families { display: grid; gap: .2mm; margin-top: 2.6mm; font-size: var(--fs-body); line-height: 1.75; }
-      .families .rel { font-size: var(--fs-detail); color: var(--muted); margin: 0 .8mm 0 .3mm; }
+      .families .rel { font-size: var(--fs-detail); color: var(--back-muted); margin: 0 .8mm 0 .3mm; }
       .families strong { font-weight: 500; letter-spacing: .06em; }
 
       /* Location set like a theater's information board, with the QR code on a ticket stub beside it. */
-      .location { display: flex; align-items: center; justify-content: center; gap: 6mm; margin-top: 5.5mm; padding-top: 3.4mm; border-top: .15mm solid rgb(239 232 218 / .18); }
-      .location-head { font-family: var(--serif); font-size: var(--fs-body); letter-spacing: .34em; margin-right: -.34em; color: var(--gold); }
+      .location { display: flex; align-items: center; justify-content: center; gap: 6mm; margin-top: 5.5mm; padding-top: 3.4mm; border-top: .15mm solid var(--back-rule); }
+      .location-head { font-family: var(--serif); font-size: var(--fs-body); letter-spacing: .34em; margin-right: -.34em; color: var(--back-accent); }
       /* The list is as wide as its longest line and centred, so it sits under the centred heading. */
       .location dl { display: grid; gap: 1.6mm; width: max-content; max-width: 100%; margin: 2.2mm auto 0; text-align: left; }
       /* Each label sits at the vertical middle of its block of lines. */
       .loc-row { display: grid; grid-template-columns: 13mm 1fr; gap: 2.2mm; align-items: center; }
-      .loc-row dt { font-size: var(--fs-detail); font-weight: 500; line-height: 1.6; color: var(--gold); text-align: right; }
-      .loc-row dd { display: grid; padding-left: 2.2mm; border-left: .15mm solid rgb(226 192 124 / .35); font-size: var(--fs-detail); line-height: 1.6; color: var(--cream-2); word-break: keep-all; }
+      .loc-row dt { font-size: var(--fs-detail); font-weight: 500; line-height: 1.6; color: var(--back-accent); text-align: right; }
+      .loc-row dd { display: grid; padding-left: 2.2mm; border-left: .15mm solid var(--back-accent-rule); font-size: var(--fs-detail); line-height: 1.6; color: var(--back-text-2); word-break: keep-all; }
 
       /* A torn-off ticket stub in the card's cream, set square to the list: scan the code to "watch the film",
          the mobile invitation. Dark on cream also gives the code the most contrast. */
-      .stub { position: relative; flex-shrink: 0; display: grid; justify-items: center; gap: 1.4mm; padding: 2.4mm 2mm 2.4mm 3.4mm; border-radius: 0 1.5mm 1.5mm 0; background: var(--cream); color: var(--ink); }
-      /* The perforation along the torn edge, with half-circle notches at both ends in the page colour. */
-      .perf { position: absolute; top: 0; bottom: 0; left: 1.2mm; border-left: .35mm dashed rgb(12 12 13 / .35); }
-      .perf::before, .perf::after { content: ''; position: absolute; left: -1.875mm; width: 3.4mm; height: 3.4mm; border-radius: 50%; background: var(--ink); }
-      .perf::before { top: -1.7mm; }
-      .perf::after { bottom: -1.7mm; }
+      .stub { position: relative; flex-shrink: 0; display: grid; justify-items: center; align-content: center; gap: 1.4mm; padding: 0 2mm 0 3.4mm; color: var(--ink); }
+      /* The stub's shape behind its content, and the dashed perforation along the torn edge. */
+      .stub-shape { position: absolute; inset: 0; width: 100%; height: 100%; }
+      .stub-shape path { fill: var(--cream); }
+      .stub-shape line { stroke: rgb(12 12 13 / .35); stroke-width: .35; stroke-dasharray: .9 .6; }
+      .qr, .stub-cta { position: relative; }
       .qr { width: 14mm; height: 14mm; }
       .qr :global(svg) { display: block; width: 100%; height: 100%; }
       .stub-cta { font-size: var(--fs-detail); font-weight: 600; line-height: 1.3; text-align: center; }
@@ -138,8 +156,11 @@ const parents = [
             ))}
           </dl>
         </div>
-        <div class="stub">
-          <span class="perf" aria-hidden="true"></span>
+        <div class="stub" style={`width: ${stub.w}mm; height: ${stub.h}mm`}>
+          <svg class="stub-shape" viewBox={`0 0 ${stub.w} ${stub.h}`} aria-hidden="true">
+            <path d={stubPath} />
+            <line x1={stub.perf} y1={stub.notch + .5} x2={stub.perf} y2={mm(stub.h - stub.notch - .5)} />
+          </svg>
           <div class="qr" role="img" aria-label="모바일 청첩장으로 가는 QR 코드" set:html={qr}></div>
           <p class="stub-cta"><span class="label" lang="en">SCAN TO WATCH</span>영화 보러 가기<span class="play" aria-hidden="true"></span></p>
         </div>

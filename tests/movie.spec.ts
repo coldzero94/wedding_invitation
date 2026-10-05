@@ -127,7 +127,8 @@ test.describe('the movie edition (/v2/)', () => {
     await expect(location.locator('.stub .qr svg')).toHaveCount(1);
     await expect(location.locator('.stub')).toContainText('영화 보러 가기');
     // Set square to the list, in the card's cream (the couple's choice over the tilted sage stub).
-    expect(await location.locator('.stub').evaluate((el) => [getComputedStyle(el).transform, getComputedStyle(el).backgroundColor])).toEqual(['none', 'rgb(239, 232, 218)']);
+    expect(await location.locator('.stub').evaluate((el) => getComputedStyle(el).transform)).toBe('none');
+    expect(await location.locator('.stub-shape path').evaluate((el) => getComputedStyle(el).fill)).toBe('rgb(239, 232, 218)');
     await expect(page.locator('.ticket, .barcode, .qr-tile')).toHaveCount(0);
     // The code sits beside the location list, not in a row of its own.
     const list = await location.locator('dl').boundingBox();
@@ -136,5 +137,17 @@ test.describe('the movie edition (/v2/)', () => {
     expect(code!.y).toBeLessThan(list!.y + list!.height);
     expect(code!.y + code!.height).toBeGreaterThan(list!.y);
     await expect(page.locator('.sheet.back')).not.toContainText('Greatest');
+  });
+
+  test('the paper invitation back can leave its ground unprinted (?back=paper), with dark type', async ({ page }) => {
+    const back = () => page.locator('.sheet.back').evaluate((el) => [getComputedStyle(el).backgroundColor, getComputedStyle(el).color]);
+    await page.goto('./v2/print/');
+    expect(await back()).toEqual(['rgb(12, 12, 13)', 'rgb(239, 232, 218)']);
+    await page.goto('./v2/print/?back=paper');
+    await expect(page.locator('html')).toHaveClass(/paper-back/);
+    expect(await back()).toEqual(['rgba(0, 0, 0, 0)', 'rgb(35, 32, 27)']);
+    // The front and the QR stub are the same in both versions.
+    await expect(page.locator('.sheet.front .photo')).toBeVisible();
+    expect(await page.locator('.stub-shape path').evaluate((el) => getComputedStyle(el).fill)).toBe('rgb(239, 232, 218)');
   });
 });
