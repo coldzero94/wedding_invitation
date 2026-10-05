@@ -64,16 +64,15 @@ test.describe('the movie edition (/v2/)', () => {
     await expect(page.locator('h1')).toContainText('The next');
   });
 
-  test('each edition links to the other', async ({ page, baseURL }) => {
+  test('the classic page links to this one, but this one, the invitation the couple sends, has no way back', async ({ page, baseURL }) => {
     await page.goto('./');
     const toMovie = page.getByRole('link', { name: '영화관 버전으로 보기' });
     await expect(toMovie).toHaveAttribute('href', new URL(baseURL!).pathname + 'v2/');
     await toMovie.click();
     await expect(page).toHaveURL(/\/v2\/$/);
     await expect(page.locator('.poster-title')).toBeVisible();
-    await page.getByRole('link', { name: '클래식 버전으로 보기' }).click();
-    await expect(page).toHaveURL(baseURL!);
-    await expect(page.locator('h1')).toContainText('The next');
+    await expect(page.getByRole('link', { name: '클래식 버전으로 보기' })).toHaveCount(0);
+    await expect(page.locator('.footer-links a')).toHaveText(['처음으로']);
   });
 
   test('the film leader plays when arriving but not on a reload', async ({ page }) => {
