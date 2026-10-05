@@ -126,6 +126,8 @@ test.describe('the movie edition (/v2/)', () => {
     await expect(location.locator('dl')).toContainText('이대서울병원');
     await expect(location.locator('.stub .qr svg')).toHaveCount(1);
     await expect(location.locator('.stub')).toContainText('영화 보러 가기');
+    // Set square to the list, in the card's cream (the couple's choice over the tilted sage stub).
+    expect(await location.locator('.stub').evaluate((el) => [getComputedStyle(el).transform, getComputedStyle(el).backgroundColor])).toEqual(['none', 'rgb(239, 232, 218)']);
     await expect(page.locator('.ticket, .barcode, .qr-tile')).toHaveCount(0);
     // The code sits beside the location list, not in a row of its own.
     const list = await location.locator('dl').boundingBox();
