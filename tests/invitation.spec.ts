@@ -141,6 +141,8 @@ test('contact is hidden without phone numbers, and accounts are grouped by side'
   await expect(page.locator('.account-row', { hasText: '최효안' })).toContainText('어머니 최효안국민 830-24-0107-431');
   await page.locator('.accounts summary', { hasText: '신부측' }).click();
   await expect(page.locator('.account-row', { hasText: '임예지' })).toContainText('국민 373301-01-415845');
+  await expect(page.locator('.account-row', { hasText: '임원섭' })).toContainText('아버지 임원섭신한 606-12-087230');
+  await expect(page.locator('.account-row', { hasText: '정해숙' })).toContainText('어머니 정해숙국민 263101-04-065980');
 });
 
 test('sharing falls back to a copyable URL when browser permissions fail', async ({ page, baseURL }) => {
@@ -270,7 +272,9 @@ test('enlarged text keeps information available on a narrow screen', async ({ pa
 
 test('the parking guide opens full screen with both images and closes with Back', async ({ page }) => {
   await page.goto('./');
-  await expect(page.locator('.transport')).toContainText('이대서울병원 주차장');
+  // Shared with the movie edition: subway exit 7, and the hospital lot marked [이대서울병원] with 2 hours free.
+  await expect(page.locator('.transport')).toContainText('5호선 발산역 하차 7번 출구 (도보 3분~5분)');
+  await expect(page.locator('.transport')).toContainText('만차 시 [이대서울병원] 주차장 이용 · 2시간 무료');
   await page.getByRole('link', { name: '주차 안내 보기' }).click();
   const dialog = page.getByRole('dialog', { name: '주차 안내' });
   await expect(dialog).toBeVisible();

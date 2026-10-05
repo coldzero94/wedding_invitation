@@ -11,29 +11,17 @@ import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css';
 import { wedding } from '../../data/wedding';
 import { movie } from '../../data/movie';
 import { loadGallery } from '../../lib/gallery';
-import { day, month, shortDate, weekday, eventDate } from '../../lib/event';
+import { shortDate, weekday, eventDate } from '../../lib/event';
 
 const root = import.meta.env.BASE_URL.replace(/\/$/, '') + '/';
 const mobileUrl = new URL(root + 'v2/', Astro.site).href;
 const qr = await QRCode.toString(mobileUrl, { type: 'svg', margin: 0, errorCorrectionLevel: 'M', color: { dark: '#1f2619', light: '#0000' } });
-// The main photo (gallery no. 1) at its full size; it fills the whole sheet, bleed included.
-const mainPhoto = loadGallery(wedding.gallery, { groom: wedding.groom.name, bride: wedding.bride.name })[0].image;
+// The main photo (the mobile cover's, movie.cover) at its full size; it fills the whole sheet, bleed included.
+const gallery = loadGallery(wedding.gallery, { groom: wedding.groom.name, bride: wedding.bride.name, release: process.env.RELEASE_BUILD === '1' });
+const mainPhoto = (gallery.find((photo) => photo.id === movie.cover.photo) ?? gallery[0]).image;
 const poster = await getImage({ src: mainPhoto, width: Number((await getImage({ src: mainPhoto })).attributes.width), format: 'jpg', quality: 95 });
 const timeEn = new Intl.DateTimeFormat('en-US', { timeZone: wedding.timeZone, hour: 'numeric', minute: '2-digit' }).format(eventDate);
 const { paper } = movie;
-// Barcode drawn as SVG bars: a repeating CSS gradient on the tilted ticket broke up when printed to PDF.
-// A fixed pseudo-random run of bar and gap widths (1-3 units), so every build draws the same code.
-const barcode = (() => {
-  let seed = 20270313, x = 0;
-  const next = () => (seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648;
-  const bars: { x: number; w: number }[] = [];
-  while (x < 190) {
-    const w = 1 + Math.floor(next() * 3);
-    bars.push({ x, w });
-    x += w + 1 + Math.floor(next() * 2.4);
-  }
-  return { width: x, bars };
-})();
 const parents = [
   { father: wedding.groom.father, mother: wedding.groom.mother, child: paper.relation.groom, name: wedding.groom.name },
   { father: wedding.bride.father, mother: wedding.bride.mother, child: paper.relation.bride, name: wedding.bride.name },
@@ -44,14 +32,14 @@ const parents = [
   <head>
     <meta charset="UTF-8" />
     <meta name="robots" content="noindex, nofollow" />
-    <title>{paper.ticketTitle} · 지류 청첩장 4x6 (인쇄용)</title>
+    <title>{movie.titleText} · 지류 청첩장 4x6 (인쇄용)</title>
     <style>
       @page { size: 106mm 156mm; margin: 0; }
       :root { --ink: #0c0c0d; --cream: #efe8da; --cream-2: #d6cebf; --muted: #9c9587; --gold: #e2c07c; --sage: #c3c9a8; --sage-ink: #1f2619;
         --serif: 'DM Serif Display', Georgia, serif; --korean: 'Pretendard Variable', 'Apple SD Gothic Neo', sans-serif;
         --bleed: 2mm; --safe: 6mm;
-        /* Back-page type scale: every size on the back is one of these five. */
-        --fs-title: 11pt; --fs-lead: 8pt; --fs-body: 6.5pt; --fs-detail: 5.8pt; --fs-label: 4.8pt; }
+        /* Back-page type scale: every size on the back is one of these three. */
+        --fs-lead: 8pt; --fs-body: 6.5pt; --fs-detail: 5.8pt; }
       * { box-sizing: border-box; }
       html, body { margin: 0; background: #555; -webkit-print-color-adjust: exact; print-color-adjust: exact; font-variant-numeric: lining-nums; }
       body { font-family: var(--korean); font-weight: 300; color: var(--cream); }
@@ -69,9 +57,10 @@ const parents = [
       /* No text-shadow on the front: Chrome writes blurred shadows into the PDF as soft-masked tiles, and macOS
          Preview draws those as dark boxes behind the text. The shade alone keeps the white type legible. */
       .front-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgb(10 14 10 / .5) 0%, rgb(10 14 10 / .12) 24%, rgb(10 14 10 / 0) 34%, rgb(10 14 10 / 0) 64%, rgb(10 14 10 / .58) 84%, rgb(10 14 10 / .8) 100%); }
+      /* The film's title, set the same way on the mobile cover: the main line in italic, the second in capitals. */
       .front-title { position: absolute; top: 11mm; left: var(--safe); right: var(--safe); display: grid; justify-items: center; font-family: var(--serif); color: var(--cream); line-height: .92; }
-      .front-title .caps { font-size: 29pt; letter-spacing: .01em; }
-      .front-title .italic { font-style: italic; font-size: 27pt; margin: .6mm 0 .2mm; }
+      .front-title .t-main { font-style: italic; font-size: 32pt; }
+      .front-title .t-sub { margin: 1.5mm -.06em 0 0; font-size: 17pt; letter-spacing: .06em; text-transform: uppercase; }
       .front-foot { position: absolute; left: var(--safe); right: var(--safe); bottom: 11mm; display: grid; justify-items: center; gap: .8mm; font-family: var(--serif); font-size: 7.2pt; letter-spacing: .04em; color: var(--cream-2); text-align: center; }
       /* Same palette as the back: cream type, a gold rule. */
       .front-foot .rule { width: 3mm; height: .25mm; margin: .8mm 0; background: var(--gold); }
@@ -89,41 +78,11 @@ const parents = [
       .families .rel { font-size: var(--fs-detail); color: var(--muted); margin: 0 .8mm 0 .3mm; }
       .families strong { font-weight: 500; letter-spacing: .06em; }
 
-      .ticket { position: relative; display: flex; flex-shrink: 0; margin: 5mm auto 0; width: 88mm; height: 39.5mm; color: var(--sage-ink); text-align: left; transform: rotate(-1.5deg); }
-      .ticket-main, .ticket-stub { position: relative; background: var(--sage); }
-      .ticket-main { flex: 1; display: flex; flex-direction: column; padding: 3.2mm 3.2mm 2.6mm 4mm; border-radius: 1.5mm 0 0 1.5mm; }
-      .ticket-stub { width: 24mm; padding: 3mm 1.8mm 2.4mm; border-radius: 0 1.5mm 1.5mm 0; border-left: .35mm dashed rgb(31 38 25 / .45); display: grid; justify-items: center; align-content: space-between; }
-      .ticket-stub::before, .ticket-stub::after { content: ''; position: absolute; left: -1.9mm; width: 3.4mm; height: 3.4mm; border-radius: 50%; background: var(--ink); }
-      .ticket-stub::before { top: -1.7mm; }
-      .ticket-stub::after { bottom: -1.7mm; }
-      .label { font-family: var(--serif); font-size: var(--fs-label); letter-spacing: .18em; }
-      .ticket-top { font-size: var(--fs-detail); display: flex; justify-content: space-between; padding-bottom: 1.2mm; border-bottom: .15mm solid rgb(31 38 25 / .3); }
-      .ticket-title { margin: 1.6mm 0 1.8mm; font-family: var(--serif); font-style: italic; font-size: var(--fs-title); line-height: 1.05; }
-      .ticket-rows { display: grid; grid-template-columns: 1.25fr 1fr 1fr; gap: 1.2mm 2mm; }
-      .ticket-rows .label { display: block; opacity: .65; }
-      .ticket-rows .v { font-size: var(--fs-body); font-weight: 500; }
-      /* DM Serif figures draw ~8% smaller than Pretendard's at the same size; scale them to match the row. */
-      .ticket-rows .v.en { font-family: var(--serif); font-weight: 400; font-size: calc(var(--fs-body) * 1.08); }
-      .ticket-place { grid-column: 1 / -1; }
-      .ticket-foot { display: flex; align-items: center; gap: 2.5mm; margin-top: auto; padding-top: 1.8mm; }
-      .barcode { flex: 1 1 0; width: 0; min-width: 0; height: 4.4mm; fill: var(--sage-ink); opacity: .85; }
-      .ticket-foot .label { letter-spacing: .12em; line-height: 1.25; text-align: right; }
-      .stub-head { font-family: var(--serif); font-size: var(--fs-detail); letter-spacing: .14em; text-align: center; line-height: 1.15; }
-      .stub-head span { display: block; font-size: var(--fs-label); letter-spacing: .16em; opacity: .65; }
-      /* The QR framed like a camera viewfinder: four corner brackets around the code. */
-      .viewfinder { position: relative; padding: 1.2mm; background:
-        linear-gradient(var(--sage-ink), var(--sage-ink)) 0 0 / 2mm .35mm, linear-gradient(var(--sage-ink), var(--sage-ink)) 0 0 / .35mm 2mm,
-        linear-gradient(var(--sage-ink), var(--sage-ink)) 100% 0 / 2mm .35mm, linear-gradient(var(--sage-ink), var(--sage-ink)) 100% 0 / .35mm 2mm,
-        linear-gradient(var(--sage-ink), var(--sage-ink)) 0 100% / 2mm .35mm, linear-gradient(var(--sage-ink), var(--sage-ink)) 0 100% / .35mm 2mm,
-        linear-gradient(var(--sage-ink), var(--sage-ink)) 100% 100% / 2mm .35mm, linear-gradient(var(--sage-ink), var(--sage-ink)) 100% 100% / .35mm 2mm; background-repeat: no-repeat; }
-      .qr { width: 14mm; height: 14mm; }
-      .qr svg { display: block; width: 100%; height: 100%; }
-      .stub-cta { font-size: var(--fs-detail); font-weight: 600; text-align: center; line-height: 1.3; }
-      .stub-cta .label { display: block; font-weight: 400; }
-      .play { display: inline-block; width: 0; height: 0; margin-left: .6mm; border-left: 1.2mm solid var(--sage-ink); border-top: .75mm solid transparent; border-bottom: .75mm solid transparent; }
-      .stub-seat { font-size: var(--fs-label); font-weight: 500; opacity: .75; }
+      /* The QR code alone (no ticket around it), dark on a cream tile so every phone camera reads it. */
+      .qr-tile { flex-shrink: 0; width: 23mm; height: 23mm; margin: 5.5mm auto 0; padding: 2mm; border-radius: 1.5mm; background: var(--cream); }
+      .qr-tile :global(svg) { display: block; width: 100%; height: 100%; }
 
-      /* Location set like a theater's information board: English label over Korean, details alongside. */
+      /* Location set like a theater's information board: each label beside its lines. */
       .location { margin-top: 5.5mm; padding-top: 3.4mm; border-top: .15mm solid rgb(239 232 218 / .18); }
       .location-head { font-family: var(--serif); font-size: var(--fs-body); letter-spacing: .34em; margin-right: -.34em; color: var(--gold); }
       /* The list is as wide as its longest line and centred, so it sits under the centred heading. */
@@ -138,10 +97,9 @@ const parents = [
     <section class="sheet front">
       <img class="photo" src={poster.src} alt={wedding.hero.alt} />
       <div class="front-shade"></div>
-      <h1 class="front-title" lang="en">
-        <span class="caps">{paper.front.top}</span>
-        <span class="italic">{paper.front.italic}</span>
-        <span class="caps">{paper.front.bottom}</span>
+      <h1 class="front-title" lang="en" aria-label={movie.titleText}>
+        <span class="t-main">{movie.title.main}</span>
+        <span class="t-sub">{movie.title.sub}</span>
       </h1>
       <div class="front-foot" lang="en">
         <p>{shortDate} {weekday}&nbsp;&nbsp;{timeEn.replace(' ', '')}</p>
@@ -161,25 +119,7 @@ const parents = [
         {parents.map((p) => <p>{p.father} · {p.mother}<span class="rel">의 {p.child}</span><strong>{p.name}</strong></p>)}
       </div>
 
-      <div class="ticket">
-        <div class="ticket-main">
-          <div class="ticket-top label" lang="en"><span>VIP TICKET</span><span>NO. {String(month).padStart(2, '0')}{String(day).padStart(2, '0')}</span></div>
-          <p class="ticket-title" lang="en">{paper.ticketTitle}</p>
-          <div class="ticket-rows">
-            <p><span class="label" lang="en">DATE</span><span class="v en">{shortDate} {weekday}</span></p>
-            <p><span class="label" lang="en">TIME</span><span class="v en">{timeEn}</span></p>
-            <p><span class="label" lang="en">SCREEN</span><span class="v">{wedding.venue.hall}</span></p>
-            <p class="ticket-place"><span class="label" lang="en">PLACE</span><span class="v">{wedding.venue.name} · {wedding.venue.address}</span></p>
-          </div>
-          <div class="ticket-foot"><svg class="barcode" viewBox={`0 0 ${barcode.width} 10`} preserveAspectRatio="none" aria-hidden="true">{barcode.bars.map((bar) => <rect x={bar.x} y="0" width={bar.w} height="10" />)}</svg><span class="label" lang="en">ADMIT ALL<br />WHO LOVE US</span></div>
-        </div>
-        <div class="ticket-stub">
-          <p class="stub-head" lang="en">ADMIT ONE<span>MOBILE THEATER</span></p>
-          <div class="viewfinder"><div class="qr" set:html={qr}></div></div>
-          <p class="stub-cta"><span class="label" lang="en">SCAN TO WATCH</span>영화 보러 가기<span class="play" aria-hidden="true"></span></p>
-          <p class="stub-seat"><span class="label" lang="en">SEAT</span> 모바일 상영관</p>
-        </div>
-      </div>
+      <div class="qr-tile" set:html={qr}></div>
 
       <div class="location">
         <p class="location-head" lang="en">LOCATION</p>

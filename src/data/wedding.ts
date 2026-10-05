@@ -27,9 +27,10 @@ export const wedding = {
       { label: '네이버 지도', url: 'https://map.naver.com/p/search/%EB%8D%94%EB%89%B4%EC%BB%A8%EB%B2%A4%EC%85%98%EC%9B%A8%EB%94%A9%20%EC%84%9C%EC%9A%B8%20%EA%B0%95%EC%84%9C%EA%B5%AC%20%EA%B3%B5%ED%95%AD%EB%8C%80%EB%A1%9C36%EA%B8%B8%2057' },
       { label: '카카오맵', url: 'https://map.kakao.com/link/search/%EB%8D%94%EB%89%B4%EC%BB%A8%EB%B2%A4%EC%85%98%EC%9B%A8%EB%94%A9%20%EC%84%9C%EC%9A%B8%20%EA%B0%95%EC%84%9C%EA%B5%AC%20%EA%B3%B5%ED%95%AD%EB%8C%80%EB%A1%9C36%EA%B8%B8%2057' },
     ],
+    // 줄바꿈은 \n 으로 넣습니다. [대괄호]로 감싼 말은 영화관 버전에서 금색으로 강조됩니다.
     transport: [
-      { title: '지하철', description: '5호선 발산역에서 도보 3~5분 거리입니다.' },
-      { title: '주차', description: '예식장 건물 주차장을 이용해 주세요.\n만차 시에는 주차 안내원이 드리는 주차권을 받아 이대서울병원 주차장(C관 J·K·L 구역)을 이용하시고, 출차\u00a0전 컨벤션 1층 안내데스크에 주차권을 제출해 주세요.' },
+      { title: '지하철', description: '5호선 발산역 하차 7번 출구 (도보 3분~5분)' },
+      { title: '주차', description: '웨딩홀 건물 지하 4층 ~ 지하 1층 주차장 이용\n만차 시 [이대서울병원] 주차장 이용 · 2시간 무료\n외부 주차장 이용 시 웨딩홀 1층에서 주차 등록 필수' },
     ] as { title: string; description: string }[],
     // Shown full screen from the 주차 안내 보기 button, in this order.
     parkingGuide: [
@@ -44,6 +45,8 @@ export const wedding = {
     // Former 국민은행 12-digit account (branch-subject-serial+check), written 3-2-4-3 per the KFTC CMS table.
     { side: '신랑', relation: '어머니', name: '최효안', bank: '국민', number: '830-24-0107-431' },
     { side: '신부', relation: '', name: '임예지', bank: '국민', number: '373301-01-415845' },
+    { side: '신부', relation: '아버지', name: '임원섭', bank: '신한', number: '606-12-087230' },
+    { side: '신부', relation: '어머니', name: '정해숙', bank: '국민', number: '263101-04-065980' },
   ] as { side: '신랑' | '신부'; relation?: string; name: string; bank: string; number: string }[],
   introduction: ['서로의 하루에 가장 먼저 떠오르는 사람.', '이제는 같은 내일을 함께 그리려 합니다.', '저희의 새로운 시작에 함께해 주세요.'],
   closing: '모든 계절을, 당신과 함께.',

@@ -2,10 +2,14 @@
 import { Image, getImage } from 'astro:assets';
 import cormorantRegular from '@fontsource/cormorant-garamond/files/cormorant-garamond-latin-400-normal.woff2?url';
 import cormorantItalic500 from '@fontsource/cormorant-garamond/files/cormorant-garamond-latin-500-italic.woff2?url';
+import dmSerifItalic from '@fontsource/dm-serif-display/files/dm-serif-display-latin-400-italic.woff2?url';
 import '@fontsource/cormorant-garamond/latin-400.css';
 import '@fontsource/cormorant-garamond/latin-400-italic.css';
 import '@fontsource/cormorant-garamond/latin-500-italic.css';
 import '@fontsource/bebas-neue/latin-400.css';
+// The film's title typeface, the same as on the paper invitation.
+import '@fontsource/dm-serif-display/latin-400.css';
+import '@fontsource/dm-serif-display/latin-400-italic.css';
 import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css';
 import '../../styles/movie.css';
 import Icon from '../../components/Icon.astro';
@@ -17,7 +21,7 @@ import { year, month, day, longDate, time, shortDate, weekday, firstWeekday, day
 const root = import.meta.env.BASE_URL.replace(/\/$/, '') + '/';
 const canonical = new URL(root + 'v2/', Astro.site);
 const title = wedding.groom.name + ' & ' + wedding.bride.name + ', 결혼합니다';
-const data = await prepareInvitation(canonical, Astro.site);
+const data = await prepareInvitation(canonical, Astro.site, { coverPhoto: movie.cover.photo });
 const { hero, og, kakao, photos, parkingGuide, venueWithHall, summary, accountGroups } = data;
 const timeEn = new Intl.DateTimeFormat('en-US', { timeZone: wedding.timeZone, hour: 'numeric', minute: '2-digit' }).format(eventDate);
 
@@ -26,10 +30,11 @@ const collapsible = photos.length > 12;
 const LIGHTBOX_SIZES = '100vw';
 const byId = new Map(photos.map((item) => [item.photo.id, item]));
 const pick = (id: string) => byId.get(id) ?? photos[0];
-// Film frames: small landscape crops, shown in black and white.
-const frames = async (ids: string[]) => Promise.all(ids.map(async (id) => {
+// Film frames: landscape windows onto portrait photos, shown in black and white. The image keeps its aspect
+// and CSS crops it at the vertical position set per photo in movie.ts, so nobody loses their head.
+const frames = async (list: { id: string; y: number }[]) => Promise.all(list.map(async ({ id, y }) => {
   const item = pick(id);
-  return { alt: item.photo.alt, image: await getImage({ src: item.photo.image, width: 300, height: 210, fit: 'cover', position: 'attention', format: 'webp' }) };
+  return { y, image: await getImage({ src: item.photo.image, width: 400, format: 'webp' }) };
 }));
 const stripTop = await frames(movie.stripTop);
 const stripBottom = await frames(movie.stripBottom);
@@ -38,6 +43,7 @@ const cookie = pick(movie.cookie);
 const emptyCells = Array.from({ length: firstWeekday });
 const dates = Array.from({ length: daysInMonth }, (_, i) => i + 1);
 const weeks = Math.ceil((firstWeekday + daysInMonth) / 7);
+const heart = 'M12 21.3 10.5 20C5.4 15.4 2 12.3 2 8.5 2 5.4 4.4 3 7.5 3c1.7 0 3.4.8 4.5 2.1C13.1 3.8 14.8 3 16.5 3 19.6 3 22 5.4 22 8.5c0 3.8-3.4 6.9-8.5 11.5L12 21.3Z';
 // Marquee bulbs: placed one by one along the frame (corners included) so none is ever cut off, in a fixed
 // 330x116 drawing that scales as a whole.
 const MARQUEE = { w: 330, h: 116, inset: 9, gap: 13.5 };
@@ -73,7 +79,7 @@ const marqueeBulbs = (() => {
     <link rel="icon" type="image/svg+xml" href={root + 'favicon.svg'} />
     <link rel="apple-touch-icon" href={root + 'apple-touch-icon.png'} />
     <link rel="canonical" href={canonical.href} />
-    <title>{movie.title} | {title}</title>
+    <title>{movie.titleText} | {title}</title>
     <script is:inline>
       if (location.hash === '#invitation') history.replaceState(null, '', location.pathname + location.search);
       document.documentElement.classList.add('js');
@@ -86,6 +92,7 @@ const marqueeBulbs = (() => {
     </script>
     <link rel="preload" as="font" type="font/woff2" href={cormorantRegular} crossorigin />
     <link rel="preload" as="font" type="font/woff2" href={cormorantItalic500} crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href={dmSerifItalic} crossorigin />
     {kakao.key && <script is:inline defer src="https://developers.kakao.com/sdk/js/kakao.js"></script>}
     <noscript><style>[data-reveal] { opacity: 1 !important; transform: none !important; }</style></noscript>
   </head>
@@ -102,18 +109,15 @@ const marqueeBulbs = (() => {
     </div>
 
     <header class="cover poster">
-      <div class="cover-lqip" style={`background-image: url(${hero.lqip}); background-position: ${wedding.hero.position}`}></div>
-      <Image class="cover-image" src={wedding.hero.image} alt={wedding.hero.alt} style={{ objectPosition: wedding.hero.position }} width={hero.width} height={hero.height} widths={hero.widths} sizes="(min-width: 600px) 520px, 100vw" format="webp" loading="eager" fetchpriority="high" />
+      <div class="cover-lqip" style={`background-image: url(${hero.lqip}); background-position: ${movie.cover.position}`}></div>
+      <Image class="cover-image" src={hero.image} alt={wedding.hero.alt} style={{ objectPosition: movie.cover.position }} width={hero.width} height={hero.height} widths={hero.widths} sizes="(min-width: 600px) 520px, 100vw" format="webp" loading="eager" fetchpriority="high" />
       <div class="poster-shade"></div>
       <p class="poster-studio" lang="en">{movie.studio} <span>presents</span></p>
+      <h1 class="poster-title" lang="en" aria-label={movie.titleText}>
+        <span class="t-main">{movie.title.main}</span>
+        <span class="t-sub">{movie.title.sub}</span>
+      </h1>
       <div class="poster-body">
-        <h1 class="poster-title" lang="en" aria-label={movie.title}>
-          <span class="t-the">THE</span>
-          <span class="t-grandest">Grandest</span>
-          <span class="t-show">SHOW</span>
-          <span class="t-of">OF OUR</span>
-          <span class="t-love"><span class="brace">&#123;</span>love<span class="brace">&#125;</span></span>
-        </h1>
         <div class="poster-credits">
           <p><span class="script" lang="en">Groom</span><span class="credit-name">{wedding.groom.name}</span></p>
           <p><span class="script" lang="en">Bride</span><span class="credit-name">{wedding.bride.name}</span></p>
@@ -137,7 +141,7 @@ const marqueeBulbs = (() => {
         var leaderDone = new Promise(function (resolve) { setTimeout(resolve, leader ? 1800 : 0); });
         var waits = [image.decode ? image.decode().catch(function () {}) : null];
         if (document.fonts && document.fonts.load) {
-          ['400 1em "Cormorant Garamond"', 'italic 500 1em "Cormorant Garamond"', '300 1em "Pretendard Variable"'].forEach(function (font) {
+          ['400 1em "Cormorant Garamond"', 'italic 500 1em "Cormorant Garamond"', '400 1em "DM Serif Display"', 'italic 400 1em "DM Serif Display"', '300 1em "Pretendard Variable"'].forEach(function (font) {
             waits.push(document.fonts.load(font, cover.textContent).catch(function () {}));
           });
         }
@@ -154,7 +158,7 @@ const marqueeBulbs = (() => {
         <h2 class="visually-hidden" id="opening-heading">초대의 글</h2>
         <div class="film-strip strip-top" aria-hidden="true">
           <div class="strip-track">
-            {[...stripTop, ...stripTop].map((frame) => <img src={frame.image.src} width="150" height="105" alt="" loading="lazy" decoding="async" />)}
+            {[...stripTop, ...stripTop].map((frame) => <img src={frame.image.src} width="150" height="105" style={`object-position: 50% ${frame.y}%`} alt="" loading="lazy" decoding="async" />)}
           </div>
         </div>
         <div class="opening-body">
@@ -166,11 +170,11 @@ const marqueeBulbs = (() => {
           <div class="greeting" data-reveal>
             {wedding.introduction.map((line) => <p>{line}</p>)}
           </div>
-          <p class="greeting-sign" data-reveal>{wedding.groom.name} <span lang="en">&amp;</span> {wedding.bride.name}</p>
+          <p class="greeting-sign" data-reveal>{wedding.groom.name}<svg class="heart" viewBox="0 0 24 22" aria-hidden="true"><path d={heart} /></svg><span class="visually-hidden"> 그리고 </span>{wedding.bride.name}</p>
         </div>
         <div class="film-strip strip-bottom" aria-hidden="true">
           <div class="strip-track">
-            {[...stripBottom, ...stripBottom].map((frame) => <img src={frame.image.src} width="150" height="105" alt="" loading="lazy" decoding="async" />)}
+            {[...stripBottom, ...stripBottom].map((frame) => <img src={frame.image.src} width="150" height="105" style={`object-position: 50% ${frame.y}%`} alt="" loading="lazy" decoding="async" />)}
           </div>
         </div>
       </section>
@@ -186,12 +190,12 @@ const marqueeBulbs = (() => {
             <span class="ticket-inner">
               <span class="ticket-face ticket-front">
                 <span class="ticket-top"><span lang="en">VIP TICKET</span><span lang="en">No. {String(month).padStart(2, '0')}{String(day).padStart(2, '0')}</span></span>
-                <span class="ticket-title" lang="en">The Grandest Show<br />of Our Love</span>
+                <span class="ticket-title" lang="en"><span class="tt-main">{movie.title.main}</span><span class="tt-sub">{movie.title.sub}</span></span>
                 <span class="ticket-rows">
                   <span class="ticket-row"><span class="k" lang="en">DATE</span><span class="v" lang="en">{shortDate} {weekday}</span></span>
                   <span class="ticket-row"><span class="k" lang="en">TIME</span><span class="v" lang="en">{timeEn}</span></span>
                   <span class="ticket-row"><span class="k" lang="en">SCREEN</span><span class="v">{wedding.venue.hall || wedding.venue.name}</span></span>
-                  <span class="ticket-row"><span class="k" lang="en">SEAT</span><span class="v">소중한 당신의 자리</span></span>
+                  <span class="ticket-row"><span class="k" lang="en">SEAT</span><span class="v">{movie.seat}</span></span>
                 </span>
                 <span class="ticket-place"><span class="k" lang="en">PLACE</span><span class="v">{wedding.venue.name}<br />{wedding.venue.address}</span></span>
                 <span class="ticket-stub">
@@ -244,7 +248,7 @@ const marqueeBulbs = (() => {
         <figure class="movie-poster" data-reveal>
           <Image class="movie-poster-image" src={poster.photo.image} alt={poster.photo.alt} width={600} height={800} widths={[400, 600]} sizes="(min-width: 600px) 340px, 82vw" fit="cover" position="attention" format="webp" loading="lazy" decoding="async" />
           <figcaption>
-            <span class="mp-names" lang="en">{movie.namesEn.groom} <span>&amp;</span> {movie.namesEn.bride}</span>
+            <span class="mp-names" lang="en">{movie.namesEn.groom}<svg class="heart" viewBox="0 0 24 22" aria-hidden="true"><path d={heart} /></svg><span class="visually-hidden"> and </span>{movie.namesEn.bride}</span>
             <span class="mp-title" lang="en">WEDDING<br />DAY</span>
             <span class="mp-date" lang="en">{shortDate}<span class="mp-venue">IN {movie.venueEn}</span></span>
           </figcaption>
@@ -280,7 +284,7 @@ const marqueeBulbs = (() => {
           <div class="map-links">{wedding.venue.mapLinks.map((map) => <a class="button outline-button" href={map.url} target="_blank" rel="noopener noreferrer">{map.label}<Icon name="arrow" size={16} /></a>)}</div>
         </div>
         <dl class="transport" data-reveal>
-          {wedding.venue.transport.map((item) => <div><dt>{item.title}</dt><dd>{item.description}</dd></div>)}
+          {wedding.venue.transport.map((item) => <div><dt>{item.title}</dt><dd>{item.description.split(/(\[[^\]]+\])/).map((part) => /^\[.+\]$/.test(part) ? <strong class="point">{part}</strong> : part)}</dd></div>)}
         </dl>
         {parkingGuide.length > 0 && (
           <a class="button outline-button parking-button" href={parkingGuide[0].image.src} data-open-parking data-reveal><Icon name="parking" size={18} /> 주차 안내 보기</a>

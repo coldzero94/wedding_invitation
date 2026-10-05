@@ -8,13 +8,22 @@ import { longDate, time } from './event';
 // Build-time data shared by the invitation designs other than the original page (which keeps its own
 // copy of this logic so it stays exactly as tagged in v1-classic).
 // Probe sizes through getImage attributes: reading properties of an imported image would publish the original file.
-export async function prepareInvitation(canonical: URL, site: URL | undefined) {
-  const heroSource = (await getImage({ src: wedding.hero.image })).attributes;
+export async function prepareInvitation(canonical: URL, site: URL | undefined, options: { coverPhoto?: string } = {}) {
+  const photos = loadGallery(wedding.gallery, {
+    groom: wedding.groom.name,
+    bride: wedding.bride.name,
+    release: process.env.RELEASE_BUILD === '1',
+  });
+  // The cover is wedding.hero (a crop made for the original page) unless a gallery photo is named for it.
+  const coverPhoto = options.coverPhoto ? photos.find((photo) => photo.id === options.coverPhoto) : undefined;
+  const coverImage = coverPhoto?.image ?? wedding.hero.image;
+  const coverFile = coverPhoto ? join('src/assets/gallery', coverPhoto.file) : 'src/assets/photos/hero.jpg';
+  const heroSource = (await getImage({ src: coverImage })).attributes;
   const heroWidth = Math.min(1200, Number(heroSource.width));
   const heroHeight = Math.round(heroWidth * Number(heroSource.height) / Number(heroSource.width));
   const heroWidths = [...new Set([480, 800, heroWidth].filter((w) => w <= heroWidth))];
-  // Pre-blurred ~260-byte copy of the cover for the very first paint (same file wedding.ts imports).
-  const lqip = 'data:image/webp;base64,' + (await sharp(join(process.cwd(), 'src/assets/photos/hero.jpg')).rotate().resize(32).blur(1.2).webp({ quality: 55 }).toBuffer()).toString('base64');
+  // Pre-blurred ~260-byte copy of the cover for the very first paint (the same file as the cover image).
+  const lqip = 'data:image/webp;base64,' + (await sharp(join(process.cwd(), coverFile)).rotate().resize(32).blur(1.2).webp({ quality: 55 }).toBuffer()).toString('base64');
 
   const ogWidth = heroWidth;
   const ogHeight = Math.round(ogWidth * 630 / 1200);
@@ -22,11 +31,6 @@ export async function prepareInvitation(canonical: URL, site: URL | undefined) {
   // Kakao crops feed images to a square unless told the size, so the share card gets a 3:4 portrait.
   const kakaoImage = await getImage({ src: wedding.hero.kakao || wedding.hero.image, width: 900, height: 1200, fit: 'cover', position: 'top', format: 'jpg' });
 
-  const photos = loadGallery(wedding.gallery, {
-    groom: wedding.groom.name,
-    bride: wedding.bride.name,
-    release: process.env.RELEASE_BUILD === '1',
-  });
   const prepared = await Promise.all(photos.map(async (photo) => {
     const source = (await getImage({ src: photo.image })).attributes;
     const sourceWidth = Number(source.width);
@@ -52,7 +56,7 @@ export async function prepareInvitation(canonical: URL, site: URL | undefined) {
     .filter((group) => group.items.length);
 
   return {
-    hero: { width: heroWidth, height: heroHeight, widths: heroWidths, lqip },
+    hero: { image: coverImage, width: heroWidth, height: heroHeight, widths: heroWidths, lqip },
     og: { url: new URL(og.src, site).href, width: ogWidth, height: ogHeight },
     kakao: {
       key: (process.env.KAKAO_JS_KEY || '').trim(),

@@ -6,8 +6,10 @@ test.describe('the movie edition (/v2/)', () => {
     const errors: string[] = [];
     page.on('pageerror', (error) => errors.push(error.message));
     await page.goto('./v2/');
-    await expect(page).toHaveTitle(/The Grandest Show of Our Love/);
-    await expect(page.locator('.poster-title')).toHaveAttribute('aria-label', 'The Grandest Show of Our Love');
+    await expect(page).toHaveTitle(/Love wins all, Happy Ever After/);
+    await expect(page.locator('.poster-title')).toHaveAttribute('aria-label', 'Love wins all, Happy Ever After');
+    await expect(page.locator('.poster-title .t-main')).toHaveText('Love wins all');
+    await expect(page.locator('.poster-title .t-sub')).toHaveText('Happy Ever After');
     await expect(page.locator('.quote')).toContainText('3000만큼 사랑해');
     await expect(page.locator('.film-strip img').first()).toBeAttached();
     await expect(page.locator('.cast')).toContainText('이기만');
@@ -15,7 +17,9 @@ test.describe('the movie edition (/v2/)', () => {
     await expect(page.locator('.cast')).toContainText('임원섭');
     await expect(page.locator('.cast')).not.toContainText('임OO');
     await expect(page.locator('.gallery-thumb')).toHaveCount(32);
-    await expect(page.locator('.account-row')).toHaveCount(4);
+    await expect(page.locator('.account-row')).toHaveCount(6);
+    await expect(page.locator('.account-row', { hasText: '임원섭' })).toContainText('신한 606-12-087230');
+    await expect(page.locator('.account-row', { hasText: '정해숙' })).toContainText('국민 263101-04-065980');
     await expect(page.locator('.account-row', { hasText: '최효안' })).toContainText('국민 830-24-0107-431');
     expect(errors).toEqual([]);
   });
@@ -84,5 +88,41 @@ test.describe('the movie edition (/v2/)', () => {
       await row.locator('.copy-chip').click();
       await expect.poll(() => page.evaluate(() => (window as any).__copied)).toBe('830240107431');
     }
+  });
+
+  test("the couple's revisions: cover photo, film crops, hearts, ticket title and seat, transport", async ({ page }) => {
+    await page.goto('./v2/');
+    // The cover uses the whole main photo (gallery no. 1) so the couple sits below the title at the top.
+    expect(await page.locator('.cover-image').evaluate((img: HTMLImageElement) => img.currentSrc)).toMatch(/\/01\.[\w-]+\.webp/);
+    const title = await page.locator('.poster-title').boundingBox();
+    const body = await page.locator('.poster-body').boundingBox();
+    expect(title!.y).toBeLessThan(body!.y);
+    // Every film frame is cropped at its own vertical position (the heads stay in).
+    const positions = await page.locator('.film-strip img').evaluateAll((imgs) => imgs.map((img) => (img as HTMLImageElement).style.objectPosition));
+    expect(positions).toHaveLength(24);
+    expect(positions.every((pos) => /^50% \d+%$/.test(pos))).toBe(true);
+    // A gold heart between the names, no ampersand.
+    for (const sel of ['.greeting-sign', '.mp-names']) {
+      await expect(page.locator(sel + ' svg.heart')).toHaveCount(1);
+      await expect(page.locator(sel)).not.toContainText('&');
+      // The heart is decorative; a hidden word keeps the names apart for screen readers and copied text.
+      await expect(page.locator(sel + ' .visually-hidden')).toHaveText(sel === '.greeting-sign' ? ' 그리고 ' : ' and ', { useInnerText: false });
+    }
+    await expect(page.locator('.ticket-title')).toContainText('Love wins all');
+    await expect(page.locator('.ticket-title')).toContainText('Happy Ever After');
+    await expect(page.locator('.ticket-row', { hasText: 'SEAT' })).toContainText('초대석');
+    await expect(page.locator('.ticket')).not.toContainText('소중한 당신의 자리');
+    await expect(page.locator('.transport')).toContainText('5호선 발산역 하차 7번 출구 (도보 3분~5분)');
+    await expect(page.locator('.transport .point')).toHaveText('[이대서울병원]');
+    await expect(page.locator('.transport')).toContainText('2시간 무료');
+  });
+
+  test('the paper invitation has the new title and a bare QR code, no ticket', async ({ page }) => {
+    await page.goto('./v2/print/');
+    await expect(page.locator('.front-title')).toHaveAttribute('aria-label', 'Love wins all, Happy Ever After');
+    await expect(page.locator('.front-title .t-main')).toHaveText('Love wins all');
+    await expect(page.locator('.ticket, .barcode')).toHaveCount(0);
+    await expect(page.locator('.qr-tile svg')).toHaveCount(1);
+    await expect(page.locator('.sheet.back')).not.toContainText('Greatest');
   });
 });

@@ -3,12 +3,18 @@ import { wedding } from './wedding';
 // Content only the movie-theater design uses. Everything factual (names, date, venue, accounts, photos)
 // still comes from wedding.ts.
 export const movie = {
-  title: 'The Grandest Show of Our Love',
+  // The film's title: the mobile cover and ticket and the paper invitation's front all set it the same way,
+  // the main line in italic and the second line in capitals.
+  title: { main: 'Love wins all', sub: 'Happy Ever After' },
+  titleText: 'Love wins all, Happy Ever After',
   studio: 'OUR SEASON PICTURES',
   // English billing on the posters: the couple in capitals, and the venue in place of "in theaters".
   namesEn: { groom: 'CHANYOUNG', bride: 'YEJI' },
   venueEn: 'THE NEW CONVENTION',
+  // Cover: the whole main photo (gallery number) so the couple sits below the title, as on the paper front.
+  cover: { photo: '01', position: '48% 50%' },
   quote: { text: '나는 3000만큼 사랑해.', source: '영화 〈어벤져스: 엔드게임〉 중' },
+  seat: '초대석',
   // Names come from wedding.ts, so both designs always credit the same people; empty entries are skipped.
   cast: [
     { role: 'GROOM', ko: '신랑', name: wedding.groom.fullName },
@@ -27,16 +33,16 @@ export const movie = {
   specialThanks: ['그리고 저희를 아껴 주신', '모든 분들께 진심으로 감사드립니다.'],
   // Gallery photo numbers (src/assets/gallery/NN.jpg) used for the film strips, the poster and the cookie.
   // Renumber these if photos are inserted before them (the two 2026-09-24 additions shifted everything by 2).
-  stripTop: ['20', '21', '22', '08', '11', '05'],
-  stripBottom: ['23', '24', '07', '26', '28', '10'],
+  // Film frames are landscape cuts of portrait photos; y is the vertical crop position (%) that keeps the
+  // couple's heads in the frame, chosen per photo.
+  stripTop: [{ id: '20', y: 81 }, { id: '21', y: 66 }, { id: '22', y: 75 }, { id: '08', y: 75 }, { id: '11', y: 66 }, { id: '05', y: 53 }],
+  stripBottom: [{ id: '23', y: 28 }, { id: '24', y: 68 }, { id: '07', y: 60 }, { id: '26', y: 52 }, { id: '28', y: 60 }, { id: '10', y: 66 }],
   poster: '03',
   cookie: '22',
   cookieNote: '끝까지 봐 주셔서 고마워요. 식장에서 만나요!',
-  // Copy for the printed paper invitation's back page (/v2/print/), from the couple's own draft.
+  // Copy for the printed paper invitation (/v2/print/), from the couple's own draft. Its title is `title` above.
   paper: {
-    // Front (4x6 card): white title over the full main photo, English billing at the foot.
-    front: { top: 'THE', italic: 'Greatest', bottom: 'LOVE STORY', venue: 'THE NEW CONVENTION, 5F ZENITH HALL', names: 'CHANYOUNG & YEJI' },
-    ticketTitle: 'The Greatest Love Story',
+    front: { venue: 'THE NEW CONVENTION, 5F ZENITH HALL', names: 'CHANYOUNG & YEJI' },
     heading: 'WEDDING INVITATION',
     verse: { lines: ['이 모든 것 위에 사랑을 더하라.', '이는 온전하게 매는 띠니라.'], source: '골로새서 3:14' },
     greeting: ['사랑으로 서로를 단단히 잇고,', '하나 되어 평생을 함께 걸어가겠습니다.', '저희의 새로운 시작을 축복해 주시면 감사하겠습니다.'],
