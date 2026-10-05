@@ -6,7 +6,7 @@
 import { getImage } from 'astro:assets';
 import QRCode from 'qrcode';
 import '@fontsource/dm-serif-display/latin-400.css';
-import '@fontsource/satisfy/latin-400.css';
+import '@fontsource/hurricane/latin-400.css';
 import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css';
 import { wedding } from '../../data/wedding';
 import { movie } from '../../data/movie';
@@ -71,9 +71,11 @@ const ticketPath = [
       /* No text-shadow on the front: Chrome writes blurred shadows into the PDF as soft-masked tiles, and macOS
          Preview draws those as dark boxes behind the text. The shade alone keeps the white type legible. */
       .front-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgb(10 14 10 / .5) 0%, rgb(10 14 10 / .12) 24%, rgb(10 14 10 / 0) 34%, rgb(10 14 10 / 0) 64%, rgb(10 14 10 / .58) 84%, rgb(10 14 10 / .8) 100%); }
-      /* The film's title in a bold brush script, one word per line, as on the mobile cover. Its ink starts as far
-         inside the trim as the billing's ends (10.2 mm), so the top and bottom margins match. */
-      .front-title { position: absolute; top: 14.3mm; left: var(--safe); right: var(--safe); display: grid; justify-items: center; font-family: 'Satisfy', var(--serif); font-size: 45pt; line-height: .78; color: var(--cream); }
+      /* The film's title in a brush signature script on two lines, "Love" up to the right, as on the mobile cover and
+         in the couple's reference. Its ink starts as far inside the trim as the billing's ends (10.2 mm), so the
+         top and bottom margins match. */
+      .front-title { position: absolute; top: 11.7mm; left: var(--safe); right: var(--safe); display: grid; justify-items: center; font-family: 'Hurricane', var(--serif); font-size: 69pt; line-height: .78; color: var(--cream); }
+      .front-title span:first-child { margin-left: 22%; }
       .front-foot { position: absolute; left: var(--safe); right: var(--safe); bottom: 11mm; display: grid; justify-items: center; gap: .8mm; font-family: var(--serif); font-size: 8pt; letter-spacing: .04em; color: var(--cream-2); text-align: center; }
       .front-foot .rule { width: 3mm; height: .25mm; margin: .8mm 0; background: var(--gold); }
 
@@ -107,7 +109,7 @@ const ticketPath = [
       .ticket-shape line { stroke: var(--accent); stroke-width: .25; stroke-dasharray: .8 .6; }
       .ticket-main, .ticket-stub { position: relative; display: grid; place-content: center; justify-items: center; }
       .ticket-label { font-family: var(--serif); font-size: var(--fs-small); letter-spacing: .14em; margin-right: -.14em; color: var(--accent); }
-      .ticket-title { margin-top: .6mm; font-family: 'Satisfy', var(--serif); font-size: 19pt; line-height: 1; }
+      .ticket-title { margin-top: .6mm; font-family: 'Hurricane', var(--serif); font-size: 22pt; line-height: 1; }
       .qr { width: 13mm; height: 13mm; }
       .qr :global(svg) { display: block; width: 100%; height: 100%; }
     </style>
