@@ -11,7 +11,7 @@ test.describe('the movie edition (/v2/)', () => {
     // One word per line in the brush script, as on the paper invitation's front; the ticket uses the script too.
     await expect(page.locator('.poster-title .t-line')).toHaveText(['Love', 'wins', 'all']);
     for (const sel of ['.poster-title .t-line', '.ticket-title']) {
-      expect(await page.locator(sel).first().evaluate((el) => getComputedStyle(el).fontFamily)).toContain('Ms Madi');
+      expect(await page.locator(sel).first().evaluate((el) => getComputedStyle(el).fontFamily)).toContain('Satisfy');
     }
     await expect(page.locator('.quote')).toContainText('3000만큼 사랑해');
     await expect(page.locator('.film-strip img').first()).toBeAttached();
@@ -124,7 +124,7 @@ test.describe('the movie edition (/v2/)', () => {
     const title = page.locator('.front-title');
     await expect(title).toHaveAttribute('aria-label', 'Love wins all');
     await expect(title.locator('span')).toHaveText(['Love', 'wins', 'all']);
-    expect(await title.evaluate((el) => getComputedStyle(el).fontFamily)).toContain('Ms Madi');
+    expect(await title.evaluate((el) => getComputedStyle(el).fontFamily)).toContain('Satisfy');
     const back = page.locator('.sheet.back');
     expect(await back.evaluate((el) => getComputedStyle(el).backgroundColor)).toBe('rgb(255, 255, 255)');
     // WEDDING INVITATION opens the top half and LOCATION the bottom half (the couple's "반반").

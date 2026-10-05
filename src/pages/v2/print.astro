@@ -6,7 +6,7 @@
 import { getImage } from 'astro:assets';
 import QRCode from 'qrcode';
 import '@fontsource/dm-serif-display/latin-400.css';
-import '@fontsource/ms-madi/latin-400.css';
+import '@fontsource/satisfy/latin-400.css';
 import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css';
 import { wedding } from '../../data/wedding';
 import { movie } from '../../data/movie';
@@ -73,14 +73,14 @@ const ticketPath = [
       /* No text-shadow on the front: Chrome writes blurred shadows into the PDF as soft-masked tiles, and macOS
          Preview draws those as dark boxes behind the text. The shade alone keeps the white type legible. */
       .front-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgb(10 14 10 / .5) 0%, rgb(10 14 10 / .12) 24%, rgb(10 14 10 / 0) 34%, rgb(10 14 10 / 0) 64%, rgb(10 14 10 / .58) 84%, rgb(10 14 10 / .8) 100%); }
-      /* The film's title in a brush script, one word per line, as on the mobile cover. The L's loop reaches about
-         .15em above the tight lines, so at 11 mm its top still keeps to the safe area. */
-      .front-title { position: absolute; top: 11mm; left: var(--safe); right: var(--safe); display: grid; justify-items: center; font-family: 'Ms Madi', var(--serif); font-size: 56pt; line-height: .66; color: var(--cream); }
+      /* The film's title in a bold brush script, one word per line, as on the mobile cover. Its ink starts as far
+         inside the trim as the billing's ends (10.2 mm), so the top and bottom margins match. */
+      .front-title { position: absolute; top: 14.3mm; left: var(--safe); right: var(--safe); display: grid; justify-items: center; font-family: 'Satisfy', var(--serif); font-size: 45pt; line-height: .78; color: var(--cream); }
       .front-foot { position: absolute; left: var(--safe); right: var(--safe); bottom: 11mm; display: grid; justify-items: center; gap: .8mm; font-family: var(--serif); font-size: 8pt; letter-spacing: .04em; color: var(--cream-2); text-align: center; }
       .front-foot .rule { width: 3mm; height: .25mm; margin: .8mm 0; background: var(--gold); }
 
       /* Back: white, split into two halves, the invitation above and the location below. */
-      .back { display: grid; grid-template-rows: 1fr 1fr; padding: 16mm 7mm 11mm; background: #fff; color: var(--text); }
+      .back { display: grid; grid-template-rows: 1fr 1fr; padding: 12.95mm 7mm 14.05mm; background: #fff; color: var(--text); }
       .section-head { font-family: var(--serif); font-size: var(--fs-head); letter-spacing: .22em; margin-right: -.22em; color: var(--accent); text-align: center; }
       .invite { text-align: center; }
       .verse { display: grid; margin-top: 4mm; font-size: var(--fs-lead); line-height: 1.55; letter-spacing: -.02em; }
@@ -103,18 +103,16 @@ const ticketPath = [
       .loc-row dd { display: grid; font-size: var(--fs-small); line-height: 1.65; color: var(--text-2); word-break: keep-all; }
       .loc-row dd strong { font-weight: 600; color: var(--text); }
       /* The QR code on a movie ticket at the foot of the list, as wide as the list: the film's title on the ticket,
-         the code on its stub. */
+         the code on its stub. (No "영화 보러 가기": guests would wonder why a film.) */
       .ticket { position: relative; display: grid; margin-top: auto; }
       .ticket-shape { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; } /* the outline's outer half too */
       .ticket-shape path { fill: #f7f2e8; stroke: var(--accent); stroke-width: .2; }
       .ticket-shape line { stroke: var(--accent); stroke-width: .25; stroke-dasharray: .8 .6; }
       .ticket-main, .ticket-stub { position: relative; display: grid; place-content: center; justify-items: center; }
       .ticket-label { font-family: var(--serif); font-size: var(--fs-small); letter-spacing: .14em; margin-right: -.14em; color: var(--accent); }
-      .ticket-title { margin: .2mm 0 .6mm; font-family: 'Ms Madi', var(--serif); font-size: 17pt; line-height: 1; }
-      .ticket-cta { font-size: var(--fs-body); font-weight: 600; }
+      .ticket-title { margin-top: .6mm; font-family: 'Satisfy', var(--serif); font-size: 19pt; line-height: 1; }
       .qr { width: 13mm; height: 13mm; }
       .qr :global(svg) { display: block; width: 100%; height: 100%; }
-      .play { display: inline-block; width: 0; height: 0; margin-left: .8mm; border-left: 1.4mm solid currentColor; border-top: .9mm solid transparent; border-bottom: .9mm solid transparent; }
     </style>
   </head>
   <body>
@@ -160,7 +158,6 @@ const ticketPath = [
             <div class="ticket-main">
               <p class="ticket-label" lang="en">SCAN TO WATCH</p>
               <p class="ticket-title" lang="en">{movie.titleText}</p>
-              <p class="ticket-cta">영화 보러 가기<span class="play" aria-hidden="true"></span></p>
             </div>
             <div class="ticket-stub"><div class="qr" role="img" aria-label="모바일 청첩장으로 가는 QR 코드" set:html={qr}></div></div>
           </div>

@@ -2,13 +2,13 @@
 import { Image, getImage } from 'astro:assets';
 import cormorantRegular from '@fontsource/cormorant-garamond/files/cormorant-garamond-latin-400-normal.woff2?url';
 import cormorantItalic500 from '@fontsource/cormorant-garamond/files/cormorant-garamond-latin-500-italic.woff2?url';
-import msMadi from '@fontsource/ms-madi/files/ms-madi-latin-400-normal.woff2?url';
+import satisfy from '@fontsource/satisfy/files/satisfy-latin-400-normal.woff2?url';
 import '@fontsource/cormorant-garamond/latin-400.css';
 import '@fontsource/cormorant-garamond/latin-400-italic.css';
 import '@fontsource/cormorant-garamond/latin-500-italic.css';
 import '@fontsource/bebas-neue/latin-400.css';
-// The film's title typeface, a brush script, the same as on the paper invitation.
-import '@fontsource/ms-madi/latin-400.css';
+// The film's title typeface, a bold brush script, the same as on the paper invitation.
+import '@fontsource/satisfy/latin-400.css';
 import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css';
 import '../../styles/movie.css';
 import Icon from '../../components/Icon.astro';
@@ -91,7 +91,7 @@ const marqueeBulbs = (() => {
     </script>
     <link rel="preload" as="font" type="font/woff2" href={cormorantRegular} crossorigin />
     <link rel="preload" as="font" type="font/woff2" href={cormorantItalic500} crossorigin />
-    <link rel="preload" as="font" type="font/woff2" href={msMadi} crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href={satisfy} crossorigin />
     {kakao.key && <script is:inline defer src="https://developers.kakao.com/sdk/js/kakao.js"></script>}
     <noscript><style>[data-reveal] { opacity: 1 !important; transform: none !important; }</style></noscript>
   </head>
@@ -139,7 +139,7 @@ const marqueeBulbs = (() => {
         var leaderDone = new Promise(function (resolve) { setTimeout(resolve, leader ? 1800 : 0); });
         var waits = [image.decode ? image.decode().catch(function () {}) : null];
         if (document.fonts && document.fonts.load) {
-          ['400 1em "Cormorant Garamond"', 'italic 500 1em "Cormorant Garamond"', '400 1em "Ms Madi"', '300 1em "Pretendard Variable"'].forEach(function (font) {
+          ['400 1em "Cormorant Garamond"', 'italic 500 1em "Cormorant Garamond"', '400 1em "Satisfy"', '300 1em "Pretendard Variable"'].forEach(function (font) {
             waits.push(document.fonts.load(font, cover.textContent).catch(function () {}));
           });
         }
