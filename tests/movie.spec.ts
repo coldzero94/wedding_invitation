@@ -1,4 +1,11 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
+
+// Each title line is centred on its card's axis and moved only by its own ink nudge (movie.ts): no other offset.
+const centring = (page: Page, lines: string, frame: string) => page.locator(lines).evaluateAll((spans, frame) => spans.map((span) => {
+  const box = span.getBoundingClientRect(), card = span.closest(frame)!.getBoundingClientRect();
+  const offset = (box.left + box.width / 2) - (card.left + card.width / 2);
+  return Math.abs(offset - parseFloat((span as HTMLElement).style.left) * parseFloat(getComputedStyle(span).fontSize)) < 0.5;
+}), frame);
 
 // The movie-theater edition lives beside the original at /v2/ and shares its data and scripts.
 test.describe('the movie edition (/v2/)', () => {
@@ -10,6 +17,7 @@ test.describe('the movie edition (/v2/)', () => {
     await expect(page.locator('.poster-title')).toHaveAttribute('aria-label', 'Love wins all');
     // Two lines in the brush signature script, as on the paper invitation's front; the ticket uses the script too.
     await expect(page.locator('.poster-title .t-line')).toHaveText(['Love', 'wins all']);
+    expect(await centring(page, '.poster-title .t-line', '.cover')).toEqual([true, true]);
     for (const sel of ['.poster-title .t-line', '.ticket-title']) {
       expect(await page.locator(sel).first().evaluate((el) => getComputedStyle(el).fontFamily)).toContain('Hurricane');
     }
@@ -138,6 +146,7 @@ test.describe('the movie edition (/v2/)', () => {
     const title = page.locator('.front-title');
     await expect(title).toHaveAttribute('aria-label', 'Love wins all');
     await expect(title.locator('span')).toHaveText(['Love', 'wins all']);
+    expect(await centring(page, '.front-title span', '.sheet')).toEqual([true, true]);
     expect(await title.evaluate((el) => getComputedStyle(el).fontFamily)).toContain('Hurricane');
     const back = page.locator('.sheet.back');
     expect(await back.evaluate((el) => getComputedStyle(el).backgroundColor)).toBe('rgb(255, 255, 255)');

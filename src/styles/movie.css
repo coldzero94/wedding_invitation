@@ -106,10 +106,9 @@ h1, h2, h3 { font-weight: 400; }
 .poster-body { margin-top: auto; padding: 0 22px calc(20px + env(safe-area-inset-bottom)); text-align: center; }
 .poster-title { --t-size: clamp(80px, 26vw, 128px); display: grid; justify-items: center; margin-top: calc(clamp(12px, 4vw, 22px) + var(--t-size) * .15); padding: 0 18px; font-family: var(--title); font-weight: 400; color: var(--cream); line-height: 1; text-align: center; text-shadow: 0 2px 22px rgb(0 0 0 / .45); }
 .poster-title > span { display: block; }
-/* Two lines, "Love" up to the right, as on the paper invitation's front. The script's L reaches above its tight
-   lines, hence the extra top margin above. */
-.t-line { font-size: var(--t-size); line-height: .78; padding: 0 .1em; }
-.t-line:first-child { margin-left: 22%; }
+/* Two lines, each centred on its ink (the nudge in movie.ts), as on the paper invitation's front. The script's L
+   reaches above its tight lines, hence the extra top margin above. */
+.t-line { position: relative; font-size: var(--t-size); line-height: .7; padding: 0 .1em; }
 .poster-credits { display: flex; justify-content: space-between; margin: 0 2px; }
 .poster-credits p { display: grid; justify-items: start; }
 .poster-credits p + p { justify-items: end; }

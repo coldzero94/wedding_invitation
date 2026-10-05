@@ -113,7 +113,7 @@ const marqueeBulbs = (() => {
       <div class="poster-shade"></div>
       <p class="poster-studio" lang="en">{movie.studio} <span>presents</span></p>
       <h1 class="poster-title" lang="en" aria-label={movie.titleText}>
-        {movie.title.map((word) => <span class="t-line">{word}</span>)}
+        {movie.title.map((line) => <span class="t-line" style={`left: ${line.nudge}em`}>{line.text}</span>)}
       </h1>
       <div class="poster-body">
         <div class="poster-credits">

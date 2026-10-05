@@ -71,11 +71,11 @@ const ticketPath = [
       /* No text-shadow on the front: Chrome writes blurred shadows into the PDF as soft-masked tiles, and macOS
          Preview draws those as dark boxes behind the text. The shade alone keeps the white type legible. */
       .front-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgb(10 14 10 / .5) 0%, rgb(10 14 10 / .12) 24%, rgb(10 14 10 / 0) 34%, rgb(10 14 10 / 0) 64%, rgb(10 14 10 / .58) 84%, rgb(10 14 10 / .8) 100%); }
-      /* The film's title in a brush signature script on two lines, "Love" up to the right, as on the mobile cover and
-         in the couple's reference. Its ink starts as far inside the trim as the billing's ends (10.2 mm), so the
-         top and bottom margins match. */
-      .front-title { position: absolute; top: 11.7mm; left: var(--safe); right: var(--safe); display: grid; justify-items: center; font-family: 'Hurricane', var(--serif); font-size: 69pt; line-height: .78; color: var(--cream); }
-      .front-title span:first-child { margin-left: 22%; }
+      /* The film's title in a brush signature script on two lines, each centred on its ink (the nudge in movie.ts),
+         as on the mobile cover and in the couple's reference. Its ink starts as far inside the trim as the billing's
+         ends (10.2 mm), so the top and bottom margins match. */
+      .front-title { position: absolute; top: 12.73mm; left: var(--safe); right: var(--safe); display: grid; justify-items: center; font-family: 'Hurricane', var(--serif); font-size: 69pt; line-height: .7; color: var(--cream); }
+      .front-title span { position: relative; }
       .front-foot { position: absolute; left: var(--safe); right: var(--safe); bottom: 11mm; display: grid; justify-items: center; gap: .8mm; font-family: var(--serif); font-size: 8pt; letter-spacing: .04em; color: var(--cream-2); text-align: center; }
       .front-foot .rule { width: 3mm; height: .25mm; margin: .8mm 0; background: var(--gold); }
 
@@ -119,7 +119,7 @@ const ticketPath = [
       <img class="photo" src={poster.src} alt={wedding.hero.alt} />
       <div class="front-shade"></div>
       <h1 class="front-title" lang="en" aria-label={movie.titleText}>
-        {movie.title.map((word) => <span>{word}</span>)}
+        {movie.title.map((line) => <span style={`left: ${line.nudge}em`}>{line.text}</span>)}
       </h1>
       <div class="front-foot" lang="en">
         <p>{shortDate} {weekday}&nbsp;&nbsp;{timeEn.replace(' ', '')}</p>
