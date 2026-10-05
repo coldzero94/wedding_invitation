@@ -28,6 +28,18 @@ const parents = [
 ];
 // Words in [brackets] in the location lines are set in bold, as on the mobile invitation.
 const emphasise = (line: string) => line.split(/(\[[^\]]+\])/);
+// The QR ticket under the location list, in mm: as wide as the list, the code on a stub past the perforation,
+// half-circle notches where the perforation meets the edges. Drawn as one path so the notches are cut out.
+const ticket = { w: 70, h: 17, stub: 19, notch: 1.6, corner: 1.6 };
+const perfX = ticket.w - ticket.stub;
+const ticketPath = [
+  `M${ticket.corner} 0H${perfX - ticket.notch}A${ticket.notch} ${ticket.notch} 0 0 0 ${perfX + ticket.notch} 0`,
+  `H${ticket.w - ticket.corner}A${ticket.corner} ${ticket.corner} 0 0 1 ${ticket.w} ${ticket.corner}`,
+  `V${ticket.h - ticket.corner}A${ticket.corner} ${ticket.corner} 0 0 1 ${ticket.w - ticket.corner} ${ticket.h}`,
+  `H${perfX + ticket.notch}A${ticket.notch} ${ticket.notch} 0 0 0 ${perfX - ticket.notch} ${ticket.h}`,
+  `H${ticket.corner}A${ticket.corner} ${ticket.corner} 0 0 1 0 ${ticket.h - ticket.corner}`,
+  `V${ticket.corner}A${ticket.corner} ${ticket.corner} 0 0 1 ${ticket.corner} 0Z`,
+].join('');
 ---
 <!doctype html>
 <html lang="ko">
@@ -83,19 +95,25 @@ const emphasise = (line: string) => line.split(/(\[[^\]]+\])/);
 
       /* Location: the list and the QR code below it share one left edge, and that block is centred. */
       .location { display: flex; flex-direction: column; }
-      .location-body { display: flex; flex: 1; flex-direction: column; width: max-content; max-width: 100%; margin: 4.5mm auto 0; }
+      .location-body { display: flex; flex: 1; flex-direction: column; width: max-content; max-width: 100%; margin: 4mm auto 0; }
       /* One grid for all rows, so the labels share a column; each label sits at the middle of its lines. */
-      .location dl { display: grid; grid-template-columns: max-content max-content; gap: 2.8mm 4mm; align-items: center; }
+      .location dl { display: grid; grid-template-columns: max-content max-content; gap: 2.4mm 4mm; align-items: center; }
       .loc-row { display: contents; }
       .loc-row dt { font-size: var(--fs-body); font-weight: 600; line-height: 1.65; }
       .loc-row dd { display: grid; font-size: var(--fs-small); line-height: 1.65; color: var(--text-2); word-break: keep-all; }
       .loc-row dd strong { font-weight: 600; color: var(--text); }
-      /* The QR code at the foot of the list, its caption beside it. */
-      .qr-row { display: flex; align-items: center; gap: 3mm; margin-top: auto; padding-top: 4mm; }
-      .qr { flex-shrink: 0; width: 14mm; height: 14mm; }
+      /* The QR code on a movie ticket at the foot of the list, as wide as the list: the film's title on the ticket,
+         the code on its stub. */
+      .ticket { position: relative; display: grid; margin-top: auto; }
+      .ticket-shape { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; } /* the outline's outer half too */
+      .ticket-shape path { fill: #f7f2e8; stroke: var(--accent); stroke-width: .2; }
+      .ticket-shape line { stroke: var(--accent); stroke-width: .25; stroke-dasharray: .8 .6; }
+      .ticket-main, .ticket-stub { position: relative; display: grid; place-content: center; justify-items: center; }
+      .ticket-label { font-family: var(--serif); font-size: var(--fs-small); letter-spacing: .14em; margin-right: -.14em; color: var(--accent); }
+      .ticket-title { margin: .2mm 0 .6mm; font-family: 'Ms Madi', var(--serif); font-size: 17pt; line-height: 1; }
+      .ticket-cta { font-size: var(--fs-body); font-weight: 600; }
+      .qr { width: 13mm; height: 13mm; }
       .qr :global(svg) { display: block; width: 100%; height: 100%; }
-      .qr-cta { font-size: var(--fs-body); font-weight: 600; line-height: 1.45; }
-      .qr-cta .label { display: block; font-family: var(--serif); font-size: var(--fs-small); font-weight: 400; letter-spacing: .12em; color: var(--accent); }
       .play { display: inline-block; width: 0; height: 0; margin-left: .8mm; border-left: 1.4mm solid currentColor; border-top: .9mm solid transparent; border-bottom: .9mm solid transparent; }
     </style>
   </head>
@@ -134,9 +152,17 @@ const emphasise = (line: string) => line.split(/(\[[^\]]+\])/);
               <div class="loc-row"><dt>{row.label}</dt><dd>{row.lines.map((line) => <span>{emphasise(line).map((part) => /^\[.+\]$/.test(part) ? <strong>{part}</strong> : part)}</span>)}</dd></div>
             ))}
           </dl>
-          <div class="qr-row">
-            <div class="qr" role="img" aria-label="모바일 청첩장으로 가는 QR 코드" set:html={qr}></div>
-            <p class="qr-cta"><span class="label" lang="en">SCAN TO WATCH</span>영화 보러 가기<span class="play" aria-hidden="true"></span></p>
+          <div class="ticket" style={`width: ${ticket.w}mm; height: ${ticket.h}mm; grid-template-columns: 1fr ${ticket.stub}mm`}>
+            <svg class="ticket-shape" viewBox={`0 0 ${ticket.w} ${ticket.h}`} aria-hidden="true">
+              <path d={ticketPath} />
+              <line x1={perfX} y1={ticket.notch + .6} x2={perfX} y2={ticket.h - ticket.notch - .6} />
+            </svg>
+            <div class="ticket-main">
+              <p class="ticket-label" lang="en">SCAN TO WATCH</p>
+              <p class="ticket-title" lang="en">{movie.titleText}</p>
+              <p class="ticket-cta">영화 보러 가기<span class="play" aria-hidden="true"></span></p>
+            </div>
+            <div class="ticket-stub"><div class="qr" role="img" aria-label="모바일 청첩장으로 가는 QR 코드" set:html={qr}></div></div>
           </div>
         </div>
       </div>

@@ -134,13 +134,16 @@ test.describe('the movie edition (/v2/)', () => {
     expect((location.y - sheet.y) / sheet.height).toBeGreaterThan(.45);
     expect((location.y - sheet.y) / sheet.height).toBeLessThan(.58);
     await expect(back.locator('dl strong')).toHaveText('[이대서울병원]');
-    // The QR code alone, at the foot of the list and on its left edge.
-    await expect(back.locator('.qr svg')).toHaveCount(1);
-    await expect(page.locator('.stub, .ticket, .barcode, .qr-tile')).toHaveCount(0);
+    // The QR code on a movie ticket at the foot of the list, as wide as the list, the code on the stub.
+    const ticket = back.locator('.ticket');
+    await expect(ticket.locator('.ticket-title')).toHaveText('Love wins all');
+    await expect(ticket.locator('.ticket-stub .qr svg')).toHaveCount(1);
+    await expect(page.locator('.stub, .barcode, .qr-tile')).toHaveCount(0);
     const list = (await back.locator('dl').boundingBox())!;
-    const code = (await back.locator('.qr').boundingBox())!;
-    expect(Math.abs(code.x - list.x)).toBeLessThan(1);
-    expect(code.y).toBeGreaterThan(list.y + list.height);
+    const box = (await ticket.boundingBox())!;
+    expect(Math.abs(box.x - list.x)).toBeLessThan(1);
+    expect(Math.abs(box.x + box.width - (list.x + list.width))).toBeLessThan(1);
+    expect(box.y).toBeGreaterThan(list.y + list.height);
     // Type that is printed small reads poorly: every size on the back and the front's billing is at least 8 pt.
     const smallest = await page.evaluate(() => Math.min(...[...document.querySelectorAll('.sheet.back *, .front-foot *')]
       .filter((el) => [...el.childNodes].some((node) => node.nodeType === 3 && node.textContent!.trim()))
