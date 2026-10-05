@@ -26,8 +26,6 @@ const parents = [
   { father: wedding.groom.father, mother: wedding.groom.mother, child: paper.relation.groom, name: wedding.groom.name },
   { father: wedding.bride.father, mother: wedding.bride.mother, child: paper.relation.bride, name: wedding.bride.name },
 ];
-// Words in [brackets] in the location lines are set in bold, as on the mobile invitation.
-const emphasise = (line: string) => line.split(/(\[[^\]]+\])/);
 // The QR ticket under the location list, in mm: as wide as the list, the code on a stub past the perforation,
 // half-circle notches where the perforation meets the edges. Drawn as one path so the notches are cut out.
 const ticket = { w: 70, h: 17, stub: 19, notch: 1.6, corner: 1.6 };
@@ -101,7 +99,6 @@ const ticketPath = [
       .loc-row { display: contents; }
       .loc-row dt { font-size: var(--fs-body); font-weight: 600; line-height: 1.65; }
       .loc-row dd { display: grid; font-size: var(--fs-small); line-height: 1.65; color: var(--text-2); word-break: keep-all; }
-      .loc-row dd strong { font-weight: 600; color: var(--text); }
       /* The QR code on a movie ticket at the foot of the list, as wide as the list: the film's title on the ticket,
          the code on its stub. (No "영화 보러 가기": guests would wonder why a film.) */
       .ticket { position: relative; display: grid; margin-top: auto; }
@@ -147,7 +144,7 @@ const ticketPath = [
         <div class="location-body">
           <dl>
             {paper.location.map((row) => (
-              <div class="loc-row"><dt>{row.label}</dt><dd>{row.lines.map((line) => <span>{emphasise(line).map((part) => /^\[.+\]$/.test(part) ? <strong>{part}</strong> : part)}</span>)}</dd></div>
+              <div class="loc-row"><dt>{row.label}</dt><dd>{row.lines.map((line) => <span>{line}</span>)}</dd></div>
             ))}
           </dl>
           <div class="ticket" style={`width: ${ticket.w}mm; height: ${ticket.h}mm; grid-template-columns: 1fr ${ticket.stub}mm`}>

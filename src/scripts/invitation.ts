@@ -207,6 +207,20 @@ if (galleryGrid && galleryMore) {
   });
 }
 
+// Zoom: the page and its photos keep their size, and only the parking guide, whose images are full of small print,
+// can be pinch-zoomed while it is open (the couple's request). Closing the guide puts the page back at its size.
+const viewport = document.querySelector<HTMLMetaElement>('meta[name="viewport"]');
+const viewportBase = (viewport?.content ?? '').replace(/,\s*(maximum-scale|user-scalable)=[^,]*/g, '');
+function setZoomable(zoomable: boolean) {
+  if (viewport) viewport.content = viewportBase + (zoomable ? ', maximum-scale=5, user-scalable=yes' : ', maximum-scale=1, user-scalable=no');
+  // For browsers that ignore the viewport limits, a pinch is not a gesture the page allows either.
+  document.documentElement.style.touchAction = zoomable ? '' : 'pan-x pan-y';
+}
+setZoomable(false);
+if (parking) new MutationObserver(() => setZoomable(parking.open)).observe(parking, { attributes: true, attributeFilter: ['open'] });
+// Safari ignores user-scalable=no, but its pinch gesture can be cancelled.
+document.addEventListener('gesturestart', (event) => { if (!parking?.open) event.preventDefault(); });
+
 // The button is a link to the first guide image, so it still works without JavaScript.
 document.querySelector('[data-open-parking]')?.addEventListener('click', (event) => {
   if (!parking || (event as MouseEvent).metaKey || (event as MouseEvent).ctrlKey) return;

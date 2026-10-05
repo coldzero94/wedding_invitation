@@ -93,6 +93,20 @@ test.describe('the movie edition (/v2/)', () => {
     }
   });
 
+  test('only the parking guide can be pinch-zoomed, on both editions', async ({ page }) => {
+    const state = () => page.evaluate(() => [document.querySelector('meta[name=viewport]')!.getAttribute('content'), document.documentElement.style.touchAction]);
+    for (const path of ['./', './v2/']) {
+      await page.goto(path);
+      expect(await state()).toEqual([expect.stringContaining('user-scalable=no'), 'pan-x pan-y']);
+      await page.locator('[data-open-parking]').click();
+      await expect(page.locator('#parking-dialog')).toBeVisible();
+      expect(await state()).toEqual([expect.stringContaining('user-scalable=yes'), '']);
+      await page.locator('[data-close-parking]').click();
+      await expect(page.locator('#parking-dialog')).toBeHidden();
+      expect(await state()).toEqual([expect.stringContaining('user-scalable=no'), 'pan-x pan-y']);
+    }
+  });
+
   test("the couple's revisions: cover photo, film crops, hearts, ticket title and seat, transport", async ({ page }) => {
     await page.goto('./v2/');
     // The cover uses the whole main photo (gallery no. 1) so the couple sits below the title at the top.
@@ -133,7 +147,10 @@ test.describe('the movie edition (/v2/)', () => {
     const location = (await back.locator('.section-head').nth(1).boundingBox())!;
     expect((location.y - sheet.y) / sheet.height).toBeGreaterThan(.45);
     expect((location.y - sheet.y) / sheet.height).toBeLessThan(.58);
-    await expect(back.locator('dl strong')).toHaveText('[이대서울병원]');
+    // On paper 이대서울병원 is plain text, no brackets or bold (the couple's call; the mobile edition keeps its gold point).
+    await expect(back.locator('dl')).toContainText('만차 시 이대서울병원 주차장 이용');
+    await expect(back.locator('dl')).not.toContainText('[');
+    await expect(back.locator('dl strong')).toHaveCount(0);
     // The QR code on a movie ticket at the foot of the list, as wide as the list, the code on the stub.
     const ticket = back.locator('.ticket');
     await expect(ticket.locator('.ticket-title')).toHaveText('Love wins all');
