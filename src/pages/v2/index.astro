@@ -1,14 +1,12 @@
 ---
 import { Image, getImage } from 'astro:assets';
-import cormorantRegular from '@fontsource/cormorant-garamond/files/cormorant-garamond-latin-400-normal.woff2?url';
-import cormorantItalic500 from '@fontsource/cormorant-garamond/files/cormorant-garamond-latin-500-italic.woff2?url';
-import hurricane from '@fontsource/hurricane/files/hurricane-latin-400-normal.woff2?url';
-import '@fontsource/cormorant-garamond/latin-400.css';
-import '@fontsource/cormorant-garamond/latin-400-italic.css';
-import '@fontsource/cormorant-garamond/latin-500-italic.css';
-import '@fontsource/bebas-neue/latin-400.css';
-// The film's title typeface, a brush signature script, the same as on the paper invitation.
-import '@fontsource/hurricane/latin-400.css';
+import rozhaOne from '@fontsource/rozha-one/files/rozha-one-latin-400-normal.woff2?url';
+import notoSerifDisplay from '@fontsource/noto-serif-display/files/noto-serif-display-latin-600-normal.woff2?url';
+import notoSerifDisplayItalic from '@fontsource/noto-serif-display/files/noto-serif-display-latin-600-italic.woff2?url';
+import '@fontsource/rozha-one/latin-400.css';
+// The film's title typeface and its italic, the same as on the paper invitation.
+import '@fontsource/noto-serif-display/latin-600.css';
+import '@fontsource/noto-serif-display/latin-600-italic.css';
 import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css';
 import '../../styles/movie.css';
 import Icon from '../../components/Icon.astro';
@@ -89,9 +87,9 @@ const marqueeBulbs = (() => {
       })();
       setTimeout(function () { document.documentElement.classList.add('cover-ready'); }, 4000);
     </script>
-    <link rel="preload" as="font" type="font/woff2" href={cormorantRegular} crossorigin />
-    <link rel="preload" as="font" type="font/woff2" href={cormorantItalic500} crossorigin />
-    <link rel="preload" as="font" type="font/woff2" href={hurricane} crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href={rozhaOne} crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href={notoSerifDisplay} crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href={notoSerifDisplayItalic} crossorigin />
     {kakao.key && <script is:inline defer src="https://developers.kakao.com/sdk/js/kakao.js"></script>}
     <noscript><style>[data-reveal] { opacity: 1 !important; transform: none !important; }</style></noscript>
   </head>
@@ -139,7 +137,7 @@ const marqueeBulbs = (() => {
         var leaderDone = new Promise(function (resolve) { setTimeout(resolve, leader ? 1800 : 0); });
         var waits = [image.decode ? image.decode().catch(function () {}) : null];
         if (document.fonts && document.fonts.load) {
-          ['400 1em "Cormorant Garamond"', 'italic 500 1em "Cormorant Garamond"', '400 1em "Hurricane"', '300 1em "Pretendard Variable"'].forEach(function (font) {
+          ['400 1em "Rozha One"', '600 1em "Noto Serif Display"', 'italic 600 1em "Noto Serif Display"', '300 1em "Pretendard Variable"'].forEach(function (font) {
             waits.push(document.fonts.load(font, cover.textContent).catch(function () {}));
           });
         }

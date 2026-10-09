@@ -3,12 +3,11 @@ import { wedding } from './wedding';
 // Content only the movie-theater design uses. Everything factual (names, date, venue, accounts, photos)
 // still comes from wedding.ts.
 export const movie = {
-  // The film's title. The mobile cover and the paper invitation's front set it on two lines in a brush signature
-  // script, each line centred on the card's axis as in the couple's reference; the tickets and the page title use
-  // titleText. A script's strokes overhang its text box (Hurricane's "ll" swing far right), so `nudge` (em) moves
-  // each line to sit halfway between centring its whole ink and centring its letters' bodies, which is where the
-  // reference's lines sit. Measured for Hurricane: re-measure if the font or the words change.
-  title: [{ text: 'Love', nudge: -0.06 }, { text: 'wins all', nudge: -0.1 }],
+  // The film's title. The mobile cover and the paper invitation's front set it on two lines in Noto Serif Display
+  // SemiBold, each line centred on the card's axis; the tickets and the page title use titleText. `nudge` (em)
+  // moves a line whose ink is not centred in its box (a script's swashes overhang it); this upright serif sits
+  // centred as it is, so both are 0. Re-measure if the font or the words change.
+  title: [{ text: 'Love', nudge: 0 }, { text: 'wins all', nudge: 0 }],
   titleText: 'Love wins all',
   studio: 'OUR SEASON PICTURES',
   // English billing on the posters: the couple in capitals, and the venue in place of "in theaters".
