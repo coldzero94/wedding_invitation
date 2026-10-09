@@ -111,7 +111,8 @@ const marqueeBulbs = (() => {
       <div class="poster-shade"></div>
       <p class="poster-studio" lang="en">{movie.studio} <span>presents</span></p>
       <h1 class="poster-title" lang="en" aria-label={movie.titleText}>
-        {movie.title.map((line) => <span class="t-line" style={`left: ${line.nudge}em`}>{line.text}</span>)}
+        <span class="t-script" style={`left: ${movie.title.nudge}em`}>{movie.title.script}</span>
+        <span class="t-caps">{movie.title.caps}</span>
       </h1>
       <div class="poster-body">
         <div class="poster-credits">
@@ -186,7 +187,7 @@ const marqueeBulbs = (() => {
             <span class="ticket-inner">
               <span class="ticket-face ticket-front">
                 <span class="ticket-top"><span lang="en">VIP TICKET</span><span lang="en">No. {String(month).padStart(2, '0')}{String(day).padStart(2, '0')}</span></span>
-                <span class="ticket-title" lang="en">{movie.titleText}</span>
+                <span class="ticket-title" lang="en" aria-label={movie.titleText}><span class="tt-script">{movie.title.script}</span><span class="tt-caps">{movie.title.caps}</span></span>
                 <span class="ticket-rows">
                   <span class="ticket-row"><span class="k" lang="en">DATE</span><span class="v" lang="en">{shortDate} {weekday}</span></span>
                   <span class="ticket-row"><span class="k" lang="en">TIME</span><span class="v" lang="en">{timeEn}</span></span>

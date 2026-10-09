@@ -3,12 +3,12 @@ import { wedding } from './wedding';
 // Content only the movie-theater design uses. Everything factual (names, date, venue, accounts, photos)
 // still comes from wedding.ts.
 export const movie = {
-  // The film's title, the one script on the page: the mobile cover and the paper invitation's front set it in Great
-  // Vibes on three lines, each centred on the card's axis; the tickets and the page title use titleText. A script's
-  // strokes overhang its text box, so `nudge` (em) moves each line by its measured ink offset (halfway between
-  // centring the whole ink and the letters' bodies). Measured for Great Vibes: re-measure if the font or words change.
-  title: [{ text: 'Love', nudge: -0.031 }, { text: 'wins', nudge: -0.045 }, { text: 'all', nudge: -0.077 }],
-  titleText: 'Love wins all',
+  // The cover's welcome, the same on the mobile cover, the paper invitation's front and both tickets: one word in
+  // Great Vibes (the page's only script, kept small) over the rest in spaced capitals. A script's strokes overhang
+  // its text box, so `nudge` (em) moves the word by its measured ink offset to sit on the axis. Measured for Great
+  // Vibes: re-measure if the font or the word changes.
+  title: { script: 'Welcome', nudge: -0.025, caps: 'to our wedding' },
+  titleText: 'Welcome to our wedding',
   studio: 'OUR SEASON PICTURES',
   // English billing on the posters: the couple in capitals, and the venue in place of "in theaters".
   namesEn: { groom: 'CHANYOUNG', bride: 'YEJI' },

@@ -1,5 +1,5 @@
 @charset "UTF-8";
-/* Love wins all: the movie-theater edition of the invitation (served at /v2/). */
+/* Welcome to our wedding: the movie-theater edition of the invitation (served at /v2/). */
 :root {
   --bg: #0c0c0d;
   --panel: #141415;
@@ -14,8 +14,8 @@
   --gold-soft: #f3dca6;
   --sage: #c3c9a8;
   --sage-ink: #1f2619;
-  /* The couple's Latin faces, shared with the paper invitation: Great Vibes for the film's title only (the one
-     highlight), Noto Serif Display SemiBold italic for the flourishes, Rozha One for every other English word. */
+  /* The couple's Latin faces, shared with the paper invitation: Great Vibes for the one word of the cover's welcome,
+     Noto Serif Display SemiBold italic for the flourishes, Rozha One for every other English word. */
   --display: 'Rozha One', 'Pretendard Variable', Georgia, serif;
   --script: 'Noto Serif Display', Georgia, serif;
   --script-weight: 600;
@@ -103,10 +103,12 @@ h1, h2, h3 { font-weight: 400; }
 .poster-studio { padding: max(24px, env(safe-area-inset-top)) 20px 0; text-align: center; font-family: var(--display); font-size: 11px; letter-spacing: .34em; color: var(--cream-2); text-shadow: 0 1px 10px rgb(0 0 0 / .6); }
 .poster-studio span { font-family: var(--script); font-style: italic; font-weight: var(--script-weight); letter-spacing: .1em; }
 .poster-body { margin-top: auto; padding: 0 22px calc(20px + env(safe-area-inset-bottom)); text-align: center; }
-.poster-title { --t-size: clamp(62px, 20vw, 98px); display: grid; justify-items: center; margin-top: clamp(18px, 5.5vw, 28px); padding: 0 18px; font-family: var(--title); font-weight: 400; color: var(--cream); line-height: 1; text-align: center; text-shadow: 0 2px 22px rgb(0 0 0 / .45); }
+.poster-title { --t-size: clamp(50px, 15.5vw, 72px); display: grid; justify-items: center; margin-top: clamp(22px, 6.5vw, 34px); padding: 0 18px; font-family: var(--title); font-weight: 400; color: var(--cream); line-height: 1; text-align: center; text-shadow: 0 2px 22px rgb(0 0 0 / .45); }
 .poster-title > span { display: block; }
-/* Three lines, each centred on the axis by its ink (the nudge in movie.ts), as on the paper invitation's front. */
-.t-line { position: relative; font-size: var(--t-size); font-weight: 400; line-height: .85; padding: 0 .1em; }
+/* The welcome, as on the paper invitation's front: the script word centred on the axis by its ink (the nudge in
+   movie.ts), the rest in small spaced capitals under it (the left padding balances the trailing letter-space). */
+.t-script { position: relative; font-size: var(--t-size); font-weight: 400; line-height: 1; padding: 0 .1em; }
+.t-caps { margin-top: 4px; padding-left: .36em; font-family: var(--marquee); font-size: clamp(10.5px, 3.2vw, 13px); line-height: 1.4; letter-spacing: .36em; text-transform: uppercase; color: var(--cream-2); text-shadow: 0 1px 10px rgb(0 0 0 / .5); }
 .poster-credits { display: flex; justify-content: space-between; margin: 0 2px; }
 .poster-credits p { display: grid; justify-items: start; }
 .poster-credits p + p { justify-items: end; }
@@ -124,24 +126,25 @@ h1, h2, h3 { font-weight: 400; }
    is ready at once is shown finished (cover-instant). */
 .js:not(.cover-ready) .cover-image { opacity: 0; }
 .js:not(.cover-ready) :is(.poster-studio, .poster-credits, .poster-when, .poster-where, .poster-cta, .poster-billing) { opacity: 0; }
-/* Each word of the title is written on left to right, one after another. Both ends use the same inset() shape
-   (WebKit jumps instead of animating to 'none'), with room around the box so the script's loops are never
-   clipped once revealed. */
-.js .t-line { clip-path: inset(-70% -25% -70% -25%); }
-.js:not(.cover-ready) .t-line { clip-path: inset(-70% 125% -70% -25%); }
+/* The script word is written on left to right, then the capitals rise under it. Both ends of the clip use the same
+   inset() shape (WebKit jumps instead of animating to 'none'), with room around the box so the script's loops are
+   never clipped once revealed. */
+.js .t-script { clip-path: inset(-70% -25% -70% -25%); }
+.js:not(.cover-ready) .t-script { clip-path: inset(-70% 125% -70% -25%); }
+.js:not(.cover-ready) .t-caps { opacity: 0; transform: translateY(8px); }
 .cover-ready .cover-image { transition: opacity 1s var(--ease); }
 .cover-ready :where(.poster-studio, .poster-credits, .poster-when, .poster-where, .poster-cta, .poster-billing) { transition: opacity 1s var(--ease); }
-.cover-ready :where(.t-line) { transition: clip-path .9s cubic-bezier(.6, .05, .25, 1); }
+.cover-ready :where(.t-script) { transition: clip-path 1.1s cubic-bezier(.6, .05, .25, 1); }
+.cover-ready :where(.t-caps) { transition: opacity .9s var(--ease), transform .9s var(--ease); }
 .cover-ready .poster-studio { transition-delay: .1s; }
-.cover-ready .t-line:nth-child(1) { transition-delay: .3s; }
-.cover-ready .t-line:nth-child(2) { transition-delay: .55s; }
-.cover-ready .t-line:nth-child(3) { transition-delay: .8s; }
+.cover-ready .t-script { transition-delay: .3s; }
+.cover-ready .t-caps { transition-delay: .95s; }
 .cover-ready .poster-credits { transition-delay: 1.2s; }
 .cover-ready .poster-when { transition-delay: 1.32s; }
 .cover-ready .poster-where { transition-delay: 1.4s; }
 .cover-ready .poster-cta { transition-delay: 1.5s; }
 .cover-ready .poster-billing { transition-delay: 1.6s; }
-.cover-instant .cover :is(.cover-image, .poster-studio, .t-line, .poster-credits, .poster-when, .poster-where, .poster-cta, .poster-billing) { transition: none !important; }
+.cover-instant .cover :is(.cover-image, .poster-studio, .t-script, .t-caps, .poster-credits, .poster-when, .poster-where, .poster-cta, .poster-billing) { transition: none !important; }
 
 /* Scenes */
 .scene { position: relative; padding: 92px var(--gutter); text-align: center; }
@@ -196,7 +199,9 @@ h1, h2, h3 { font-weight: 400; }
 .ticket-face::before { top: -5px; }
 .ticket-face::after { bottom: -5px; }
 .ticket-top { display: flex; justify-content: space-between; padding-bottom: 11px; border-bottom: 1px solid rgb(31 38 25 / .25); font-family: var(--marquee); font-size: 12px; letter-spacing: .14em; }
-.ticket-title { display: block; margin: 10px 0 12px; font-family: var(--title); font-weight: 400; font-size: 38px; line-height: 1.1; }
+.ticket-title { display: grid; justify-items: start; margin: 10px 0 12px; }
+.tt-script { font-family: var(--title); font-size: 34px; line-height: 1.05; }
+.tt-caps { font-family: var(--marquee); font-size: 10px; letter-spacing: .3em; text-transform: uppercase; }
 .ticket-rows { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 14px; }
 .ticket-row, .ticket-place { display: grid; gap: 2px; }
 .ticket-rows .k, .ticket-place .k { font-family: var(--marquee); font-size: 9.5px; letter-spacing: .14em; opacity: .62; }

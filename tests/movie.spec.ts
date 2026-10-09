@@ -1,10 +1,10 @@
 import { test, expect, type Page } from '@playwright/test';
 
-// Each title line is centred on its card's axis and moved only by its own ink nudge (movie.ts): no other offset.
+// Each title line is centred on its card's axis and moved only by its own ink nudge (movie.ts; none means 0).
 const centring = (page: Page, lines: string, frame: string) => page.locator(lines).evaluateAll((spans, frame) => spans.map((span) => {
   const box = span.getBoundingClientRect(), card = span.closest(frame)!.getBoundingClientRect();
   const offset = (box.left + box.width / 2) - (card.left + card.width / 2);
-  return Math.abs(offset - parseFloat((span as HTMLElement).style.left) * parseFloat(getComputedStyle(span).fontSize)) < 0.5;
+  return Math.abs(offset - parseFloat((span as HTMLElement).style.left || '0') * parseFloat(getComputedStyle(span).fontSize)) < 0.5;
 }), frame);
 
 // The movie-theater edition lives beside the original at /v2/ and shares its data and scripts.
@@ -13,12 +13,12 @@ test.describe('the movie edition (/v2/)', () => {
     const errors: string[] = [];
     page.on('pageerror', (error) => errors.push(error.message));
     await page.goto('./v2/');
-    await expect(page).toHaveTitle(/^Love wins all \|/);
-    await expect(page.locator('.poster-title')).toHaveAttribute('aria-label', 'Love wins all');
+    await expect(page).toHaveTitle(/^Welcome to our wedding \|/);
+    await expect(page.locator('.poster-title')).toHaveAttribute('aria-label', 'Welcome to our wedding');
     // Two lines in the title face, as on the paper invitation's front; the ticket uses it too.
-    await expect(page.locator('.poster-title .t-line')).toHaveText(['Love', 'wins', 'all']);
-    expect(await centring(page, '.poster-title .t-line', '.cover')).toEqual([true, true, true]);
-    for (const sel of ['.poster-title .t-line', '.ticket-title']) {
+    await expect(page.locator('.poster-title > span')).toHaveText(['Welcome', 'to our wedding']);
+    expect(await centring(page, '.poster-title > span', '.cover')).toEqual([true, true]);
+    for (const sel of ['.poster-title .t-script', '.ticket-title .tt-script']) {
       expect(await page.locator(sel).first().evaluate((el) => getComputedStyle(el).fontFamily)).toContain('Great Vibes');
     }
     await expect(page.locator('.quote')).toContainText('3000만큼 사랑해');
@@ -132,7 +132,7 @@ test.describe('the movie edition (/v2/)', () => {
       // The heart is decorative; a hidden word keeps the names apart for screen readers and copied text.
       await expect(page.locator(sel + ' .visually-hidden')).toHaveText(sel === '.greeting-sign' ? ' 그리고 ' : ' and ', { useInnerText: false });
     }
-    await expect(page.locator('.ticket-title')).toHaveText('Love wins all');
+    await expect(page.locator('.ticket-title')).toHaveAttribute('aria-label', 'Welcome to our wedding');
     await expect(page.locator('.ticket-row', { hasText: 'SEAT' })).toContainText('초대석');
     await expect(page.locator('.ticket')).not.toContainText('소중한 당신의 자리');
     await expect(page.locator('.transport')).toContainText('5호선 발산역 하차 7번 출구 (도보 3분~5분)');
@@ -143,9 +143,9 @@ test.describe('the movie edition (/v2/)', () => {
   test('the paper invitation: the script title, a white back in two halves, nothing under 8 pt', async ({ page }) => {
     await page.goto('./v2/print/');
     const title = page.locator('.front-title');
-    await expect(title).toHaveAttribute('aria-label', 'Love wins all');
-    await expect(title.locator('span')).toHaveText(['Love', 'wins', 'all']);
-    expect(await centring(page, '.front-title span', '.sheet')).toEqual([true, true, true]);
+    await expect(title).toHaveAttribute('aria-label', 'Welcome to our wedding');
+    await expect(title.locator('span')).toHaveText(['Welcome', 'to our wedding']);
+    expect(await centring(page, '.front-title span', '.sheet')).toEqual([true, true]);
     expect(await title.evaluate((el) => getComputedStyle(el).fontFamily)).toContain('Great Vibes');
     const back = page.locator('.sheet.back');
     expect(await back.evaluate((el) => getComputedStyle(el).backgroundColor)).toBe('rgb(255, 255, 255)');
@@ -161,7 +161,7 @@ test.describe('the movie edition (/v2/)', () => {
     await expect(back.locator('dl strong')).toHaveCount(0);
     // The QR code on a movie ticket at the foot of the list, as wide as the list, the code on the stub.
     const ticket = back.locator('.ticket');
-    await expect(ticket.locator('.ticket-title')).toHaveText('Love wins all');
+    await expect(ticket.locator('.ticket-title')).toHaveAttribute('aria-label', 'Welcome to our wedding');
     await expect(ticket.locator('.ticket-stub .qr svg')).toHaveCount(1);
     await expect(page.locator('.stub, .barcode, .qr-tile')).toHaveCount(0);
     const list = (await back.locator('dl').boundingBox())!;

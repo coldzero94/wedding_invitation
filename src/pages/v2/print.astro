@@ -71,11 +71,13 @@ const ticketPath = [
       /* No text-shadow on the front: Chrome writes blurred shadows into the PDF as soft-masked tiles, and macOS
          Preview draws those as dark boxes behind the text. The shade alone keeps the white type legible. */
       .front-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgb(10 14 10 / .5) 0%, rgb(10 14 10 / .12) 24%, rgb(10 14 10 / 0) 34%, rgb(10 14 10 / 0) 64%, rgb(10 14 10 / .58) 84%, rgb(10 14 10 / .8) 100%); }
-      /* The film's title in Great Vibes on three lines, the card's one script, each centred on the axis by its ink
-         (the nudge in movie.ts), as on the mobile cover; every other English word is Rozha One (--serif). Its ink
-         starts as far inside the trim as the billing's ends (10.2 mm), so the top and bottom margins match. */
-      .front-title { position: absolute; top: 14.63mm; left: var(--safe); right: var(--safe); display: grid; justify-items: center; font-family: var(--title); font-weight: 400; font-size: 45.6pt; line-height: .85; color: var(--cream); }
-      .front-title span { position: relative; }
+      /* The welcome, as on the mobile cover: one word in Great Vibes (the card's one script) centred on the axis by its
+         ink (the nudge in movie.ts), the rest in small spaced capitals of Rozha One (--serif) under it, the left
+         padding balancing the trailing letter-space. Its ink starts as far inside the trim as the billing's ends
+         (10.2 mm), so the top and bottom margins match. */
+      .front-title { position: absolute; top: 13.43mm; left: var(--safe); right: var(--safe); display: grid; justify-items: center; font-family: var(--title); font-weight: 400; font-size: 36pt; line-height: 1; color: var(--cream); }
+      .front-title .t-script { position: relative; }
+      .front-title .t-caps { margin-top: .6mm; padding-left: .34em; font-family: var(--serif); font-size: 9pt; letter-spacing: .34em; text-transform: uppercase; color: var(--cream-2); }
       .front-foot { position: absolute; left: var(--safe); right: var(--safe); bottom: 11mm; display: grid; justify-items: center; gap: .8mm; font-family: var(--serif); font-size: 8pt; letter-spacing: .04em; color: var(--cream-2); text-align: center; }
       .front-foot .rule { width: 3mm; height: .25mm; margin: .8mm 0; background: var(--gold); }
 
@@ -109,7 +111,9 @@ const ticketPath = [
       .ticket-shape line { stroke: var(--accent); stroke-width: .25; stroke-dasharray: .8 .6; }
       .ticket-main, .ticket-stub { position: relative; display: grid; place-content: center; justify-items: center; }
       .ticket-label { font-family: var(--serif); font-size: var(--fs-small); letter-spacing: .14em; margin-right: -.14em; color: var(--accent); }
-      .ticket-title { margin-top: .4mm; font-family: var(--title); font-weight: 400; font-size: 20pt; line-height: 1.1; }
+      .ticket-title { display: grid; justify-items: center; margin-top: .6mm; }
+      .ticket-title .tt-script { font-family: var(--title); font-size: 18pt; line-height: 1; }
+      .ticket-title .tt-caps { margin-top: .2mm; padding-left: .26em; font-family: var(--serif); font-size: var(--fs-small); letter-spacing: .26em; text-transform: uppercase; color: var(--text-2); }
       .qr { width: 13mm; height: 13mm; }
       .qr :global(svg) { display: block; width: 100%; height: 100%; }
     </style>
@@ -119,7 +123,8 @@ const ticketPath = [
       <img class="photo" src={poster.src} alt={wedding.hero.alt} />
       <div class="front-shade"></div>
       <h1 class="front-title" lang="en" aria-label={movie.titleText}>
-        {movie.title.map((line) => <span style={`left: ${line.nudge}em`}>{line.text}</span>)}
+        <span class="t-script" style={`left: ${movie.title.nudge}em`}>{movie.title.script}</span>
+        <span class="t-caps">{movie.title.caps}</span>
       </h1>
       <div class="front-foot" lang="en">
         <p>{shortDate} {weekday}&nbsp;&nbsp;{timeEn.replace(' ', '')}</p>
@@ -156,7 +161,7 @@ const ticketPath = [
             </svg>
             <div class="ticket-main">
               <p class="ticket-label" lang="en">SCAN TO WATCH</p>
-              <p class="ticket-title" lang="en">{movie.titleText}</p>
+              <p class="ticket-title" lang="en" aria-label={movie.titleText}><span class="tt-script">{movie.title.script}</span><span class="tt-caps">{movie.title.caps}</span></p>
             </div>
             <div class="ticket-stub"><div class="qr" role="img" aria-label="모바일 청첩장으로 가는 QR 코드" set:html={qr}></div></div>
           </div>
