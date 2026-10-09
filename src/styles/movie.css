@@ -14,13 +14,13 @@
   --gold-soft: #f3dca6;
   --sage: #c3c9a8;
   --sage-ink: #1f2619;
-  /* Two Latin faces, the couple's choice, shared with the paper invitation: Noto Serif Display SemiBold for the
-     film's title (and its italic for the flourishes), Rozha One for every other English word and the numerals. */
+  /* The couple's Latin faces, shared with the paper invitation: Great Vibes for the film's title only (the one
+     highlight), Noto Serif Display SemiBold italic for the flourishes, Rozha One for every other English word. */
   --display: 'Rozha One', 'Pretendard Variable', Georgia, serif;
   --script: 'Noto Serif Display', Georgia, serif;
   --script-weight: 600;
   --marquee: 'Rozha One', 'Pretendard Variable', Georgia, serif;
-  --title: 'Noto Serif Display', Georgia, serif;
+  --title: 'Great Vibes', 'Noto Serif Display', Georgia, cursive;
   --korean: 'Pretendard Variable', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
   --ease: cubic-bezier(.16, 1, .3, 1);
   --ease-photo: cubic-bezier(.2, .65, .3, 1);
@@ -103,10 +103,10 @@ h1, h2, h3 { font-weight: 400; }
 .poster-studio { padding: max(24px, env(safe-area-inset-top)) 20px 0; text-align: center; font-family: var(--display); font-size: 11px; letter-spacing: .34em; color: var(--cream-2); text-shadow: 0 1px 10px rgb(0 0 0 / .6); }
 .poster-studio span { font-family: var(--script); font-style: italic; font-weight: var(--script-weight); letter-spacing: .1em; }
 .poster-body { margin-top: auto; padding: 0 22px calc(20px + env(safe-area-inset-bottom)); text-align: center; }
-.poster-title { --t-size: clamp(46px, 15vw, 74px); display: grid; justify-items: center; margin-top: clamp(14px, 4.5vw, 24px); padding: 0 18px; font-family: var(--title); font-weight: 400; color: var(--cream); line-height: 1; text-align: center; text-shadow: 0 2px 22px rgb(0 0 0 / .45); }
+.poster-title { --t-size: clamp(62px, 20vw, 98px); display: grid; justify-items: center; margin-top: clamp(18px, 5.5vw, 28px); padding: 0 18px; font-family: var(--title); font-weight: 400; color: var(--cream); line-height: 1; text-align: center; text-shadow: 0 2px 22px rgb(0 0 0 / .45); }
 .poster-title > span { display: block; }
-/* Two lines, each centred on the axis (the nudge in movie.ts), as on the paper invitation's front. */
-.t-line { position: relative; font-size: var(--t-size); font-weight: 600; line-height: 1; padding: 0 .1em; }
+/* Three lines, each centred on the axis by its ink (the nudge in movie.ts), as on the paper invitation's front. */
+.t-line { position: relative; font-size: var(--t-size); font-weight: 400; line-height: .85; padding: 0 .1em; }
 .poster-credits { display: flex; justify-content: space-between; margin: 0 2px; }
 .poster-credits p { display: grid; justify-items: start; }
 .poster-credits p + p { justify-items: end; }
@@ -134,7 +134,8 @@ h1, h2, h3 { font-weight: 400; }
 .cover-ready :where(.t-line) { transition: clip-path .9s cubic-bezier(.6, .05, .25, 1); }
 .cover-ready .poster-studio { transition-delay: .1s; }
 .cover-ready .t-line:nth-child(1) { transition-delay: .3s; }
-.cover-ready .t-line:nth-child(2) { transition-delay: .6s; }
+.cover-ready .t-line:nth-child(2) { transition-delay: .55s; }
+.cover-ready .t-line:nth-child(3) { transition-delay: .8s; }
 .cover-ready .poster-credits { transition-delay: 1.2s; }
 .cover-ready .poster-when { transition-delay: 1.32s; }
 .cover-ready .poster-where { transition-delay: 1.4s; }
@@ -195,7 +196,7 @@ h1, h2, h3 { font-weight: 400; }
 .ticket-face::before { top: -5px; }
 .ticket-face::after { bottom: -5px; }
 .ticket-top { display: flex; justify-content: space-between; padding-bottom: 11px; border-bottom: 1px solid rgb(31 38 25 / .25); font-family: var(--marquee); font-size: 12px; letter-spacing: .14em; }
-.ticket-title { display: block; margin: 12px 0 14px; font-family: var(--title); font-weight: 600; font-size: 28px; line-height: 1.1; }
+.ticket-title { display: block; margin: 10px 0 12px; font-family: var(--title); font-weight: 400; font-size: 38px; line-height: 1.1; }
 .ticket-rows { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 14px; }
 .ticket-row, .ticket-place { display: grid; gap: 2px; }
 .ticket-rows .k, .ticket-place .k { font-family: var(--marquee); font-size: 9.5px; letter-spacing: .14em; opacity: .62; }
@@ -332,7 +333,7 @@ h1, h2, h3 { font-weight: 400; }
 
 /* The end */
 .the-end { padding: 70px var(--gutter) calc(60px + env(safe-area-inset-bottom)); text-align: center; border-top: 1px solid var(--line); }
-.end-title { font-family: var(--title); font-size: 46px; font-weight: 600; line-height: 1; }
+.end-title { font-family: var(--script); font-size: 46px; font-weight: var(--script-weight); line-height: 1; }
 .end-line { margin-top: 14px; font-size: 15px; color: var(--cream-2); }
 /* 처음으로 and the link back to the classic edition (/) sit side by side. */
 .footer-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 0 22px; margin-top: 28px; }

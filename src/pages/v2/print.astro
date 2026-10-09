@@ -6,7 +6,7 @@
 import { getImage } from 'astro:assets';
 import QRCode from 'qrcode';
 import '@fontsource/rozha-one/latin-400.css';
-import '@fontsource/noto-serif-display/latin-600.css';
+import '@fontsource/great-vibes/latin-400.css';
 import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css';
 import { wedding } from '../../data/wedding';
 import { movie } from '../../data/movie';
@@ -48,7 +48,7 @@ const ticketPath = [
     <style>
       @page { size: 106mm 156mm; margin: 0; }
       :root { --ink: #0c0c0d; --cream: #efe8da; --cream-2: #d6cebf; --gold: #e2c07c;
-        --serif: 'Rozha One', Georgia, serif; --title: 'Noto Serif Display', Georgia, serif; --korean: 'Pretendard Variable', 'Apple SD Gothic Neo', sans-serif;
+        --serif: 'Rozha One', Georgia, serif; --title: 'Great Vibes', Georgia, cursive; --korean: 'Pretendard Variable', 'Apple SD Gothic Neo', sans-serif;
         --bleed: 2mm; --safe: 6mm;
         /* The back: dark type on white, with the gold deepened so it reads on paper. */
         --text: #23201b; --text-2: #4a443b; --muted: #8b8376; --accent: #977434;
@@ -71,10 +71,10 @@ const ticketPath = [
       /* No text-shadow on the front: Chrome writes blurred shadows into the PDF as soft-masked tiles, and macOS
          Preview draws those as dark boxes behind the text. The shade alone keeps the white type legible. */
       .front-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgb(10 14 10 / .5) 0%, rgb(10 14 10 / .12) 24%, rgb(10 14 10 / 0) 34%, rgb(10 14 10 / 0) 64%, rgb(10 14 10 / .58) 84%, rgb(10 14 10 / .8) 100%); }
-      /* The film's title on two lines in Noto Serif Display SemiBold, each centred on the axis (the nudge in movie.ts),
-         as on the mobile cover; every other English word is Rozha One (--serif). Its ink starts as far inside the trim
-         as the billing's ends (10.2 mm), so the top and bottom margins match. */
-      .front-title { position: absolute; top: 9.77mm; left: var(--safe); right: var(--safe); display: grid; justify-items: center; font-family: var(--title); font-weight: 600; font-size: 43.4pt; line-height: 1; color: var(--cream); }
+      /* The film's title in Great Vibes on three lines, the card's one script, each centred on the axis by its ink
+         (the nudge in movie.ts), as on the mobile cover; every other English word is Rozha One (--serif). Its ink
+         starts as far inside the trim as the billing's ends (10.2 mm), so the top and bottom margins match. */
+      .front-title { position: absolute; top: 14.63mm; left: var(--safe); right: var(--safe); display: grid; justify-items: center; font-family: var(--title); font-weight: 400; font-size: 45.6pt; line-height: .85; color: var(--cream); }
       .front-title span { position: relative; }
       .front-foot { position: absolute; left: var(--safe); right: var(--safe); bottom: 11mm; display: grid; justify-items: center; gap: .8mm; font-family: var(--serif); font-size: 8pt; letter-spacing: .04em; color: var(--cream-2); text-align: center; }
       .front-foot .rule { width: 3mm; height: .25mm; margin: .8mm 0; background: var(--gold); }
@@ -109,7 +109,7 @@ const ticketPath = [
       .ticket-shape line { stroke: var(--accent); stroke-width: .25; stroke-dasharray: .8 .6; }
       .ticket-main, .ticket-stub { position: relative; display: grid; place-content: center; justify-items: center; }
       .ticket-label { font-family: var(--serif); font-size: var(--fs-small); letter-spacing: .14em; margin-right: -.14em; color: var(--accent); }
-      .ticket-title { margin-top: .6mm; font-family: var(--title); font-weight: 600; font-size: 15pt; line-height: 1.1; }
+      .ticket-title { margin-top: .4mm; font-family: var(--title); font-weight: 400; font-size: 20pt; line-height: 1.1; }
       .qr { width: 13mm; height: 13mm; }
       .qr :global(svg) { display: block; width: 100%; height: 100%; }
     </style>
