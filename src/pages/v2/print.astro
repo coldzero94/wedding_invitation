@@ -6,7 +6,6 @@
 import { getImage } from 'astro:assets';
 import QRCode from 'qrcode';
 import '@fontsource/rozha-one/latin-400.css';
-import '@fontsource/great-vibes/latin-400.css';
 import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css';
 import { wedding } from '../../data/wedding';
 import { movie } from '../../data/movie';
@@ -44,11 +43,11 @@ const ticketPath = [
   <head>
     <meta charset="UTF-8" />
     <meta name="robots" content="noindex, nofollow" />
-    <title>{movie.titleText} · 지류 청첩장 4x6 (인쇄용)</title>
+    <title>지류 청첩장 4x6 (인쇄용)</title>
     <style>
       @page { size: 106mm 156mm; margin: 0; }
       :root { --ink: #0c0c0d; --cream: #efe8da; --cream-2: #d6cebf; --gold: #e2c07c;
-        --serif: 'Rozha One', Georgia, serif; --title: 'Great Vibes', Georgia, cursive; --korean: 'Pretendard Variable', 'Apple SD Gothic Neo', sans-serif;
+        --serif: 'Rozha One', Georgia, serif; --korean: 'Pretendard Variable', 'Apple SD Gothic Neo', sans-serif;
         --bleed: 2mm; --safe: 6mm;
         /* The back: dark type on white, with the gold deepened so it reads on paper. */
         --text: #23201b; --text-2: #4a443b; --muted: #8b8376; --accent: #977434;
@@ -69,15 +68,9 @@ const ticketPath = [
       /* Front */
       .photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 50%; }
       /* No text-shadow on the front: Chrome writes blurred shadows into the PDF as soft-masked tiles, and macOS
-         Preview draws those as dark boxes behind the text. The shade alone keeps the white type legible. */
-      .front-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgb(10 14 10 / .5) 0%, rgb(10 14 10 / .12) 24%, rgb(10 14 10 / 0) 34%, rgb(10 14 10 / 0) 64%, rgb(10 14 10 / .58) 84%, rgb(10 14 10 / .8) 100%); }
-      /* The welcome, as on the mobile cover: one word in Great Vibes (the card's one script) centred on the axis by its
-         ink (the nudge in movie.ts), the rest in small spaced capitals of Rozha One (--serif) under it, the left
-         padding balancing the trailing letter-space. Its ink starts as far inside the trim as the billing's ends
-         (10.2 mm), so the top and bottom margins match. */
-      .front-title { position: absolute; top: 13.43mm; left: var(--safe); right: var(--safe); display: grid; justify-items: center; font-family: var(--title); font-weight: 400; font-size: 36pt; line-height: 1; color: var(--cream); }
-      .front-title .t-script { position: relative; }
-      .front-title .t-caps { margin-top: .6mm; padding-left: .34em; font-family: var(--serif); font-size: 9pt; letter-spacing: .34em; text-transform: uppercase; color: var(--cream-2); }
+         Preview draws those as dark boxes behind the text. The shade alone keeps the white type legible: only a soft
+         vignette at the top (no title there), dark at the foot behind the billing. */
+      .front-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgb(10 14 10 / .22) 0%, rgb(10 14 10 / 0) 18%, rgb(10 14 10 / 0) 64%, rgb(10 14 10 / .58) 84%, rgb(10 14 10 / .8) 100%); }
       .front-foot { position: absolute; left: var(--safe); right: var(--safe); bottom: 11mm; display: grid; justify-items: center; gap: .8mm; font-family: var(--serif); font-size: 8pt; letter-spacing: .04em; color: var(--cream-2); text-align: center; }
       .front-foot .rule { width: 3mm; height: .25mm; margin: .8mm 0; background: var(--gold); }
 
@@ -103,17 +96,14 @@ const ticketPath = [
       .loc-row { display: contents; }
       .loc-row dt { font-size: var(--fs-body); font-weight: 600; line-height: 1.65; }
       .loc-row dd { display: grid; font-size: var(--fs-small); line-height: 1.65; color: var(--text-2); word-break: keep-all; }
-      /* The QR code on a movie ticket at the foot of the list, as wide as the list: the film's title on the ticket,
-         the code on its stub. (No "영화 보러 가기": guests would wonder why a film.) */
+      /* The QR code on a movie ticket at the foot of the list, as wide as the list: the code on its stub,
+         its body a call to scan it. (No "영화 보러 가기": guests would wonder why a film.) */
       .ticket { position: relative; display: grid; margin-top: auto; }
       .ticket-shape { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; } /* the outline's outer half too */
       .ticket-shape path { fill: #f7f2e8; stroke: var(--accent); stroke-width: .2; }
       .ticket-shape line { stroke: var(--accent); stroke-width: .25; stroke-dasharray: .8 .6; }
       .ticket-main, .ticket-stub { position: relative; display: grid; place-content: center; justify-items: center; }
-      .ticket-label { font-family: var(--serif); font-size: var(--fs-small); letter-spacing: .14em; margin-right: -.14em; color: var(--accent); }
-      .ticket-title { display: grid; justify-items: center; margin-top: .6mm; }
-      .ticket-title .tt-script { font-family: var(--title); font-size: 18pt; line-height: 1; }
-      .ticket-title .tt-caps { margin-top: .2mm; padding-left: .26em; font-family: var(--serif); font-size: var(--fs-small); letter-spacing: .26em; text-transform: uppercase; color: var(--text-2); }
+      .ticket-label { font-family: var(--serif); font-size: 10pt; letter-spacing: .22em; margin-right: -.22em; color: var(--accent); }
       .qr { width: 13mm; height: 13mm; }
       .qr :global(svg) { display: block; width: 100%; height: 100%; }
     </style>
@@ -122,10 +112,6 @@ const ticketPath = [
     <section class="sheet front">
       <img class="photo" src={poster.src} alt={wedding.hero.alt} />
       <div class="front-shade"></div>
-      <h1 class="front-title" lang="en" aria-label={movie.titleText}>
-        <span class="t-script" style={`left: ${movie.title.nudge}em`}>{movie.title.script}</span>
-        <span class="t-caps">{movie.title.caps}</span>
-      </h1>
       <div class="front-foot" lang="en">
         <p>{shortDate} {weekday}&nbsp;&nbsp;{timeEn.replace(' ', '')}</p>
         <p>{paper.front.venue}</p>
@@ -161,7 +147,6 @@ const ticketPath = [
             </svg>
             <div class="ticket-main">
               <p class="ticket-label" lang="en">SCAN TO WATCH</p>
-              <p class="ticket-title" lang="en" aria-label={movie.titleText}><span class="tt-script">{movie.title.script}</span><span class="tt-caps">{movie.title.caps}</span></p>
             </div>
             <div class="ticket-stub"><div class="qr" role="img" aria-label="모바일 청첩장으로 가는 QR 코드" set:html={qr}></div></div>
           </div>

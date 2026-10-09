@@ -1,11 +1,9 @@
 ---
 import { Image, getImage } from 'astro:assets';
 import rozhaOne from '@fontsource/rozha-one/files/rozha-one-latin-400-normal.woff2?url';
-import greatVibes from '@fontsource/great-vibes/files/great-vibes-latin-400-normal.woff2?url';
 import notoSerifDisplayItalic from '@fontsource/noto-serif-display/files/noto-serif-display-latin-600-italic.woff2?url';
 import '@fontsource/rozha-one/latin-400.css';
-// The film's title in Great Vibes, as on the paper invitation; Noto Serif Display italic for the flourishes.
-import '@fontsource/great-vibes/latin-400.css';
+// Noto Serif Display italic for the flourishes (Groom, Bride, presents, The End).
 import '@fontsource/noto-serif-display/latin-600-italic.css';
 import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css';
 import '../../styles/movie.css';
@@ -76,7 +74,7 @@ const marqueeBulbs = (() => {
     <link rel="icon" type="image/svg+xml" href={root + 'favicon.svg'} />
     <link rel="apple-touch-icon" href={root + 'apple-touch-icon.png'} />
     <link rel="canonical" href={canonical.href} />
-    <title>{movie.titleText} | {title}</title>
+    <title>{title}</title>
     <script is:inline>
       if (location.hash === '#invitation') history.replaceState(null, '', location.pathname + location.search);
       document.documentElement.classList.add('js');
@@ -88,7 +86,6 @@ const marqueeBulbs = (() => {
       setTimeout(function () { document.documentElement.classList.add('cover-ready'); }, 4000);
     </script>
     <link rel="preload" as="font" type="font/woff2" href={rozhaOne} crossorigin />
-    <link rel="preload" as="font" type="font/woff2" href={greatVibes} crossorigin />
     <link rel="preload" as="font" type="font/woff2" href={notoSerifDisplayItalic} crossorigin />
     {kakao.key && <script is:inline defer src="https://developers.kakao.com/sdk/js/kakao.js"></script>}
     <noscript><style>[data-reveal] { opacity: 1 !important; transform: none !important; }</style></noscript>
@@ -110,10 +107,7 @@ const marqueeBulbs = (() => {
       <Image class="cover-image" src={hero.image} alt={wedding.hero.alt} style={{ objectPosition: movie.cover.position }} width={hero.width} height={hero.height} widths={hero.widths} sizes="(min-width: 600px) 520px, 100vw" format="webp" loading="eager" fetchpriority="high" />
       <div class="poster-shade"></div>
       <p class="poster-studio" lang="en">{movie.studio} <span>presents</span></p>
-      <h1 class="poster-title" lang="en" aria-label={movie.titleText}>
-        <span class="t-script" style={`left: ${movie.title.nudge}em`}>{movie.title.script}</span>
-        <span class="t-caps">{movie.title.caps}</span>
-      </h1>
+      <h1 class="visually-hidden">{title}</h1>
       <div class="poster-body">
         <div class="poster-credits">
           <p><span class="script" lang="en">Groom</span><span class="credit-name">{wedding.groom.name}</span></p>
@@ -138,7 +132,7 @@ const marqueeBulbs = (() => {
         var leaderDone = new Promise(function (resolve) { setTimeout(resolve, leader ? 1800 : 0); });
         var waits = [image.decode ? image.decode().catch(function () {}) : null];
         if (document.fonts && document.fonts.load) {
-          ['400 1em "Rozha One"', '400 1em "Great Vibes"', 'italic 600 1em "Noto Serif Display"', '300 1em "Pretendard Variable"'].forEach(function (font) {
+          ['400 1em "Rozha One"', 'italic 600 1em "Noto Serif Display"', '300 1em "Pretendard Variable"'].forEach(function (font) {
             waits.push(document.fonts.load(font, cover.textContent).catch(function () {}));
           });
         }
@@ -187,7 +181,6 @@ const marqueeBulbs = (() => {
             <span class="ticket-inner">
               <span class="ticket-face ticket-front">
                 <span class="ticket-top"><span lang="en">VIP TICKET</span><span lang="en">No. {String(month).padStart(2, '0')}{String(day).padStart(2, '0')}</span></span>
-                <span class="ticket-title" lang="en" aria-label={movie.titleText}><span class="tt-script">{movie.title.script}</span><span class="tt-caps">{movie.title.caps}</span></span>
                 <span class="ticket-rows">
                   <span class="ticket-row"><span class="k" lang="en">DATE</span><span class="v" lang="en">{shortDate} {weekday}</span></span>
                   <span class="ticket-row"><span class="k" lang="en">TIME</span><span class="v" lang="en">{timeEn}</span></span>
