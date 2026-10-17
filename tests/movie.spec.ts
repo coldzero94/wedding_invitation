@@ -17,7 +17,7 @@ test.describe('the movie edition (/v2/)', () => {
     await expect(page.locator('.cast')).toContainText('정해숙');
     await expect(page.locator('.cast')).toContainText('임원섭');
     await expect(page.locator('.cast')).not.toContainText('임OO');
-    await expect(page.locator('.gallery-thumb')).toHaveCount(32);
+    await expect(page.locator('.gallery-thumb')).toHaveCount(34);
     await expect(page.locator('.account-row')).toHaveCount(6);
     await expect(page.locator('.account-row', { hasText: '임원섭' })).toContainText('신한 606-12-087230');
     await expect(page.locator('.account-row', { hasText: '정해숙' })).toContainText('국민 263101-04-065980');

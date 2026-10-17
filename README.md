@@ -4,7 +4,7 @@
 
 [배포된 미리보기](https://coldzero94.github.io/wedding_invitation/) · [공개 저장소](https://github.com/coldzero94/wedding_invitation) · [배포·QR 기록](research/deployment.md)
 
-실제 이름·일정·장소·부모님 성함·양가 계좌와 웨딩 사진 32장을 넣어 발송용(release)으로 배포하고 있습니다.
+실제 이름·일정·장소·부모님 성함·양가 계좌와 웨딩 사진 34장을 넣어 발송용(release)으로 배포하고 있습니다.
 
 | 주소 | 내용 |
 | --- | --- |

@@ -107,7 +107,7 @@ The KakaoTalk in-app browser caches hard; if an old page shows, tell the user to
 
 `photos-inbox/` (ignored by Git) holds the originals. Originals carry GPS data and must never be committed; only the prepared copies go into `src/assets`.
 
-- **Gallery source:** the 32 top-level image files in `photos-inbox/`, named `NN-label-originalname.ext` (e.g. `01-main-laugh.jpeg`, `05-casual-MGA_9878.jpg`). The name order (numeric) is the gallery order. Only top-level files are used; subfolders are skipped.
+- **Gallery source:** the 34 top-level image files in `photos-inbox/`: 01 and 02 are the two photos added for the cover (2026-09-24), 03-34 the photographer's retouched set from Google Drive (replaced 2026-10-17; the earlier versions were deleted on request), named `NN-label-originalname.ext` (e.g. `01-main-laugh.jpeg`, `05-casual-MGA_9878.jpg`). The name order (numeric) is the gallery order. Only top-level files are used; subfolders are skipped.
 - **`npm run photos`:** rotates by EXIF, fits the long side to 2560 px, saves JPEG (quality 85), strips all metadata including GPS, converts HEIC (macOS only), then **replaces the whole gallery** with `src/assets/gallery/01.jpg`… It builds everything before replacing, so a failure leaves the gallery untouched.
 - **Renumbering:** adding, removing or reordering photos renumbers the gallery. Then update the photo numbers in `movie.ts` (`cover.photo`, `stripTop`, `stripBottom`, `poster`, `cookie`) and any `gallery` overrides in `wedding.ts`, and re-check the cover, the film strips and the paper front.
 - **01 is the main photo:** used for the movie cover (`movie.cover.photo`), the paper front, and first in the gallery. Its original is 1200 x 1800.
