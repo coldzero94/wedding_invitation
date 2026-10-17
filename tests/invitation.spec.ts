@@ -270,7 +270,7 @@ test('enlarged text keeps information available on a narrow screen', async ({ pa
   await expect(page.locator('.save-date-when')).toContainText('오후 12시 10분');
 });
 
-test('the parking guide opens full screen with both images and closes with Back', async ({ page }) => {
+test('the parking guide opens the route photo full screen and closes with Back', async ({ page }) => {
   await page.goto('./');
   // Shared with the movie edition: subway exit 7, and the hospital lot marked [이대서울병원] with 2 hours free.
   await expect(page.locator('.transport')).toContainText('5호선 발산역 하차 7번 출구 (도보 3분~5분)');
@@ -278,7 +278,7 @@ test('the parking guide opens full screen with both images and closes with Back'
   await page.getByRole('link', { name: '주차 안내 보기' }).click();
   const dialog = page.getByRole('dialog', { name: '주차 안내' });
   await expect(dialog).toBeVisible();
-  await expect(dialog.locator('img')).toHaveCount(2);
+  await expect(dialog.locator('img')).toHaveCount(1);
   await expect(dialog.locator('img').first()).toHaveAttribute('alt', /이대서울병원/);
   await page.goBack();
   await expect(dialog).toBeHidden();

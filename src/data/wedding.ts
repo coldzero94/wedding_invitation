@@ -1,7 +1,6 @@
 import hero from '../assets/photos/hero.jpg';
 import heroOg from '../assets/photos/og.jpg';
 import heroKakao from '../assets/photos/kakao.jpg';
-import parkingNotice from '../assets/parking/01-notice.jpg';
 import parkingRoute from '../assets/parking/02-route.jpg';
 import type { GalleryOverride } from '../lib/gallery-core';
 import { validateWedding } from '../lib/validate-wedding';
@@ -30,11 +29,13 @@ export const wedding = {
     // 줄바꿈은 \n 으로 넣습니다. [대괄호]로 감싼 말은 영화관 버전에서 금색으로 강조됩니다.
     transport: [
       { title: '지하철', description: '5호선 발산역 하차 7번 출구 (도보 3분~5분)' },
-      { title: '주차', description: '웨딩홀 건물 지하 4층 ~ 지하 1층 주차장 이용\n만차 시 [이대서울병원] 주차장 이용 · 2시간 무료\n외부 주차장 이용 시 웨딩홀 1층에서 주차 등록 필수' },
+      { title: '웨딩홀 건물 주차', description: '지하 4층 ~ 지하 1층 주차장 이용\n2시간 무료 · 자동 적용' },
+      { title: '이대서울병원 주차', description: '만차 시 [이대서울병원] 주차장 이용 · 2시간 무료\n출차 전 웨딩홀 5층 엘리베이터 앞 태블릿에서 차량번호 등록 필수\n주차권을 받은 경우 보관 후 현장 안내에 따라 제출해 주세요.' },
+      { title: '병원 주차 후 이동', description: 'C관 유도선을 따라 J·K·L 구역에 주차\nC관 엘리베이터 → 1층 남문 → 횡단보도\n길을 건넌 뒤 왼쪽으로 약 50m 이동' },
     ] as { title: string; description: string }[],
-    // Shown full screen from the 주차 안내 보기 button, in this order.
+    // Photo route shown full screen. The old 01-notice.jpg's 1F-only registration copy is retired;
+    // the movie dialog now renders the current, lot-specific instructions as readable text.
     parkingGuide: [
-      { image: parkingNotice, alt: '만차 시 이대서울병원 주차장 이용 안내: 주차 안내원이 주는 주차권을 받아 이대서울병원 주차장에 주차하고, C관 엘리베이터로 1층 남문 방향 출구로 나와 길을 건너 식장으로 이동합니다. 출차 전 컨벤션 1층 안내데스크에 주차권을 제출하고 차량을 등록해 주세요. 혼잡할 수 있으니 여유 있게 도착해 주세요.' },
       { image: parkingRoute, alt: '이대서울병원 주차 후 더뉴컨벤션 웨딩홀 찾아오는 길 8단계: C관 주차안내 유도선을 따라 C관 엘리베이터 근처 J·K·L 구역에 주차, C관 엘리베이터로 1층 이동, 오른쪽의 나가는 곳(남문) 표시를 따라 출구로 나가 바로 앞 횡단보도를 건넌 뒤 왼쪽으로 약 50m 가면 더뉴컨벤션 웨딩홀입니다.' },
     ],
   },

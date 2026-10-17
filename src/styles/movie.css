@@ -311,10 +311,10 @@ h1, h2, h3 { font-weight: 400; }
 .venue-hall { margin-top: 2px; font-size: 15px; color: var(--gold-soft); }
 .venue-address { margin-top: 10px; font-size: 15px; line-height: 1.7; color: var(--cream-2); word-break: keep-all; }
 .map-links { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px; }
-.transport { display: grid; gap: 18px; max-width: 420px; margin: 30px auto 0; }
-.transport dt { font-size: 13px; font-weight: 400; letter-spacing: .04em; color: var(--gold); }
-.transport dd { margin-top: 4px; font-size: 15px; line-height: 1.8; color: var(--cream-2); white-space: pre-line; word-break: keep-all; text-wrap: pretty; }
-.transport .point { font-weight: 500; color: var(--gold-soft); }
+.transport, .parking-transport { display: grid; gap: 18px; max-width: 420px; margin: 30px auto 0; }
+.transport dt, .parking-transport dt { font-size: 13px; font-weight: 400; letter-spacing: .04em; color: var(--gold); }
+.transport dd, .parking-transport dd { margin-top: 4px; font-size: 15px; line-height: 1.8; color: var(--cream-2); white-space: pre-line; word-break: keep-all; text-wrap: pretty; }
+.transport .point, .parking-transport .point { font-weight: 500; color: var(--gold-soft); }
 .parking-button { width: 100%; max-width: 420px; margin-top: 26px; }
 
 /* Ending credits */
@@ -410,6 +410,10 @@ dialog[open]::backdrop { opacity: 1; }
 .parking-header { position: sticky; top: 0; z-index: 1; display: flex; align-items: center; justify-content: space-between; padding: max(6px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) 6px max(22px, env(safe-area-inset-left)); background: var(--bg); border-bottom: 1px solid var(--line); }
 .parking-header h2 { font-size: 17px; font-weight: 400; }
 .parking-images { display: grid; gap: 16px; max-width: 720px; margin: 0 auto; padding: 16px 12px max(24px, env(safe-area-inset-bottom)); }
+.parking-summary { padding: 8px 12px; }
+.parking-summary h3 { max-width: 420px; margin: 0 auto; font-size: 20px; }
+.parking-summary .parking-transport { margin-top: 22px; }
+.parking-photo-label { max-width: 420px; margin: 28px auto 0; padding-top: 20px; border-top: 1px solid var(--line); font-size: 13px; line-height: 1.7; color: var(--muted); }
 .parking-images img { width: 100%; border-radius: 4px; }
 .share-sheet { width: 100%; max-width: 480px; margin: auto auto 0; padding: 6px 0 max(14px, env(safe-area-inset-bottom)); border: 0; border-top: 1px solid var(--line); border-radius: 16px 16px 0 0; transform: translateY(24px); }
 .share-sheet[open] { transform: none; }

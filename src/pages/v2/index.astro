@@ -428,6 +428,13 @@ const marqueeBulbs = (() => {
     {parkingGuide.length > 0 && <dialog class="parking-dialog" id="parking-dialog" aria-labelledby="parking-title" autofocus>
       <div class="parking-header"><h2 id="parking-title">주차 안내</h2><button type="button" class="icon-button" data-close-parking aria-label="주차 안내 닫기"><Icon name="close" size={24} /></button></div>
       <div class="parking-images">
+        <section class="parking-summary" aria-labelledby="parking-summary-title">
+          <h3 id="parking-summary-title">주차장별 이용 안내</h3>
+          <dl class="parking-transport">
+            {wedding.venue.transport.filter((item) => item.title !== '지하철').map((item) => <div><dt>{item.title}</dt><dd>{item.description.split(/(\[[^\]]+\])/).map((part) => /^\[.+\]$/.test(part) ? <strong class="point">{part}</strong> : part)}</dd></div>)}
+          </dl>
+          <p class="parking-photo-label">이대서울병원에서 웨딩홀까지<br />사진을 확대해 이동 경로를 확인해 주세요.</p>
+        </section>
         {parkingGuide.map((item) => <img src={item.image.src} srcset={item.image.srcSet.attribute} sizes="(min-width: 760px) 720px, 100vw" width={item.image.attributes.width} height={item.image.attributes.height} alt={item.alt} loading="lazy" decoding="async" />)}
       </div>
     </dialog>}

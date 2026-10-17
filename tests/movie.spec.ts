@@ -375,6 +375,15 @@ test.describe('the movie edition (/v2/)', () => {
     await expect(page.locator('.transport')).toContainText('5호선 발산역 하차 7번 출구 (도보 3분~5분)');
     await expect(page.locator('.transport .point')).toHaveText('[이대서울병원]');
     await expect(page.locator('.transport')).toContainText('2시간 무료');
+    // The two lots have different registration rules; the photo dialog must agree with the page.
+    const directions = page.locator('#location .transport');
+    await expect(directions.locator('div', { has: page.locator('dt', { hasText: '웨딩홀 건물 주차' }) })).toContainText('자동 적용');
+    await expect(directions.locator('div', { has: page.locator('dt', { hasText: '이대서울병원 주차' }) })).toContainText('5층 엘리베이터 앞 태블릿');
+    await page.locator('[data-open-parking]').click();
+    await expect(page.locator('#parking-dialog')).toContainText('5층 엘리베이터 앞 태블릿');
+    await expect(page.locator('#parking-dialog img')).toHaveCount(1);
+    await expect(page.locator('#parking-dialog img')).toHaveAttribute('alt', /C관.*J·K·L.*남문/);
+    await expect(page.locator('#parking-dialog')).not.toContainText('1층 안내데스크');
   });
 
   test('the paper invitation: the Our First Page front, a white back in two halves, nothing under 8 pt', async ({ page }) => {
