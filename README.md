@@ -2,7 +2,7 @@
 
 선택한 [Concept 01 사진 앨범 v2](research/mockups/concept-01-photo-album-v2.png)를 바탕으로 만든 Astro 정적 사이트입니다. 동영상 없이 사진과 글로 구성합니다.
 
-[배포된 미리보기](https://coldzero94.github.io/wedding_invitation/) · [공개 저장소](https://github.com/coldzero94/wedding_invitation) · [배포·QR 기록](research/deployment.md) · [작업 안내(AGENTS.md)](AGENTS.md)
+[배포된 미리보기](https://coldzero94.github.io/wedding_invitation/) · [공개 저장소](https://github.com/coldzero94/wedding_invitation) · [배포·QR 기록](research/deployment.md) · [에이전트 작업 안내(AGENTS.md, 영어)](AGENTS.md)
 
 실제 이름·일정·장소·부모님 성함·양가 계좌와 웨딩 사진 32장을 넣어 발송용(release)으로 배포하고 있습니다. 기본 버전은 `/`, 영화관 콘셉트 버전은 `/v2/`에 있고 두 버전은 `src/data/wedding.ts`를 함께 씁니다. 같은 콘셉트의 4x6 지류 청첩장 인쇄용 페이지는 `/v2/print/`입니다.
 
