@@ -227,10 +227,9 @@ const marqueeBulbs = (() => {
                 </span>
                 <span class="ticket-stub">
                   <span class="ticket-admit" lang="en">ADMIT ONE</span>
-                  <span class="ticket-theater" lang="en">OUR WEDDING</span>
+                  <span class="ticket-theater" lang="en">STARRING</span>
                   <span class="ticket-admission">
-                    <span class="ticket-monogram" lang="en" aria-hidden="true"><span>{movie.namesEn.groom[0]}</span><span class="ticket-join">&amp;</span><span>{movie.namesEn.bride[0]}</span></span>
-                    <span class="ticket-couple">{wedding.groom.name} · {wedding.bride.name}</span>
+                    <span class="ticket-couple"><span>{wedding.groom.name}</span><span class="ticket-name-join">그리고</span><span>{wedding.bride.name}</span></span>
                     <span class="ticket-stub-date" lang="en">{String(month).padStart(2, '0')}<span>·</span>{String(day).padStart(2, '0')}</span>
                   </span>
                   <span class="ticket-flip-cue"><span lang="en">TURN OVER</span><span>날짜 보기</span></span>
@@ -252,14 +251,13 @@ const marqueeBulbs = (() => {
                   </span>
                   <span class="ticket-back-note">{longDate}<br /><span>{time}</span></span>
                 </span>
-                <span class="ticket-stub">
-                  <span class="ticket-admit" lang="en">SAVE THE DATE</span>
-                  <span class="ticket-day" lang="en">{String(day).padStart(2, '0')}</span>
+                <span class="ticket-stub ticket-countdown-stub">
+                  <span class="ticket-admit" lang="en">COUNTDOWN</span>
                   <span class="countdown" data-event-date={wedding.date} data-time-zone={wedding.timeZone}>
                     <span class="countdown-label">결혼식까지 남은 시간</span>
                     <span class="countdown-clock" role="timer" hidden>
                       {[['d', 'DAYS'], ['h', 'HRS'], ['m', 'MIN'], ['s', 'SEC']].map(([unit, label], index) => (
-                        <span class="countdown-unit" style={`--counter-order: ${index}`}><span class="countdown-num" data-unit={unit}>00</span><span class="countdown-name" lang="en">{label}</span></span>
+                        <span class="countdown-unit" style={`--counter-order: ${index}`}><span class="flip-number"><span class="countdown-num" data-unit={unit}>00</span></span><span class="countdown-name" lang="en">{label}</span></span>
                       ))}
                     </span>
                   </span>

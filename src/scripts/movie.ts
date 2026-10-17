@@ -7,11 +7,12 @@ const ticketWrap = ticket?.closest<HTMLElement>('.ticket-wrap');
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
 let arrivalFrame = 0;
 let arrivalTimer = 0;
+const paperFlips = new Map<HTMLElement, () => void>();
 function stopTicketArrival() {
   cancelAnimationFrame(arrivalFrame);
   clearTimeout(arrivalTimer);
   ticket?.classList.remove('is-back-arriving');
-  ticket?.querySelectorAll<HTMLElement>('.countdown-num').forEach((number) => number.getAnimations().forEach((animation) => animation.cancel()));
+  [...paperFlips.values()].forEach((stop) => stop());
 }
 ticket?.addEventListener('click', () => {
   stopTicketArrival();
@@ -28,12 +29,47 @@ ticket?.addEventListener('click', () => {
   }
 });
 
-// Roll only digits that actually changed, while the back is visible. The shared countdown remains
-// the source of truth; no fake intermediate numbers are written into its timer or accessible text.
+// Fold the old upper half away, then unfold the new lower half. The static live number underneath
+// already contains the new value; the three temporary paper leaves are hidden from screen readers.
+function flipPaperNumber(number: HTMLElement, previous: string, next: string) {
+  paperFlips.get(number)?.();
+  const panel = number.closest('.flip-number');
+  if (!panel) return;
+  const sheet = (classes: string, value: string) => {
+    const leaf = document.createElement('span');
+    leaf.className = 'flip-sheet ' + classes;
+    leaf.setAttribute('aria-hidden', 'true');
+    const ink = document.createElement('span');
+    ink.textContent = value;
+    leaf.append(ink);
+    panel.append(leaf);
+    return leaf;
+  };
+  const oldBottom = sheet('flip-sheet--bottom', previous);
+  const oldTop = sheet('flip-sheet--top', previous);
+  const newBottom = sheet('flip-sheet--bottom flip-sheet--incoming', next);
+  const animations = [
+    oldTop.animate([{ transform: 'rotateX(0deg)' }, { transform: 'rotateX(-90deg)' }], { duration: 260, easing: 'cubic-bezier(.55, 0, 1, .45)', fill: 'forwards' }),
+    newBottom.animate([{ transform: 'rotateX(90deg)' }, { transform: 'rotateX(0deg)' }], { duration: 260, delay: 260, easing: 'cubic-bezier(0, .55, .45, 1)', fill: 'both' }),
+  ];
+  let stopped = false;
+  const stop = () => {
+    if (stopped) return;
+    stopped = true;
+    animations.forEach((animation) => animation.cancel());
+    [oldBottom, oldTop, newBottom].forEach((leaf) => leaf.remove());
+    paperFlips.delete(number);
+  };
+  paperFlips.set(number, stop);
+  void Promise.all(animations.map((animation) => animation.finished)).then(stop, stop);
+}
+
+// Observe real countdown changes on either face so a later flip starts with current values.
 const ticketClock = ticket?.querySelector('.countdown-clock');
 if (ticket && ticketClock) {
+  const previousValues = new WeakMap<HTMLElement, string>();
+  ticketClock.querySelectorAll<HTMLElement>('.countdown-num').forEach((number) => previousValues.set(number, number.textContent ?? ''));
   new MutationObserver((records) => {
-    if (!ticket.classList.contains('is-flipped') || ticket.classList.contains('is-back-arriving') || reduceMotion.matches) return;
     const changed = new Set<HTMLElement>();
     records.forEach(({ target }) => {
       const element = target instanceof Element ? target : target.parentElement;
@@ -41,8 +77,11 @@ if (ticket && ticketClock) {
       if (number) changed.add(number);
     });
     changed.forEach((number) => {
-      number.getAnimations().forEach((animation) => animation.cancel());
-      number.animate([{ opacity: .25, transform: 'translateY(30%)' }, { opacity: 1, transform: 'translateY(0)' }], { duration: 240, easing: 'cubic-bezier(.16, 1, .3, 1)' });
+      const next = number.textContent ?? '';
+      const previous = previousValues.get(number) ?? next;
+      previousValues.set(number, next);
+      if (previous === next || !ticket.classList.contains('is-flipped') || ticket.classList.contains('is-back-arriving') || reduceMotion.matches) return;
+      flipPaperNumber(number, previous, next);
     });
   }).observe(ticketClock, { childList: true, characterData: true, subtree: true });
 }

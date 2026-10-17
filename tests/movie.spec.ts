@@ -87,8 +87,8 @@ for (const engine of ['chromium', 'webkit'] as const) {
       await expect(ticket.locator('.ticket-title')).toHaveText('Our First Page');
       await expect(ticket.locator('.ticket-front')).not.toContainText('The Greatest Love Story');
       await expect(ticket.locator('.ticket-qr, .ticket-qr-wrap')).toHaveCount(0);
-      await expect(ticket.locator('.ticket-monogram')).toHaveText('C&Y');
-      await expect(ticket.locator('.ticket-couple')).toHaveText('찬영 · 예지');
+      await expect(ticket.locator('.ticket-monogram')).toHaveCount(0);
+      await expect(ticket.locator('.ticket-couple')).toHaveText(/찬영\s*그리고\s*예지/);
       await expect(ticket.locator('.ticket-stub-date')).toHaveText('03·13');
       await expect(ticket.locator('.barcode rect')).toHaveCount(57);
       for (const width of [320, 360, 390, 430]) {
@@ -117,7 +117,7 @@ for (const engine of ['chromium', 'webkit'] as const) {
             return {
               columnsFit: main.offsetLeft + main.offsetWidth <= stub.offsetLeft + 1 && stub.offsetLeft + stub.offsetWidth <= face.clientWidth + 1,
               textFits: [...face.querySelectorAll<HTMLElement>('.ticket-main, .ticket-stub, .ticket-row, .ticket-title, .mini-calendar')].every((el) => el.scrollWidth <= el.clientWidth + 1 && el.scrollHeight <= el.clientHeight + 1),
-              timerFits: [...face.querySelectorAll<HTMLElement>('.countdown-num')].every((el, index, all) => {
+              timerFits: [...face.querySelectorAll<HTMLElement>('.countdown-unit')].every((el, index, all) => {
                 const next = all[index + 1];
                 return !next || el.offsetTop !== next.offsetTop || el.offsetLeft + el.offsetWidth < next.offsetLeft;
               }),
@@ -154,8 +154,11 @@ for (const engine of ['chromium', 'webkit'] as const) {
       await expect(page.locator('.ticket-wrap')).toHaveAttribute('data-ring-count', '1');
       await expect.poll(() => ticket.locator('.cal-day-ring ellipse').evaluate((el) => parseFloat(getComputedStyle(el).strokeDashoffset))).toBe(0);
       await expect(ticket).not.toHaveClass(/is-back-arriving/);
-      // Real second changes roll the actual digit after the entrance; the timer text is never faked.
-      await page.waitForFunction(() => document.querySelector<HTMLElement>('.ticket-back [data-unit="s"]')!.getAnimations().some((animation) => animation.playState === 'running'));
+      // A real tick folds separate upper and lower paper leaves; the accessible number stays singular.
+      await page.waitForFunction(() => [...document.querySelectorAll('.flip-sheet')].some((sheet) => sheet.getAnimations().some((animation) => animation.playState === 'running')));
+      await expect(ticket.locator('.flip-number').filter({ has: page.locator('[data-unit="s"]') }).locator('.flip-sheet')).toHaveCount(3);
+      expect(await ticket.locator('.flip-sheet').evaluateAll((sheets) => sheets.every((sheet) => sheet.getAttribute('aria-hidden') === 'true'))).toBe(true);
+      await expect(ticket.locator('.ticket-day')).toHaveCount(0);
       await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
       await expect(ticket).not.toBeInViewport();
       await ticket.scrollIntoViewIfNeeded();
@@ -177,6 +180,7 @@ for (const engine of ['chromium', 'webkit'] as const) {
       await page.evaluate(() => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
       await expect(ticket).toHaveAttribute('aria-pressed', 'false');
       await expect(ticket).not.toHaveClass(/is-back-arriving/);
+      await expect(ticket.locator('.flip-sheet')).toHaveCount(0);
     } finally {
       await browser.close();
     }
@@ -222,7 +226,7 @@ test.describe('the movie edition (/v2/)', () => {
     await expect.poll(() => face('front')).toBe('hidden');
     await expect(page.locator('.ticket-front')).toHaveAttribute('aria-hidden', 'true');
     await expect(page.locator('.ticket-back')).toHaveAttribute('aria-hidden', 'false');
-    await expect(ticket).toHaveAccessibleName(/SHOWTIME.*2027.*SAVE.*THE DATE/);
+    await expect(ticket).toHaveAccessibleName(/SHOWTIME.*2027.*COUNTDOWN/);
     await expect(page.locator('.cal-day.is-day')).toHaveText('13');
     await expect(page.locator('.ticket-back [data-unit="d"]')).not.toHaveText('00');
     await ticket.click();

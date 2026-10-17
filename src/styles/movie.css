@@ -204,10 +204,9 @@ h1, h2, h3 { font-weight: 400; }
 .ticket-admit { font-family: var(--marquee); font-size: 2.8cqw; line-height: 1.2; letter-spacing: .1em; white-space: nowrap; }
 .ticket-theater { margin-top: .7cqw; font-family: var(--marquee); font-size: 2cqw; line-height: 1.2; letter-spacing: .05em; color: #454e36; white-space: nowrap; }
 .ticket-admission { display: grid; justify-items: center; align-content: center; gap: 1cqw; flex: 1; width: 100%; padding: 1.6cqw 0 .8cqw; }
-.ticket-monogram { display: flex; align-items: baseline; justify-content: center; gap: .5cqw; font-family: var(--script); font-style: italic; font-weight: 600; font-size: 9cqw; line-height: 1.05; letter-spacing: -.06em; padding: .6cqw 1cqw; }
-.ticket-join { align-self: center; font-size: 4.5cqw; margin-inline: .6cqw; }
-.ticket-couple { font-size: 2.6cqw; font-weight: 500; line-height: 1.2; letter-spacing: .08em; }
-.ticket-stub-date { display: flex; align-items: baseline; gap: 1.1cqw; margin-top: .4cqw; font-family: var(--display); font-size: 3.8cqw; line-height: 1.1; }
+.ticket-couple { display: grid; justify-items: center; gap: .6cqw; font-size: 5cqw; font-weight: 400; line-height: 1.15; letter-spacing: .18em; padding-left: .18em; }
+.ticket-name-join { font-size: 1.65cqw; letter-spacing: .05em; color: #454e36; }
+.ticket-stub-date { display: flex; align-items: baseline; gap: 1.1cqw; margin-top: .4cqw; font-family: var(--display); font-size: 3cqw; line-height: 1.1; }
 .ticket-stub-date > span { font-size: 2.6cqw; }
 .ticket-flip-cue { display: grid; gap: .3cqw; margin-top: 1.5cqw; font-size: 2.15cqw; font-weight: 500; line-height: 1.2; }
 .ticket-flip-cue > [lang='en'] { font-family: var(--marquee); font-size: 2cqw; letter-spacing: .11em; }
@@ -224,7 +223,6 @@ h1, h2, h3 { font-weight: 400; }
 .cal-day-ring { position: absolute; inset: -.35cqw; width: calc(100% + .7cqw); height: calc(100% + .7cqw); overflow: visible; }
 .cal-day-ring ellipse { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 0; }
 .ticket-back .ticket-admit { font-size: 2.3cqw; }
-.ticket-day { display: block; margin-top: .8cqw; font-family: var(--display); font-size: 7.5cqw; line-height: 1; }
 .countdown-label { display: block; font-size: 12px; font-weight: 400; }
 .countdown-clock { display: flex; justify-content: center; gap: 4px; margin-top: 6px; }
 .countdown-clock[hidden] { display: none; }
@@ -232,27 +230,36 @@ h1, h2, h3 { font-weight: 400; }
 .countdown-unit + .countdown-unit { border-left: 1px solid rgb(31 38 25 / .22); }
 .countdown-num { font-family: var(--display); font-size: 26px; line-height: 1.1; font-variant-numeric: lining-nums tabular-nums; }
 .countdown-name { font-family: var(--marquee); font-size: 9px; letter-spacing: .12em; opacity: .6; }
-.ticket-back .countdown { display: block; width: 100%; margin-top: auto; padding-top: 1cqw; border-top: .16cqw solid rgb(31 38 25 / .25); text-align: center; }
-.ticket-back .countdown-label { font-size: 1.8cqw; line-height: 1.3; word-break: keep-all; }
-.ticket-back .countdown-clock { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1cqw .6cqw; margin-top: 1cqw; }
+.ticket-back .countdown { display: block; width: 100%; margin-block: auto; padding-top: 1.2cqw; text-align: center; }
+.ticket-back .countdown-label { font-size: 2cqw; line-height: 1.3; word-break: keep-all; }
+.ticket-back .countdown-clock { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.6cqw .8cqw; margin-top: 2cqw; }
 .ticket-back .countdown-clock[hidden] { display: none; }
 .ticket-back .countdown-unit { min-width: 0; }
 .ticket-back .countdown-unit + .countdown-unit { border: 0; }
-.ticket-back .countdown-num { font-size: 2.8cqw; }
 .ticket-back .countdown-unit:first-child { grid-column: 1 / -1; }
-.ticket-back .countdown-unit:first-child .countdown-num { font-size: 5cqw; }
-.ticket-back .countdown-name { font-size: 1.4cqw; letter-spacing: .05em; color: #454e36; opacity: 1; }
+.ticket-back .countdown-name { padding-top: .6cqw; font-size: 1.6cqw; line-height: 1.1; letter-spacing: .05em; color: #454e36; opacity: 1; }
+/* Each number is a small paper block with a horizontal fold. Only the visual leaves are cloned;
+   the live, accessible number stays as one unchanged source element. */
+.flip-number { --flip-paper: #d1d5bb; position: relative; display: block; width: 100%; height: 6.5cqw; border: .12cqw solid rgb(31 38 25 / .2); border-radius: .45cqw; background: var(--flip-paper); perspective: 40cqw; font-family: var(--display); font-size: 4cqw; font-weight: 400; line-height: 1; font-variant-numeric: lining-nums tabular-nums; }
+.countdown-unit:first-child .flip-number { height: 11cqw; font-size: 8cqw; }
+.ticket-back .countdown-num { display: grid; place-items: center; height: 100%; font: inherit; }
+.flip-number::after { content: ''; position: absolute; z-index: 4; left: 0; right: 0; top: 50%; border-top: .12cqw solid rgb(31 38 25 / .22); pointer-events: none; }
+.flip-sheet { position: absolute; left: 0; right: 0; height: 50%; overflow: hidden; background: var(--flip-paper); -webkit-backface-visibility: hidden; backface-visibility: hidden; pointer-events: none; }
+.flip-sheet > span { position: absolute; left: 0; right: 0; display: grid; place-items: center; height: 200%; }
+.flip-sheet--top { top: 0; z-index: 3; transform-origin: center bottom; border-radius: .4cqw .4cqw 0 0; }
+.flip-sheet--top > span { top: 0; }
+.flip-sheet--bottom { bottom: 0; z-index: 1; transform-origin: center top; border-radius: 0 0 .4cqw .4cqw; }
+.flip-sheet--bottom > span { bottom: 0; }
+.flip-sheet--incoming { z-index: 2; }
 .ticket-back-note { display: block; margin-top: auto; padding-top: .8cqw; font-size: 2.1cqw; font-weight: 400; line-height: 1.3; }
 .ticket-back-note > br { display: none; }
 .ticket-back-note > span { margin-left: 1cqw; font-weight: 500; }
 .ticket-return { display: block; margin-top: auto; padding-top: 1cqw; font-size: 1.7cqw; font-weight: 400; line-height: 1.3; }
 .ticket.is-back-arriving .cal-day { animation: ticket-date-in .32s var(--ease) both; animation-delay: calc(.4s + var(--cal-order) * .012s); }
 .ticket.is-back-arriving .cal-day-ring ellipse { animation: ticket-date-ring .65s .65s ease-in-out both; }
-.ticket.is-back-arriving .ticket-day { animation: ticket-stamp-in .55s .45s var(--ease) both; }
-.ticket.is-back-arriving .countdown-num { animation: ticket-counter-in .45s var(--ease) both; animation-delay: calc(.55s + var(--counter-order) * .06s); }
+.ticket.is-back-arriving .flip-number { animation: ticket-counter-in .45s var(--ease) both; animation-delay: calc(.55s + var(--counter-order) * .06s); }
 @keyframes ticket-date-in { from { opacity: 0; transform: translateY(1cqw); } to { opacity: 1; transform: translateY(0); } }
 @keyframes ticket-date-ring { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
-@keyframes ticket-stamp-in { from { opacity: 0; transform: scale(1.15) rotate(-6deg); } to { opacity: 1; transform: scale(1) rotate(0); } }
 @keyframes ticket-counter-in { from { opacity: 0; transform: translateY(45%); } to { opacity: 1; transform: translateY(0); } }
 .ticket-hint { margin-top: 26px; font-size: 12px; font-weight: 400; color: var(--muted); }
 /* Returning to either face gives the same brief nudge; the inner flip stays independent. */
