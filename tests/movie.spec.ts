@@ -74,6 +74,91 @@ for (const [engine, safeArea] of [
   });
 }
 
+for (const engine of ['chromium', 'webkit'] as const) {
+  test(`the movie ticket fits small phones and flips with touch and keyboard (${engine})`, async ({ baseURL }) => {
+    const browser = await (engine === 'webkit' ? webkit : chromium).launch({ channel: engine === 'chromium' ? 'chrome' : undefined });
+    try {
+      const context = await browser.newContext({ ...devices[engine === 'webkit' ? 'iPhone 13' : 'Pixel 7'], reducedMotion: 'reduce' });
+      const page = await context.newPage();
+      await page.goto(new URL('v2/', baseURL!).href);
+      await page.evaluate(() => document.fonts.ready);
+      const ticket = page.locator('[data-ticket]');
+      await expect(ticket).toHaveAccessibleDescription(/Our First Page.*2027.*12시 10분.*제니스홀.*초대석/);
+      await expect(ticket.locator('.ticket-title')).toHaveText('Our First Page');
+      await expect(ticket.locator('.ticket-front')).not.toContainText('The Greatest Love Story');
+      const qrUrl = new URL((await ticket.locator('.ticket-qr').getAttribute('data-qr-url'))!);
+      expect(qrUrl.pathname).toBe(new URL(baseURL!).pathname + 'v2/');
+      await expect(ticket.locator('.ticket-qr svg')).toHaveCount(1);
+      await expect(ticket.locator('.barcode rect')).toHaveCount(57);
+      for (const width of [320, 360, 390, 430]) {
+        await page.setViewportSize({ width, height: 844 });
+        await ticket.scrollIntoViewIfNeeded();
+        const frontHeight = (await ticket.boundingBox())!.height;
+        await ticket.tap();
+        await expect(ticket).toHaveAttribute('aria-pressed', 'true');
+        await expect(ticket.locator('.ticket-back')).toBeVisible();
+        await expect(ticket.locator('.cal-day')).toHaveCount(31);
+        await expect(ticket.locator('.cal-day.is-day')).toHaveText('13');
+        expect((await ticket.boundingBox())!.height).toBeCloseTo(frontHeight, 1);
+        const layout = await ticket.evaluate((button) => ({
+          pageFits: document.documentElement.scrollWidth <= innerWidth,
+          faces: [...button.querySelectorAll<HTMLElement>('.ticket-face')].map((face) => {
+            const main = face.querySelector<HTMLElement>('.ticket-main')!;
+            const stub = face.querySelector<HTMLElement>('.ticket-stub')!;
+            return {
+              columnsFit: main.offsetLeft + main.offsetWidth <= stub.offsetLeft + 1 && stub.offsetLeft + stub.offsetWidth <= face.clientWidth + 1,
+              textFits: [...face.querySelectorAll<HTMLElement>('.ticket-main, .ticket-stub, .ticket-row, .ticket-title, .mini-calendar')].every((el) => el.scrollWidth <= el.clientWidth + 1),
+              timerFits: [...face.querySelectorAll<HTMLElement>('.countdown-num')].every((el, index, all) => {
+                const next = all[index + 1];
+                return !next || el.offsetTop !== next.offsetTop || el.offsetLeft + el.offsetWidth < next.offsetLeft;
+              }),
+            };
+          }),
+        }));
+        expect(layout).toEqual({ pageFits: true, faces: [{ columnsFit: true, textFits: true, timerFits: true }, { columnsFit: true, textFits: true, timerFits: true }] });
+        await ticket.tap();
+        await expect(ticket).toHaveAttribute('aria-pressed', 'false');
+      }
+      await expect(page.locator('.ticket-wrap')).not.toHaveClass(/is-peeking/);
+      // Re-entering the central viewport nudges either face again; tiny scrolls do not repeat it.
+      await page.locator('.ticket-wrap').evaluate((wrap) => {
+        const el = wrap as HTMLElement;
+        el.dataset.hintCount = '0';
+        el.addEventListener('animationstart', (event) => {
+          if ((event as AnimationEvent).animationName === 'ticket-peek') el.dataset.hintCount = String(Number(el.dataset.hintCount) + 1);
+        });
+      });
+      await page.emulateMedia({ reducedMotion: 'no-preference' });
+      await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+      await expect(ticket).not.toBeInViewport();
+      await ticket.scrollIntoViewIfNeeded();
+      await expect(page.locator('.ticket-wrap')).toHaveAttribute('data-hint-count', '1');
+      // Exercise the actual WebKit face swap with animation, then revisit the back before flipping again.
+      // Tap coordinates directly so the touch happens during the nudge instead of waiting for stability.
+      const movingTicket = (await ticket.boundingBox())!;
+      await page.touchscreen.tap(movingTicket.x + movingTicket.width / 2, movingTicket.y + movingTicket.height / 2);
+      await expect(ticket.locator('.ticket-back')).toBeVisible();
+      await expect(ticket.locator('.ticket-front')).toBeHidden();
+      await expect(page.locator('.ticket-hint')).toBeVisible();
+      await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+      await expect(ticket).not.toBeInViewport();
+      await ticket.scrollIntoViewIfNeeded();
+      await expect(page.locator('.ticket-wrap')).toHaveAttribute('data-hint-count', '2');
+      await expect(ticket).toHaveAttribute('aria-pressed', 'true');
+      // Small scrolls stay within the entry/exit band and must not keep restarting the hint.
+      await page.evaluate(() => window.scrollBy({ top: 10, behavior: 'instant' }));
+      await expect(page.locator('.ticket-wrap')).toHaveAttribute('data-hint-count', '2');
+      await ticket.focus();
+      await page.keyboard.press('Enter');
+      await expect(ticket).toHaveAttribute('aria-pressed', 'false');
+      await expect(ticket.locator('.ticket-front')).toBeVisible();
+      await expect(page.locator('.ticket-hint')).toBeVisible();
+    } finally {
+      await browser.close();
+    }
+  });
+}
+
 // The movie-theater edition lives beside the original at /v2/ and shares its data and scripts.
 test.describe('the movie edition (/v2/)', () => {
   test('renders the poster, strips, ticket, credits and cookie without errors', async ({ page }) => {
@@ -85,7 +170,7 @@ test.describe('the movie edition (/v2/)', () => {
     await expect(page.locator('h1')).toHaveText('Our First Page');
     expect(await page.locator('.poster-title').evaluate((el) => getComputedStyle(el).fontFamily)).toMatch(/^"?Fraunces/);
     await expect(page.locator('.cover-doodles path')).toHaveCount(5);
-    await expect(page.locator('.ticket-title')).toHaveCount(0);
+    await expect(page.locator('.ticket-title')).toHaveText('Our First Page');
     await expect(page.locator('.cover')).not.toContainText(/welcome|love wins/i);
     await expect(page.locator('.quote')).toContainText('3000만큼 사랑해');
     await expect(page.locator('.film-strip img').first()).toBeAttached();
@@ -111,10 +196,16 @@ test.describe('the movie edition (/v2/)', () => {
     await expect(ticket).toHaveAttribute('aria-pressed', 'true');
     await expect.poll(() => face('back')).toBe('visible');
     await expect.poll(() => face('front')).toBe('hidden');
+    await expect(page.locator('.ticket-front')).toHaveAttribute('aria-hidden', 'true');
+    await expect(page.locator('.ticket-back')).toHaveAttribute('aria-hidden', 'false');
+    await expect(ticket).toHaveAccessibleName(/SHOWTIME.*2027.*SAVE.*THE DATE/);
+    await expect(page.locator('.cal-day.is-day')).toHaveText('13');
     await expect(page.locator('.ticket-back [data-unit="d"]')).not.toHaveText('00');
     await ticket.click();
     await expect(ticket).toHaveAttribute('aria-pressed', 'false');
     await expect.poll(() => face('front')).toBe('visible');
+    await expect(page.locator('.ticket-front')).toHaveAttribute('aria-hidden', 'false');
+    await expect(page.locator('.ticket-back')).toHaveAttribute('aria-hidden', 'true');
   });
 
   test('shared features work here too: gallery, share sheet and the original page untouched', async ({ page }) => {
