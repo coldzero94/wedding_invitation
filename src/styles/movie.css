@@ -20,6 +20,9 @@
   --script: 'Noto Serif Display', Georgia, serif;
   --script-weight: 600;
   --marquee: 'Rozha One', 'Pretendard Variable', Georgia, serif;
+  /* The title, Our First Page, in Fraunces Bold Italic and the pale yellow of the couple's mock-up. */
+  --title: 'Fraunces', Georgia, serif;
+  --page: #fbeac4;
   --korean: 'Pretendard Variable', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
   --ease: cubic-bezier(.16, 1, .3, 1);
   --ease-photo: cubic-bezier(.2, .65, .3, 1);
@@ -94,40 +97,43 @@ h1, h2, h3 { font-weight: 400; }
 
 /* Poster cover */
 .cover { position: relative; isolation: isolate; display: flex; flex-direction: column; min-height: 700px; min-height: max(640px, 100svh); overflow: hidden; overflow: clip; background: var(--bg); }
-.cover-lqip, .cover-image, .poster-shade { position: absolute; z-index: -1; inset: 0; width: 100%; height: 100%; }
+.cover-lqip, .cover-image, .poster-shade, .cover-doodles { position: absolute; z-index: -1; inset: 0; width: 100%; height: 100%; }
 .cover-lqip { background-size: cover; }
 .cover-image { object-fit: cover; }
 /* Dark at the top behind the title, clear through the couple, dark again behind the billing. */
-.poster-shade { background: linear-gradient(180deg, rgb(8 8 9 / .66) 0%, rgb(8 8 9 / .32) 18%, rgb(8 8 9 / 0) 32%, rgb(8 8 9 / 0) 52%, rgb(8 8 9 / .42) 62%, rgb(8 8 9 / .76) 74%, rgb(12 12 13 / .95) 88%, var(--bg) 100%); }
+.poster-shade { background: linear-gradient(180deg, rgb(8 8 9 / .5) 0%, rgb(8 8 9 / .16) 16%, rgb(8 8 9 / 0) 30%, rgb(8 8 9 / 0) 52%, rgb(8 8 9 / .42) 62%, rgb(8 8 9 / .76) 74%, rgb(12 12 13 / .95) 88%, var(--bg) 100%); }
 .poster-studio { padding: max(24px, env(safe-area-inset-top)) 20px 0; text-align: center; font-family: var(--display); font-size: 11px; letter-spacing: .34em; color: var(--cream-2); text-shadow: 0 1px 10px rgb(0 0 0 / .6); }
 .poster-studio span { font-family: var(--script); font-style: italic; font-weight: var(--script-weight); letter-spacing: .1em; }
+.poster-title { display: grid; justify-items: center; margin-top: 10px; font-family: var(--title); font-style: italic; font-weight: 700; font-size: clamp(40px, 11.2vw, 58px); line-height: 1.11; letter-spacing: 0; color: var(--page); text-shadow: 0 1px 18px rgb(0 0 0 / .22); }
 .poster-body { margin-top: auto; padding: 0 22px calc(20px + env(safe-area-inset-bottom)); text-align: center; }
 .poster-credits { display: flex; justify-content: space-between; margin: 0 2px; }
 .poster-credits p { display: grid; justify-items: start; }
 .poster-credits p + p { justify-items: end; }
 .poster-credits .script { font-family: var(--script); font-style: italic; font-weight: var(--script-weight); font-size: 19px; line-height: 1.1; letter-spacing: .02em; color: var(--cream-2); }
 .credit-name { margin-top: 2px; font-size: 15px; font-weight: 400; letter-spacing: .32em; }
-.poster-when { margin-top: 16px; font-family: var(--display); font-size: 17px; letter-spacing: .06em; font-variant-numeric: lining-nums; }
+.poster-when { margin-top: 16px; font-family: var(--display); font-size: 17px; letter-spacing: .06em; color: var(--page); font-variant-numeric: lining-nums; }
 .poster-when .dot { margin: 0 8px; color: var(--gold); }
 .poster-where { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; font-size: 13px; font-weight: 400; color: var(--cream-2); }
 .poster-cta { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; max-width: 360px; min-height: 48px; margin: 8px auto 0; border: 1px solid rgb(239 232 218 / .5); border-radius: 3px; font-size: 15px; font-weight: 400; letter-spacing: .04em; background: rgb(12 12 13 / .35); }
 .poster-cta span { font-family: var(--marquee); font-size: 12px; letter-spacing: .14em; color: var(--gold-soft); }
-.poster-billing { margin-top: 12px; text-wrap: balance; font-family: var(--marquee); font-size: 9.5px; line-height: 1.6; letter-spacing: .12em; color: var(--dim); }
+.poster-billing { margin-top: 12px; text-wrap: balance; font-family: var(--marquee); font-size: 9.5px; line-height: 1.6; letter-spacing: .12em; color: var(--page); opacity: .8; }
 
 /* Poster entrance: hidden until html.cover-ready; transitions exist only after it, so WebKit never fades the
    poster out into its hidden state before showing it. On arrival the film leader covers the first paint; on a reload a poster that
    is ready at once is shown finished (cover-instant). */
 .js:not(.cover-ready) .cover-image { opacity: 0; }
-.js:not(.cover-ready) :is(.poster-studio, .poster-credits, .poster-when, .poster-where, .poster-cta, .poster-billing) { opacity: 0; }
+.js:not(.cover-ready) :is(.poster-studio, .poster-title, .cover-doodles, .poster-credits, .poster-when, .poster-where, .poster-cta, .poster-billing) { opacity: 0; }
 .cover-ready .cover-image { transition: opacity 1s var(--ease); }
-.cover-ready :where(.poster-studio, .poster-credits, .poster-when, .poster-where, .poster-cta, .poster-billing) { transition: opacity 1s var(--ease); }
+.cover-ready :where(.poster-studio, .poster-title, .cover-doodles, .poster-credits, .poster-when, .poster-where, .poster-cta, .poster-billing) { transition: opacity 1s var(--ease); }
 .cover-ready .poster-studio { transition-delay: .1s; }
+.cover-ready .poster-title { transition-delay: .25s; }
+.cover-ready .cover-doodles { transition-delay: 1.05s; }
 .cover-ready .poster-credits { transition-delay: .45s; }
 .cover-ready .poster-when { transition-delay: .57s; }
 .cover-ready .poster-where { transition-delay: .65s; }
 .cover-ready .poster-cta { transition-delay: .75s; }
 .cover-ready .poster-billing { transition-delay: .85s; }
-.cover-instant .cover :is(.cover-image, .poster-studio, .poster-credits, .poster-when, .poster-where, .poster-cta, .poster-billing) { transition: none !important; }
+.cover-instant .cover :is(.cover-image, .poster-studio, .poster-title, .cover-doodles, .poster-credits, .poster-when, .poster-where, .poster-cta, .poster-billing) { transition: none !important; }
 
 /* Scenes */
 .scene { position: relative; padding: 92px var(--gutter); text-align: center; }
@@ -170,11 +176,12 @@ h1, h2, h3 { font-weight: 400; }
 /* The flip eases symmetrically, so the ticket is edge-on exactly halfway; the faces swap there (visibility with
    a half-duration delay). Not relying on backface-visibility, which WebKit ignored here and showed the back
    mirrored over the front. */
-.ticket-inner { position: relative; display: block; transform-style: preserve-3d; transition: transform .9s cubic-bezier(.45, 0, .55, 1); }
+/* Both faces share one grid cell, so the ticket is as tall as the taller face and neither spills out. */
+.ticket-inner { position: relative; display: grid; transform-style: preserve-3d; transition: transform .9s cubic-bezier(.45, 0, .55, 1); }
 .ticket.is-flipped .ticket-inner { transform: rotateY(180deg); }
-.ticket-face { position: relative; display: block; padding: 24px 22px 0; border-radius: 6px; background: var(--sage); box-shadow: 0 22px 44px rgb(0 0 0 / .5); -webkit-backface-visibility: hidden; backface-visibility: hidden; }
-.ticket-back { position: absolute; inset: 0; display: flex; flex-direction: column; padding-bottom: 20px; transform: rotateY(180deg); visibility: hidden; transition: visibility 0s .45s; }
-.ticket-front { transition: visibility 0s .45s; }
+.ticket-face { position: relative; display: block; grid-area: 1 / 1; padding: 24px 22px 0; border-radius: 6px; background: var(--sage); box-shadow: 0 22px 44px rgb(0 0 0 / .5); -webkit-backface-visibility: hidden; backface-visibility: hidden; }
+.ticket-back { display: flex; flex-direction: column; padding-bottom: 20px; transform: rotateY(180deg); visibility: hidden; transition: visibility 0s .45s; }
+.ticket-front { display: flex; flex-direction: column; transition: visibility 0s .45s; }
 .ticket.is-flipped .ticket-front { visibility: hidden; }
 .ticket.is-flipped .ticket-back { visibility: visible; }
 /* Punched edges along the top and bottom, cut in the page colour. */
@@ -187,7 +194,7 @@ h1, h2, h3 { font-weight: 400; }
 .ticket-rows .k, .ticket-place .k { font-family: var(--marquee); font-size: 9.5px; letter-spacing: .14em; opacity: .62; }
 .ticket-rows .v { font-size: 14px; font-weight: 500; word-break: keep-all; }
 .ticket-rows .v[lang='en'] { font-family: var(--display); font-size: 16px; font-weight: 400; letter-spacing: .02em; font-variant-numeric: lining-nums; }
-.ticket-place { margin-top: 12px; }
+.ticket-place { margin: 12px 0 auto; } /* any extra height (a taller back) goes above the stub */
 .ticket-place .v { font-size: 13px; font-weight: 400; line-height: 1.6; word-break: keep-all; }
 .ticket-stub { position: relative; display: flex; align-items: center; gap: 14px; margin: 18px -22px 0; padding: 16px 22px 20px; border-top: 2px dashed rgb(31 38 25 / .32); }
 .ticket-stub::before, .ticket-stub::after { content: ''; position: absolute; top: -12px; width: 22px; height: 22px; border-radius: 50%; background: var(--bg); }

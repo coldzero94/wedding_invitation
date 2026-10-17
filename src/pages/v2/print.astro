@@ -6,7 +6,10 @@
 import { getImage } from 'astro:assets';
 import QRCode from 'qrcode';
 import '@fontsource/rozha-one/latin-400.css';
+import '@fontsource/fraunces/latin-700-italic.css';
+import '@fontsource/noto-serif-display/latin-600.css';
 import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css';
+import Doodles from '../../components/Doodles.astro';
 import { wedding } from '../../data/wedding';
 import { movie } from '../../data/movie';
 import { loadGallery } from '../../lib/gallery';
@@ -47,7 +50,7 @@ const ticketPath = [
     <style>
       @page { size: 106mm 156mm; margin: 0; }
       :root { --ink: #0c0c0d; --cream: #efe8da; --cream-2: #d6cebf; --gold: #e2c07c;
-        --serif: 'Rozha One', Georgia, serif; --korean: 'Pretendard Variable', 'Apple SD Gothic Neo', sans-serif;
+        --serif: 'Rozha One', Georgia, serif; --title: 'Fraunces', Georgia, serif; --billing: 'Noto Serif Display', Georgia, serif; --page: #fbeac4; --korean: 'Pretendard Variable', 'Apple SD Gothic Neo', sans-serif;
         --bleed: 2mm; --safe: 6mm;
         /* The back: dark type on white, with the gold deepened so it reads on paper. */
         --text: #23201b; --text-2: #4a443b; --muted: #8b8376; --accent: #977434;
@@ -68,11 +71,17 @@ const ticketPath = [
       /* Front */
       .photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 50%; }
       /* No text-shadow on the front: Chrome writes blurred shadows into the PDF as soft-masked tiles, and macOS
-         Preview draws those as dark boxes behind the text. The shade alone keeps the white type legible: only a soft
-         vignette at the top (no title there), dark at the foot behind the billing. */
-      .front-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgb(10 14 10 / .22) 0%, rgb(10 14 10 / 0) 18%, rgb(10 14 10 / 0) 64%, rgb(10 14 10 / .58) 84%, rgb(10 14 10 / .8) 100%); }
-      .front-foot { position: absolute; left: var(--safe); right: var(--safe); bottom: 11mm; display: grid; justify-items: center; gap: .8mm; font-family: var(--serif); font-size: 8pt; letter-spacing: .04em; color: var(--cream-2); text-align: center; }
-      .front-foot .rule { width: 3mm; height: .25mm; margin: .8mm 0; background: var(--gold); }
+         Preview draws those as dark boxes behind the text. The shade alone keeps the type legible, as measured off the
+         couple's mock-up: the photo untouched down to the dress, then darker to black at the trim. */
+      .front-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgb(10 12 10 / 0) 0%, rgb(10 12 10 / 0) 79%, rgb(10 12 10 / .17) 84%, rgb(10 12 10 / .44) 89%, rgb(10 12 10 / .69) 94%, rgb(10 12 10 / 1) 98.7%); }
+      /* The couple's doodles, drawn on the photo in its own pixels (Doodles.astro); the photo is cropped from its centre. */
+      :global(.front-doodles) { position: absolute; inset: 0; width: 100%; height: 100%; }
+      /* Title and billing as on the couple's mock-up: the title's capitals 6.6 mm under the trim, one word a line;
+         the billing in Noto Serif Display SemiBold, its last line 11.5 mm above the trim (8 pt, a touch larger than
+         the mock-up's 7 pt, for the 8 pt minimum). */
+      .front-title { position: absolute; top: 6.4mm; left: -1.2mm; right: 0; display: grid; justify-items: center; font-family: var(--title); font-style: italic; font-weight: 700; font-size: 11.4mm; line-height: 12.65mm; color: var(--page); }
+      .front-foot { position: absolute; left: var(--safe); right: var(--safe); bottom: 13mm; display: grid; justify-items: center; gap: .3mm; font-family: var(--billing); font-weight: 600; font-size: 8pt; letter-spacing: .02em; color: var(--page); text-align: center; }
+      .front-foot .rule { width: 2.2mm; height: .2mm; margin: 1.85mm 0; background: var(--page); }
 
       /* Back: white, split into two halves, the invitation above and the location below. */
       .back { display: grid; grid-template-rows: 1fr 1fr; padding: 12.67mm 7mm 14.33mm; background: #fff; color: var(--text); }
@@ -112,8 +121,10 @@ const ticketPath = [
     <section class="sheet front">
       <img class="photo" src={poster.src} alt={wedding.hero.alt} />
       <div class="front-shade"></div>
+      <Doodles class="front-doodles" />
+      <h1 class="front-title" lang="en">{movie.title.map((word, i) => <>{i > 0 && ' '}<span>{word}</span></>)}</h1>
       <div class="front-foot" lang="en">
-        <p>{shortDate} {weekday}&nbsp;&nbsp;{timeEn.replace(' ', '')}</p>
+        <p>{shortDate} {weekday} {timeEn.replace(' ', '')}</p>
         <p>{paper.front.venue}</p>
         <span class="rule" aria-hidden="true"></span>
         <p>{paper.front.names}</p>

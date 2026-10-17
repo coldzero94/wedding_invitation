@@ -2,12 +2,16 @@
 import { Image, getImage } from 'astro:assets';
 import rozhaOne from '@fontsource/rozha-one/files/rozha-one-latin-400-normal.woff2?url';
 import notoSerifDisplayItalic from '@fontsource/noto-serif-display/files/noto-serif-display-latin-600-italic.woff2?url';
+import frauncesItalic from '@fontsource/fraunces/files/fraunces-latin-700-italic.woff2?url';
 import '@fontsource/rozha-one/latin-400.css';
 // Noto Serif Display italic for the flourishes (Groom, Bride, presents, The End).
 import '@fontsource/noto-serif-display/latin-600-italic.css';
+// Fraunces Bold Italic for the title, Our First Page.
+import '@fontsource/fraunces/latin-700-italic.css';
 import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css';
 import '../../styles/movie.css';
 import Icon from '../../components/Icon.astro';
+import Doodles from '../../components/Doodles.astro';
 import { wedding } from '../../data/wedding';
 import { movie } from '../../data/movie';
 import { prepareInvitation } from '../../lib/invitation-data';
@@ -87,6 +91,7 @@ const marqueeBulbs = (() => {
     </script>
     <link rel="preload" as="font" type="font/woff2" href={rozhaOne} crossorigin />
     <link rel="preload" as="font" type="font/woff2" href={notoSerifDisplayItalic} crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href={frauncesItalic} crossorigin />
     {kakao.key && <script is:inline defer src="https://developers.kakao.com/sdk/js/kakao.js"></script>}
     <noscript><style>[data-reveal] { opacity: 1 !important; transform: none !important; }</style></noscript>
   </head>
@@ -106,8 +111,9 @@ const marqueeBulbs = (() => {
       <div class="cover-lqip" style={`background-image: url(${hero.lqip}); background-position: ${movie.cover.position}`}></div>
       <Image class="cover-image" src={hero.image} alt={wedding.hero.alt} style={{ objectPosition: movie.cover.position }} width={hero.width} height={hero.height} widths={hero.widths} sizes="(min-width: 600px) 520px, 100vw" format="webp" loading="eager" fetchpriority="high" />
       <div class="poster-shade"></div>
+      <Doodles class="cover-doodles" tuck />
       <p class="poster-studio" lang="en">{movie.studio} <span>presents</span></p>
-      <h1 class="visually-hidden">{title}</h1>
+      <h1 class="poster-title" lang="en">{movie.title.map((word, i) => <>{i > 0 && ' '}<span>{word}</span></>)}</h1>
       <div class="poster-body">
         <div class="poster-credits">
           <p><span class="script" lang="en">Groom</span><span class="credit-name">{wedding.groom.name}</span></p>
@@ -132,7 +138,7 @@ const marqueeBulbs = (() => {
         var leaderDone = new Promise(function (resolve) { setTimeout(resolve, leader ? 1800 : 0); });
         var waits = [image.decode ? image.decode().catch(function () {}) : null];
         if (document.fonts && document.fonts.load) {
-          ['400 1em "Rozha One"', 'italic 600 1em "Noto Serif Display"', '300 1em "Pretendard Variable"'].forEach(function (font) {
+          ['400 1em "Rozha One"', 'italic 600 1em "Noto Serif Display"', 'italic 700 1em "Fraunces"', '300 1em "Pretendard Variable"'].forEach(function (font) {
             waits.push(document.fonts.load(font, cover.textContent).catch(function () {}));
           });
         }

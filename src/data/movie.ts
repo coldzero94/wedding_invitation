@@ -7,8 +7,12 @@ export const movie = {
   // English billing on the posters: the couple in capitals, and the venue in place of "in theaters".
   namesEn: { groom: 'CHANYOUNG', bride: 'YEJI' },
   venueEn: 'THE NEW CONVENTION',
+  // The title over the photo's top, cover and paper front alike, as on the couple's mock-up: one word a line,
+  // in Fraunces Bold Italic, pale yellow.
+  title: ['Our', 'First', 'Page'],
   // Cover: the whole main photo (gallery number) so the couple sits below the title, as on the paper front.
-  cover: { photo: '01', position: '48% 50%' },
+  // Cropped from the centre, as the paper is, so the doodles drawn on the photo (Doodles.astro) land in place.
+  cover: { photo: '01', position: '50% 50%' },
   quote: { text: '나는 3000만큼 사랑해.', source: '영화 〈어벤져스: 엔드게임〉 중' },
   seat: '초대석',
   // Names come from wedding.ts, so both designs always credit the same people; empty entries are skipped.
@@ -28,14 +32,14 @@ export const movie = {
   ],
   specialThanks: ['그리고 저희를 아껴 주신', '모든 분들께 진심으로 감사드립니다.'],
   // Gallery photo numbers (src/assets/gallery/NN.jpg) used for the film strips, the poster and the cookie.
-  // Renumber these if photos are inserted before them (the two 2026-09-24 additions shifted everything by 2; the 2026-10-17 retouched set added MGA_9970 as 23 and MGA_0264 as 25).
+  // Renumber these if photos are inserted before them (the two 2026-09-24 additions shifted everything by 2; the 2026-10-17 retouched set added two; later that day the gallery was reordered by place).
   // Film frames are landscape cuts of portrait photos; y is the vertical crop position (%) that keeps the
   // couple's heads in the frame, chosen per photo: measured with macOS face and body detection so the heads sit about
   // 12% below the frame's top (2026-10-17, retouched set).
-  stripTop: [{ id: '20', y: 72 }, { id: '21', y: 65 }, { id: '22', y: 69 }, { id: '08', y: 65 }, { id: '11', y: 52 }, { id: '05', y: 64 }],
-  stripBottom: [{ id: '24', y: 15 }, { id: '26', y: 57 }, { id: '07', y: 51 }, { id: '28', y: 54 }, { id: '30', y: 55 }, { id: '10', y: 57 }],
-  poster: '03',
-  cookie: '22',
+  stripTop: [{ id: '14', y: 72 }, { id: '16', y: 65 }, { id: '19', y: 69 }, { id: '15', y: 65 }, { id: '17', y: 52 }, { id: '18', y: 64 }],
+  stripBottom: [{ id: '23', y: 15 }, { id: '26', y: 57 }, { id: '29', y: 51 }, { id: '28', y: 54 }, { id: '32', y: 55 }, { id: '31', y: 57 }],
+  poster: '04',
+  cookie: '19',
   cookieNote: '끝까지 봐 주셔서 고마워요. 식장에서 만나요!',
   // Copy for the printed paper invitation (/v2/print/), from the couple's own draft. Its title is `title` above.
   paper: {

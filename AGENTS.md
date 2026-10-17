@@ -59,13 +59,14 @@ The KakaoTalk in-app browser caches hard; if an old page shows, tell the user to
 - **Commit messages:** in English, saying what changed and why. No co-author or attribution lines.
 - **Check in WebKit:** most guests open the invitation in KakaoTalk on iPhone (WebKit). Check visual changes in WebKit, not only Chromium.
 - **The classic edition is frozen:** don't change `src/pages/index.astro` or `src/styles/global.css` for movie-edition work. When shared data or scripts change, check both editions.
-- **The mobile cover and the paper front move together:** the cover's title and layout must match the paper front (the couple's rule). Right now both have **no title phrase**. The couple removed it after many rounds of fonts and wording; don't bring it back unless asked.
+- **The mobile cover and the paper front move together:** the cover's title and layout must match the paper front (the couple's rule). Since 2026-10-17 both follow the couple's mock-up: **"Our / First / Page"** (one word a line, Fraunces Bold Italic, pale yellow `#fbeac4`) at the top, and their white hand-drawn doodles (sparkles at both heads, little flowers) on the photo. Earlier phrases (Love Wins All, Welcome to our wedding) were dropped; don't bring them back.
 - **Killing processes:** never kill by name pattern (`pkill -f`, `killall`). Once a "cat" pattern also matched "/Appli**cat**ions" and quit every open app. Kill only processes you started, by PID, e.g. `kill $(lsof -ti tcp:4399 -sTCP:LISTEN)`.
 
 ## Movie edition (`/v2/`): current decisions
 
-- **Cover:** the whole main photo (gallery 01); "OUR SEASON PICTURES presents" at the top; Groom/Bride, date, venue, the NOW PLAYING button and the billing at the bottom. No title phrase. The film leader (3, 2, 1) plays only on arrival, not on reload.
-- **Type:** Rozha One for English and numerals, Noto Serif Display SemiBold italic for the flourishes (Groom/Bride, presents, The End), Pretendard for Korean. Lining numerals.
+- **Cover:** the whole main photo (gallery 01); "OUR SEASON PICTURES presents" at the top; Groom/Bride, date, venue, the NOW PLAYING button and the billing at the bottom. The title "Our First Page" under "presents"; the date and billing in the title's pale yellow. The film leader (3, 2, 1) plays only on arrival, not on reload.
+- **Doodles:** `src/components/Doodles.astro`, shared by the cover and the paper front. Drawn in photo 01's own pixels (viewBox 1200x1800, `xMidYMid slice`), so they stay on the photo as long as it is cropped from its centre (`movie.cover.position` `'50% 50%'`, the paper's `object-position`). The flowers were traced (potrace) from the couple's mock-up; the sparkles are round-capped strokes. With `tuck` (the phone cover, a narrower crop) the side flowers move 60 px in and the grass pair moves up clear of the credits. A new main photo means new doodles.
+- **Type:** Fraunces Bold Italic for the title, Rozha One for English and numerals, Noto Serif Display SemiBold italic for the flourishes (Groom/Bride, presents, The End), Pretendard for Korean. Lining numerals.
 - **Ticket:** VIP TICKET, date, time, screen, SEAT "초대석". Tapping flips it to a calendar and a countdown.
 - **Between the names:** a gold heart SVG instead of an emoji or "&", with hidden text ("그리고"/"and") for screen readers and copying.
 - **Directions:** in `wedding.ts` transport text, words wrapped in `[brackets]` are highlighted in gold on the movie edition ([이대서울병원]). The parking guide images open from "주차 안내 보기".
@@ -77,14 +78,14 @@ The KakaoTalk in-app browser caches hard; if an old page shows, tell the user to
 ## Paper invitation (`/v2/print/`)
 
 - **Size:** trim 102 x 152 mm (4x6 portrait), one 106 x 156 mm sheet per side including 2 mm bleed. Only the trim line (blue) is drawn; text stays 4 mm inside the trim.
-- **Front:** the whole main photo, a light vignette at the top, and over a gradient at the bottom the date, venue and names (Rozha One 8 pt, a short gold rule). No title phrase.
+- **Front:** matches the couple's mock-up (measured off it in mm): the whole main photo with the doodles; "Our First Page" (Fraunces Bold Italic 11.4 mm, line pitch 12.65 mm, capitals 6.6 mm under the trim); at the foot the date, venue, a short dash and the names in Noto Serif Display SemiBold (upright) 8 pt, `#fbeac4` (the mock-up's is about 7 pt; 8 pt is the minimum). The shade, measured off the mock-up too: none down to the dress, then darker to black at the trim.
 - **Back:** white, split into top and bottom halves. Top: WEDDING INVITATION, Colossians 3:14, the greeting, both families (아들/딸). Bottom: the LOCATION list (자차, 주차, 대중교통; 이대서울병원 without emphasis), and under it a cream movie ticket as wide as the list ("SCAN TO WATCH" on the body, a 13 mm QR code to `/v2/` past the perforation).
 - **Type size:** nothing printed is under 8 pt (a test checks it).
-- **Margins:** top and bottom margins are equal measured on the ink, not the text boxes. Front: 10.2 mm from the trim to the end of the billing. Back: about 12.4 mm top and bottom.
+- **Margins:** top and bottom margins are equal measured on the ink, not the text boxes. Front: about 11 mm from the trim to the end of the billing, as on the mock-up. Back: about 12.4 mm top and bottom.
 - **PDF pitfalls:** `text-shadow` shows as dark boxes in macOS Preview, and repeating CSS gradients (e.g. a barcode) break up in PDFs. Don't use them.
 - **Checking:** run `build:release` with the real URL, print to PDF, render each page with `pdfseparate` and `sips -s format png` (Quartz, as macOS Preview draws it) and look at it. Decode the QR and confirm it points to `/v2/`. Capture PNGs one sheet at a time (together, a 1 px row of the neighbouring sheet leaks in).
 - **Deliverables:** update `청첩장_4x6.pdf`, `1_앞면_인쇄선.png` and `2_뒷면_인쇄선.png` in the folder the user chose (currently `~/Downloads/movie-invitation-print/`).
-- **Vector front:** `1_앞면_벡터.pdf` (print), `1_앞면_벡터_재단선.pdf` (with trim line), `1_앞면_벡터.svg`. A hand-built SVG: the text as Rozha One outlines (extracted with opentype.js, positions measured from the print page), the photo as the original JPEG, the shade as an SVG gradient. Converting the PDF to SVG with `pdftocairo` breaks the masks; don't use it. Rebuild these files whenever the front changes. The original photo is 1200 x 1800, about 288 dpi at card size.
+- **Vector front:** `1_앞면_벡터.pdf` (print), `1_앞면_벡터_재단선.pdf` (with trim line), `1_앞면_벡터.svg`. A hand-built SVG: the text as font outlines (Fraunces title, Noto Serif Display billing; extracted with opentype.js, positions measured from the print page), the doodles as their paths, the photo as the original JPEG, the shade as an SVG gradient. Converting the PDF to SVG with `pdftocairo` breaks the masks; don't use it. Rebuild these files whenever the front changes. The original photo is 1200 x 1800, about 288 dpi at card size.
 
 ## Technical notes (so these don't happen again)
 
@@ -95,7 +96,7 @@ The KakaoTalk in-app browser caches hard; if an old page shows, tell the user to
 - **Back to top and shared links:** in-page navigation never leaves a `#` in the URL, and `#invitation` is stripped from shared URLs, so a shared link always opens on the cover.
 - **Kakao share card:** the image is 3:4 (`kakao.jpg`) and its size is passed along; without the size Kakao crops it square. The deploy domain must be registered under [Platform > Web] in the Kakao Developers app.
 - **Centring script fonts:** script strokes overhang the text box, so box-centred lines look off-centre. If a script title comes back, measure each line's ink and correct it (previously the `nudge` values in `movie.ts`).
-- **Font licenses:** the licenses (OFL) of the fonts shipped with the site live in `public/licenses/`. Keep the folder in step when fonts are added or removed (currently Rozha One, Noto Serif Display, Cormorant Garamond, Pretendard).
+- **Font licenses:** the licenses (OFL) of the fonts shipped with the site live in `public/licenses/`. Keep the folder in step when fonts are added or removed (currently Fraunces, Rozha One, Noto Serif Display, Cormorant Garamond, Pretendard).
 
 ## Other folders
 
@@ -107,7 +108,7 @@ The KakaoTalk in-app browser caches hard; if an old page shows, tell the user to
 
 `photos-inbox/` (ignored by Git) holds the originals. Originals carry GPS data and must never be committed; only the prepared copies go into `src/assets`.
 
-- **Gallery source:** the 34 top-level image files in `photos-inbox/`: 01 and 02 are the two photos added for the cover (2026-09-24), 03-34 the photographer's retouched set from Google Drive (replaced 2026-10-17; the earlier versions were deleted on request), named `NN-label-originalname.ext` (e.g. `01-main-laugh.jpeg`, `05-casual-MGA_9878.jpg`). The name order (numeric) is the gallery order. Only top-level files are used; subfolders are skipped.
+- **Gallery source:** the 34 top-level image files in `photos-inbox/`: 01 and 02 are the two photos added for the cover (2026-09-24), 03-34 the photographer's retouched set from Google Drive (replaced 2026-10-17; the earlier versions were deleted on request), named `NN-label-originalname.ext` (e.g. `01-main-laugh.jpeg`, `05-casual-MGA_9878.jpg`). The name order (numeric) is the gallery order. The couple's order (2026-10-17): 01-02 the cover photos, then 노을공원 in the dress (03-13), 노을공원 casual (14-22, ending with the two solo portraits), and 동작대교 at night (23-34); within each group, the shooting order (the MGA numbers, which wrap from 9999 to 0000). Only top-level files are used; subfolders are skipped.
 - **`npm run photos`:** rotates by EXIF, fits the long side to 2560 px, saves JPEG (quality 85), strips all metadata including GPS, converts HEIC (macOS only), then **replaces the whole gallery** with `src/assets/gallery/01.jpg`… It builds everything before replacing, so a failure leaves the gallery untouched.
 - **Renumbering:** adding, removing or reordering photos renumbers the gallery. Then update the photo numbers in `movie.ts` (`cover.photo`, `stripTop`, `stripBottom`, `poster`, `cookie`) and any `gallery` overrides in `wedding.ts`, and re-check the cover, the film strips and the paper front.
 - **01 is the main photo:** used for the movie cover (`movie.cover.photo`), the paper front, and first in the gallery. Its original is 1200 x 1800.
@@ -119,4 +120,4 @@ The KakaoTalk in-app browser caches hard; if an old page shows, tell the user to
 ## In progress or awaiting a decision
 
 - Turning the classic edition (`/`) into a story page to show at the 상견례. Drafts exist for Chanyoung's introduction, the family introduction and the letters to the parents; Yeji's part is pending. The address (how public it is) and personal-information exposure must be decided first.
-- With the title gone, whether to drop "presents" from "OUR SEASON PICTURES presents" at the top of the mobile cover.
+- Whether to drop "presents" from "OUR SEASON PICTURES presents" at the top of the mobile cover.

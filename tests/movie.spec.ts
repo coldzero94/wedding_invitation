@@ -6,10 +6,12 @@ test.describe('the movie edition (/v2/)', () => {
     const errors: string[] = [];
     page.on('pageerror', (error) => errors.push(error.message));
     await page.goto('./v2/');
-    // No title phrase on the cover, the paper or the tickets (the couple removed it); the page's heading is hidden.
+    // The cover's title is the couple's mock-up's: Our First Page in Fraunces Bold Italic, with their doodles.
     await expect(page).toHaveTitle('찬영 & 예지, 결혼합니다');
-    await expect(page.locator('h1')).toHaveText('찬영 & 예지, 결혼합니다');
-    await expect(page.locator('.poster-title, .ticket-title')).toHaveCount(0);
+    await expect(page.locator('h1')).toHaveText('Our First Page');
+    expect(await page.locator('.poster-title').evaluate((el) => getComputedStyle(el).fontFamily)).toMatch(/^"?Fraunces/);
+    await expect(page.locator('.cover-doodles path')).toHaveCount(5);
+    await expect(page.locator('.ticket-title')).toHaveCount(0);
     await expect(page.locator('.cover')).not.toContainText(/welcome|love wins/i);
     await expect(page.locator('.quote')).toContainText('3000만큼 사랑해');
     await expect(page.locator('.film-strip img').first()).toBeAttached();
@@ -126,9 +128,14 @@ test.describe('the movie edition (/v2/)', () => {
     await expect(page.locator('.transport')).toContainText('2시간 무료');
   });
 
-  test('the paper invitation: the photo front with no title, a white back in two halves, nothing under 8 pt', async ({ page }) => {
+  test('the paper invitation: the Our First Page front, a white back in two halves, nothing under 8 pt', async ({ page }) => {
     await page.goto('./v2/print/');
-    await expect(page.locator('.front-title, .ticket-title')).toHaveCount(0);
+    await expect(page.locator('.front-title')).toHaveText('Our First Page');
+    await expect(page.locator('.front-doodles path')).toHaveCount(5);
+    // The doodles cover the photo exactly (they are drawn in its pixels).
+    const [photo, doodles] = await Promise.all(['.photo', '.front-doodles'].map((sel) => page.locator(sel).boundingBox()));
+    expect(doodles).toEqual(photo);
+    await expect(page.locator('.ticket-title')).toHaveCount(0);
     await expect(page.locator('.sheet.front')).not.toContainText(/welcome|love wins/i);
     const back = page.locator('.sheet.back');
     expect(await back.evaluate((el) => getComputedStyle(el).backgroundColor)).toBe('rgb(255, 255, 255)');
