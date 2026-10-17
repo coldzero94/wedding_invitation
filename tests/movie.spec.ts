@@ -93,6 +93,12 @@ for (const engine of ['chromium', 'webkit'] as const) {
       for (const width of [320, 360, 390, 430]) {
         await page.setViewportSize({ width, height: 844 });
         await ticket.scrollIntoViewIfNeeded();
+        // The couple's reference is a long paper ticket. A tall calendar must not stretch either face.
+        const paperRatio = await ticket.locator('.ticket-inner').evaluate((el) => el.clientWidth / el.clientHeight);
+        expect(paperRatio).toBeGreaterThan(2.15);
+        expect(paperRatio).toBeLessThan(2.3);
+        const fieldRows = await ticket.locator('.ticket-front .ticket-rows .ticket-row').evaluateAll((fields) => fields.map((field) => (field as HTMLElement).offsetTop));
+        expect(new Set(fieldRows).size).toBe(1);
         const frontHeight = (await ticket.boundingBox())!.height;
         await ticket.tap();
         await expect(ticket).toHaveAttribute('aria-pressed', 'true');
@@ -107,7 +113,7 @@ for (const engine of ['chromium', 'webkit'] as const) {
             const stub = face.querySelector<HTMLElement>('.ticket-stub')!;
             return {
               columnsFit: main.offsetLeft + main.offsetWidth <= stub.offsetLeft + 1 && stub.offsetLeft + stub.offsetWidth <= face.clientWidth + 1,
-              textFits: [...face.querySelectorAll<HTMLElement>('.ticket-main, .ticket-stub, .ticket-row, .ticket-title, .mini-calendar')].every((el) => el.scrollWidth <= el.clientWidth + 1),
+              textFits: [...face.querySelectorAll<HTMLElement>('.ticket-main, .ticket-stub, .ticket-row, .ticket-title, .mini-calendar')].every((el) => el.scrollWidth <= el.clientWidth + 1 && el.scrollHeight <= el.clientHeight + 1),
               timerFits: [...face.querySelectorAll<HTMLElement>('.countdown-num')].every((el, index, all) => {
                 const next = all[index + 1];
                 return !next || el.offsetTop !== next.offsetTop || el.offsetLeft + el.offsetWidth < next.offsetLeft;
