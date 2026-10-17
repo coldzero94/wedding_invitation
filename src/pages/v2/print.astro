@@ -28,18 +28,6 @@ const parents = [
   { father: wedding.groom.father, mother: wedding.groom.mother, child: paper.relation.groom, name: wedding.groom.name },
   { father: wedding.bride.father, mother: wedding.bride.mother, child: paper.relation.bride, name: wedding.bride.name },
 ];
-// The QR ticket under the location list, in mm: as wide as the list, the code on a stub past the perforation,
-// half-circle notches where the perforation meets the edges. Drawn as one path so the notches are cut out.
-const ticket = { w: 70, h: 17, stub: 19, notch: 1.6, corner: 1.6 };
-const perfX = ticket.w - ticket.stub;
-const ticketPath = [
-  `M${ticket.corner} 0H${perfX - ticket.notch}A${ticket.notch} ${ticket.notch} 0 0 0 ${perfX + ticket.notch} 0`,
-  `H${ticket.w - ticket.corner}A${ticket.corner} ${ticket.corner} 0 0 1 ${ticket.w} ${ticket.corner}`,
-  `V${ticket.h - ticket.corner}A${ticket.corner} ${ticket.corner} 0 0 1 ${ticket.w - ticket.corner} ${ticket.h}`,
-  `H${perfX + ticket.notch}A${ticket.notch} ${ticket.notch} 0 0 0 ${perfX - ticket.notch} ${ticket.h}`,
-  `H${ticket.corner}A${ticket.corner} ${ticket.corner} 0 0 1 0 ${ticket.h - ticket.corner}`,
-  `V${ticket.corner}A${ticket.corner} ${ticket.corner} 0 0 1 ${ticket.corner} 0Z`,
-].join('');
 ---
 <!doctype html>
 <html lang="ko">
@@ -105,14 +93,13 @@ const ticketPath = [
       .loc-row { display: contents; }
       .loc-row dt { font-size: var(--fs-body); font-weight: 600; line-height: 1.65; }
       .loc-row dd { display: grid; font-size: var(--fs-small); line-height: 1.65; color: var(--text-2); word-break: keep-all; }
-      /* The QR code on a movie ticket at the foot of the list, as wide as the list: the code on its stub,
-         its body a call to scan it. (No "영화 보러 가기": guests would wonder why a film.) */
-      .ticket { position: relative; display: grid; margin-top: auto; }
-      .ticket-shape { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; } /* the outline's outer half too */
-      .ticket-shape path { fill: #f7f2e8; stroke: var(--accent); stroke-width: .2; }
-      .ticket-shape line { stroke: var(--accent); stroke-width: .25; stroke-dasharray: .8 .6; }
-      .ticket-main, .ticket-stub { position: relative; display: grid; place-content: center; justify-items: center; }
-      .ticket-label { font-family: var(--serif); font-size: 10pt; letter-spacing: .22em; margin-right: -.22em; color: var(--accent); }
+      /* A small colophon connects the paper's title to its mobile continuation. The open white space
+         around the QR is its quiet zone; keep at least 2 mm clear on every side of the 13 mm code. */
+      .mobile-invitation { display: grid; grid-template-columns: 1fr 13mm; align-items: end; gap: 5mm; width: 70mm; margin-top: auto; padding-top: 3mm; border-top: .2mm solid var(--accent); color: inherit; text-decoration: none; }
+      .mobile-invitation:focus-visible { outline: 2px solid var(--accent); outline-offset: 2mm; }
+      .mobile-title { margin-bottom: 1.5mm; font-family: var(--title); font-style: italic; font-weight: 700; font-size: 12pt; line-height: 1.1; color: var(--accent); }
+      .mobile-label { font-size: 8.5pt; font-weight: 600; line-height: 1.5; }
+      .mobile-description { margin-top: .5mm; font-size: var(--fs-small); line-height: 1.5; color: var(--text-2); }
       .qr { width: 13mm; height: 13mm; }
       .qr :global(svg) { display: block; width: 100%; height: 100%; }
     </style>
@@ -151,16 +138,14 @@ const ticketPath = [
               <div class="loc-row"><dt>{row.label}</dt><dd>{row.lines.map((line) => <span>{line}</span>)}</dd></div>
             ))}
           </dl>
-          <div class="ticket" style={`width: ${ticket.w}mm; height: ${ticket.h}mm; grid-template-columns: 1fr ${ticket.stub}mm`}>
-            <svg class="ticket-shape" viewBox={`0 0 ${ticket.w} ${ticket.h}`} aria-hidden="true">
-              <path d={ticketPath} />
-              <line x1={perfX} y1={ticket.notch + .6} x2={perfX} y2={ticket.h - ticket.notch - .6} />
-            </svg>
-            <div class="ticket-main">
-              <p class="ticket-label" lang="en">SCAN TO WATCH</p>
+          <a class="mobile-invitation" href={mobileUrl} aria-label="모바일 청첩장 보기">
+            <div class="mobile-copy">
+              <p class="mobile-title" lang="en">{movie.title.join(' ')}</p>
+              <p class="mobile-label">{paper.mobile.heading}</p>
+              <p class="mobile-description">{paper.mobile.description}</p>
             </div>
-            <div class="ticket-stub"><div class="qr" role="img" aria-label="모바일 청첩장으로 가는 QR 코드" set:html={qr}></div></div>
-          </div>
+            <div class="qr" role="img" aria-label="모바일 청첩장으로 가는 QR 코드" set:html={qr}></div>
+          </a>
         </div>
       </div>
       <div class="guides" aria-hidden="true"></div>

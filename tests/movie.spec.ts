@@ -414,13 +414,16 @@ test.describe('the movie edition (/v2/)', () => {
     await expect(back.locator('dl')).not.toContainText('주차권');
     await expect(back.locator('dl')).not.toContainText('[');
     await expect(back.locator('dl strong')).toHaveCount(0);
-    // The QR code on a movie ticket at the foot of the list, as wide as the list, the code on the stub.
-    const ticket = back.locator('.ticket');
-    await expect(ticket.locator('.ticket-main')).toHaveText('SCAN TO WATCH');
-    await expect(ticket.locator('.ticket-stub .qr svg')).toHaveCount(1);
+    // The footer echoes the front title and explains the mobile invitation in Korean.
+    const mobile = back.getByRole('link', { name: '모바일 청첩장 보기' });
+    await expect(mobile.locator('.mobile-title')).toHaveText('Our First Page');
+    await expect(mobile.locator('.mobile-label')).toHaveText('모바일 청첩장');
+    await expect(mobile.locator('.mobile-description')).toHaveText('사진과 오시는 길을 담았습니다.');
+    await expect(mobile).toHaveAttribute('href', /\/v2\/$/);
+    await expect(mobile.locator('.qr svg')).toHaveCount(1);
     await expect(page.locator('.stub, .barcode, .qr-tile')).toHaveCount(0);
     const list = (await back.locator('dl').boundingBox())!;
-    const box = (await ticket.boundingBox())!;
+    const box = (await mobile.boundingBox())!;
     expect(Math.abs(box.x - list.x)).toBeLessThan(1);
     expect(Math.abs(box.x + box.width - (list.x + list.width))).toBeLessThan(1);
     expect(box.y).toBeGreaterThan(list.y + list.height);
