@@ -2,9 +2,17 @@
 
 선택한 [Concept 01 사진 앨범 v2](research/mockups/concept-01-photo-album-v2.png)를 바탕으로 만든 Astro 정적 사이트입니다. 동영상 없이 사진과 글로 구성합니다.
 
-[배포된 미리보기](https://coldzero94.github.io/wedding_invitation/) · [공개 저장소](https://github.com/coldzero94/wedding_invitation) · [배포·QR 기록](research/deployment.md) · [에이전트 작업 안내(AGENTS.md, 영어)](AGENTS.md)
+[배포된 미리보기](https://coldzero94.github.io/wedding_invitation/) · [공개 저장소](https://github.com/coldzero94/wedding_invitation) · [배포·QR 기록](research/deployment.md)
 
-실제 이름·일정·장소·부모님 성함·양가 계좌와 웨딩 사진 32장을 넣어 발송용(release)으로 배포하고 있습니다. 기본 버전은 `/`, 영화관 콘셉트 버전은 `/v2/`에 있고 두 버전은 `src/data/wedding.ts`를 함께 씁니다. 같은 콘셉트의 4x6 지류 청첩장 인쇄용 페이지는 `/v2/print/`입니다.
+실제 이름·일정·장소·부모님 성함·양가 계좌와 웨딩 사진 32장을 넣어 발송용(release)으로 배포하고 있습니다.
+
+| 주소 | 내용 |
+| --- | --- |
+| [`/v2/`](https://coldzero94.github.io/wedding_invitation/v2/) | **하객에게 보내는 메인 청첩장**(영화관 콘셉트). 공유 링크와 QR은 이 주소를 씁니다. |
+| [`/v2/print/`](https://coldzero94.github.io/wedding_invitation/v2/print/) | 같은 콘셉트의 4x6 지류 청첩장 인쇄용 페이지 |
+| [`/`](https://coldzero94.github.io/wedding_invitation/) | 처음 만든 클래식 버전(`v1-classic` 태그로 고정) |
+
+두 모바일 버전은 `src/data/wedding.ts`를 함께 씁니다. 아래 안내 중 표지·사진 배치 설명은 클래식 버전 기준인 부분이 있습니다.
 
 ## 로컬 실행
 
@@ -116,12 +124,12 @@ gh workflow run deploy.yml --repo coldzero94/wedding_invitation --ref main -f mo
 
 ## QR 생성
 
-현재 배포 주소로 QR을 생성했습니다. 다시 생성하려면 다음 명령을 사용합니다.
+메인 청첩장 주소(`/v2/`)로 QR을 생성했습니다. 다시 생성하려면 다음 명령을 사용합니다. 지류 청첩장 뒷면의 QR은 인쇄용 페이지가 빌드할 때 같은 주소로 따로 만듭니다.
 
 ```sh
-npm run qr -- https://coldzero94.github.io/wedding_invitation/
+npm run qr -- https://coldzero94.github.io/wedding_invitation/v2/
 ```
 
-[SVG](output/qr/invitation.svg) · [PNG](output/qr/invitation.png) · [원본 URL](output/qr/url.txt)을 저장했습니다. PNG를 디코딩해 배포 주소와 일치하는지 확인했습니다. 현재 연결되는 내용은 샘플이며 실제 인쇄물 스캔 검증은 별도로 필요합니다. 외부 QR 서비스는 사용하지 않습니다.
+[SVG](output/qr/invitation.svg) · [PNG](output/qr/invitation.png) · [원본 URL](output/qr/url.txt)을 저장했습니다. PNG와 SVG를 디코딩해 `/v2/` 주소와 일치하는지 확인했습니다(2026-10-17). 실제 인쇄물 스캔 검증은 별도로 필요합니다. 외부 QR 서비스는 사용하지 않습니다.
 
 [조사 문서](research/README.md) · [사진 생성 기록](research/mockups/site-assets.md)

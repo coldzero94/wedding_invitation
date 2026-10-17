@@ -100,15 +100,21 @@ The KakaoTalk in-app browser caches hard; if an old page shows, tell the user to
 ## Other folders
 
 - `research/`: research and mock-ups from the planning stage. Written for the classic edition, so parts differ from the current structure; reference only.
-- `output/qr/`: QR code from `npm run qr`, pointing to the root `/`. Guests now get `/v2/`, and the print page builds its own QR to `/v2/`. Make any new QR code for `/v2/`.
-- `README.md`: usage guide (adding photos, changing details). Partly written for the classic edition.
-- `photos-inbox/`: original photos (ignored by Git). `photos-inbox/family/` holds the family photo composite.
+- `output/qr/`: QR code from `npm run qr -- https://coldzero94.github.io/wedding_invitation/v2/`, pointing to `/v2/` (regenerated 2026-10-17; it used to point to `/`). The paper invitation builds its own QR to `/v2/`. Any QR code for guests points to `/v2/`, never `/`.
+- `README.md`: Korean usage guide for the couple (addresses, adding photos, changing details). Partly written for the classic edition. Keep agent instructions here in AGENTS.md, not in README.
 
-## Photos
+## Photos and `photos-inbox/`
 
-- The gallery has 32 photos (`src/assets/gallery/01.jpg` onwards). 01 is the main photo, also used on the cover and the paper front.
-- `src/assets/photos/hero.jpg`, `og.jpg` and `kakao.jpg` are for the classic cover and the share cards (the Kakao image is 3:4).
-- The family photo composites (`가족사진_합성.jpg`, and `가족사진_투명배경.png` with a transparent background) exist only in `photos-inbox/family/` (ignored by Git).
+`photos-inbox/` (ignored by Git) holds the originals. Originals carry GPS data and must never be committed; only the prepared copies go into `src/assets`.
+
+- **Gallery source:** the 32 top-level image files in `photos-inbox/`, named `NN-label-originalname.ext` (e.g. `01-main-laugh.jpeg`, `05-casual-MGA_9878.jpg`). The name order (numeric) is the gallery order. Only top-level files are used; subfolders are skipped.
+- **`npm run photos`:** rotates by EXIF, fits the long side to 2560 px, saves JPEG (quality 85), strips all metadata including GPS, converts HEIC (macOS only), then **replaces the whole gallery** with `src/assets/gallery/01.jpg`… It builds everything before replacing, so a failure leaves the gallery untouched.
+- **Renumbering:** adding, removing or reordering photos renumbers the gallery. Then update the photo numbers in `movie.ts` (`cover.photo`, `stripTop`, `stripBottom`, `poster`, `cookie`) and any `gallery` overrides in `wedding.ts`, and re-check the cover, the film strips and the paper front.
+- **01 is the main photo:** used for the movie cover (`movie.cover.photo`), the paper front, and first in the gallery. Its original is 1200 x 1800.
+- **`photos-inbox/parking/`:** originals of the two parking guide images; the prepared copies are `src/assets/parking/01-notice.jpg` and `02-route.jpg` (background matched to the site's ivory).
+- **`photos-inbox/family/`:** two family photos and their composites (`가족사진_합성.jpg`; `가족사진_투명배경.png` with a transparent background) for the planned 상견례 page. Not used on the site.
+- **Classic cover and share images:** `src/assets/photos/hero.jpg` (`npm run photos -- --hero <file>`), `og.jpg` and `kakao.jpg` (the Kakao image is 3:4).
+- Don't delete or rename files in `photos-inbox/` without asking: it is the only copy of the originals on this machine besides the couple's phones.
 
 ## In progress or awaiting a decision
 
