@@ -102,10 +102,10 @@ h1, h2, h3 { font-weight: 400; }
 .cover-image { object-fit: cover; }
 /* Dark at the top behind the title, clear through the couple, dark again behind the billing. */
 .poster-shade { background: linear-gradient(180deg, rgb(8 8 9 / .5) 0%, rgb(8 8 9 / .16) 16%, rgb(8 8 9 / 0) 30%, rgb(8 8 9 / 0) 52%, rgb(8 8 9 / .42) 62%, rgb(8 8 9 / .76) 74%, rgb(12 12 13 / .95) 88%, var(--bg) 100%); }
-.poster-studio { padding: max(24px, env(safe-area-inset-top)) 20px 0; text-align: center; font-family: var(--display); font-size: 11px; letter-spacing: .34em; color: var(--cream-2); text-shadow: 0 1px 10px rgb(0 0 0 / .6); }
+.poster-studio { padding: var(--cover-padding-top, max(24px, env(safe-area-inset-top))) 20px 0; text-align: center; font-family: var(--display); font-size: 11px; letter-spacing: .34em; color: var(--cream-2); text-shadow: 0 1px 10px rgb(0 0 0 / .6); }
 .poster-studio span { font-family: var(--script); font-style: italic; font-weight: var(--script-weight); letter-spacing: .1em; }
 .poster-title { display: grid; justify-items: center; margin-top: 10px; font-family: var(--title); font-style: italic; font-weight: 700; font-size: clamp(40px, 11.2vw, 58px); line-height: 1.11; letter-spacing: 0; color: var(--page); text-shadow: 0 1px 18px rgb(0 0 0 / .22); }
-.poster-body { margin-top: auto; padding: 0 22px calc(20px + env(safe-area-inset-bottom)); text-align: center; }
+.poster-body { margin-top: auto; padding: 0 22px var(--cover-padding-bottom, calc(20px + env(safe-area-inset-bottom))); text-align: center; }
 .poster-credits { display: flex; justify-content: space-between; margin: 0 2px; }
 .poster-credits p { display: grid; justify-items: start; }
 .poster-credits p + p { justify-items: end; }

@@ -1,7 +1,10 @@
 import { test, expect, chromium, webkit, devices } from '@playwright/test';
 
-for (const engine of ['chromium', 'webkit'] as const) {
-  test(`the cover keeps its photo crop while browser toolbars resize the viewport (${engine})`, async ({ baseURL }) => {
+for (const [engine, safeArea] of [
+  ['chromium', 'native'], ['chromium', 'changing'],
+  ['webkit', 'native'], ['webkit', 'changing'],
+] as const) {
+  test(`the cover photo and text stay in place while toolbars resize (${engine}, ${safeArea} safe area)`, async ({ baseURL }) => {
     const browser = await (engine === 'webkit' ? webkit : chromium).launch({ channel: engine === 'chromium' ? 'chrome' : undefined });
     try {
       const context = await browser.newContext({
@@ -10,6 +13,17 @@ for (const engine of ['chromium', 'webkit'] as const) {
         reducedMotion: 'reduce',
       });
       const page = await context.newPage();
+      if (safeArea === 'changing') {
+        // Desktop browser engines cannot emulate native toolbar safe-area changes. Substitute
+        // controllable values for env() while keeping the production layout and scripts intact.
+        await page.route('**/v2/', async (route) => {
+          const response = await route.fetch();
+          const body = (await response.text())
+            .replaceAll('env(safe-area-inset-top)', 'var(--test-safe-top, 47px)')
+            .replaceAll('env(safe-area-inset-bottom)', 'var(--test-safe-bottom, 34px)');
+          await route.fulfill({ response, body });
+        });
+      }
       await page.goto(new URL('v2/', baseURL!).href);
       await expect(page.locator('html')).toHaveClass(/cover-ready/);
       const geometry = () => page.locator('.cover').evaluate((cover) => {
@@ -19,20 +33,39 @@ for (const engine of ['chromium', 'webkit'] as const) {
           height: box.height,
           photoHeight: cover.querySelector('.cover-image')!.getBoundingClientRect().height,
           doodlesHeight: cover.querySelector('.cover-doodles')!.getBoundingClientRect().height,
+          text: [...cover.querySelectorAll('.poster-studio, .poster-title, .poster-credits span, .poster-when, .poster-where, .poster-cta, .poster-billing')].map((element) => {
+            const text = element.getBoundingClientRect();
+            return { x: text.x - box.x, y: text.y - box.y, width: text.width, height: text.height };
+          }),
         };
       });
       const initial = await geometry();
       // KakaoTalk can resize the webview itself when its toolbar hides; even svh then changes.
       // Exercise both directions repeatedly, including a return to the top of the invitation.
-      for (const [height, top] of [[720, 160], [900, 60], [760, 180], [844, 0]]) {
+      for (const [height, top, insetTop, insetBottom] of [[720, 160, 0, 0], [900, 60, 47, 34], [760, 180, 20, 12], [844, 0, 47, 34]]) {
         await page.evaluate((top) => window.scrollTo({ top, behavior: 'instant' }), top);
         await page.setViewportSize({ width: 390, height });
+        if (safeArea === 'changing') {
+          await page.evaluate(([top, bottom]) => {
+            document.documentElement.style.setProperty('--test-safe-top', `${top}px`);
+            document.documentElement.style.setProperty('--test-safe-bottom', `${bottom}px`);
+          }, [insetTop, insetBottom]);
+        }
         await page.evaluate(() => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
         expect(await geometry()).toEqual(initial);
       }
       // Rotating the phone must still lay the cover out for the new width and height.
+      if (safeArea === 'changing') {
+        await page.evaluate(() => {
+          document.documentElement.style.setProperty('--test-safe-top', '0px');
+          document.documentElement.style.setProperty('--test-safe-bottom', '21px');
+        });
+      }
       await page.setViewportSize({ width: 844, height: 390 });
       await expect.poll(async () => (await geometry()).height).toBe(760);
+      if (safeArea === 'changing') {
+        expect(await page.locator('.poster-body').evaluate((el) => getComputedStyle(el).paddingBottom)).toBe('41px');
+      }
       await page.setViewportSize({ width: 390, height: 720 });
       await expect.poll(async () => (await geometry()).height).toBe(720);
     } finally {

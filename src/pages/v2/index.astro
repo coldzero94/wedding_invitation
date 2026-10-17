@@ -134,11 +134,20 @@ const marqueeBulbs = (() => {
         var root = document.documentElement, cover = document.querySelector('.cover'), image = cover.querySelector('.cover-image');
         // KakaoTalk can resize its webview as the toolbar hides, changing even svh. Freeze the CSS
         // minimum before the poster appears so object-fit: cover never zooms the photo during scroll.
-        // A width change (rotation / split view) measures the CSS minimum again for the new layout.
+        // Safe-area padding can change independently and move the names/date even with a fixed cover.
+        // Freeze that too; a width change (rotation / split view) measures all three for the new layout.
         var coverWidth = root.clientWidth;
+        var posterStudio = cover.querySelector('.poster-studio'), posterBody = cover.querySelector('.poster-body');
         function sizeCover() {
           cover.style.removeProperty('--cover-height');
-          cover.style.setProperty('--cover-height', getComputedStyle(cover).minHeight);
+          cover.style.removeProperty('--cover-padding-top');
+          cover.style.removeProperty('--cover-padding-bottom');
+          var height = getComputedStyle(cover).minHeight;
+          var paddingTop = getComputedStyle(posterStudio).paddingTop;
+          var paddingBottom = getComputedStyle(posterBody).paddingBottom;
+          cover.style.setProperty('--cover-height', height);
+          cover.style.setProperty('--cover-padding-top', paddingTop);
+          cover.style.setProperty('--cover-padding-bottom', paddingBottom);
         }
         sizeCover();
         window.addEventListener('resize', function () {
