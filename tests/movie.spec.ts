@@ -168,6 +168,15 @@ for (const engine of ['chromium', 'webkit'] as const) {
       // Small scrolls stay within the entry/exit band and must not keep restarting the hint.
       await page.evaluate(() => window.scrollBy({ top: 10, behavior: 'instant' }));
       await expect(page.locator('.ticket-wrap')).toHaveAttribute('data-hint-count', '2');
+      // A partial exit is enough to rearm: guests need not scroll the entire ticket off screen.
+      await page.locator('.ticket-wrap').evaluate(async (wrap) => {
+        const paper = wrap as HTMLElement;
+        window.scrollTo({ top: scrollY + paper.getBoundingClientRect().top - (innerHeight * .9 - paper.offsetHeight * .3), behavior: 'instant' });
+        await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+      });
+      await expect(ticket).toBeInViewport();
+      await ticket.scrollIntoViewIfNeeded();
+      await expect(page.locator('.ticket-wrap')).toHaveAttribute('data-hint-count', '3');
       await ticket.focus();
       await page.keyboard.press('Enter');
       await expect(ticket).toHaveAttribute('aria-pressed', 'false');
@@ -182,6 +191,52 @@ for (const engine of ['chromium', 'webkit'] as const) {
       await expect(ticket).toHaveAttribute('aria-pressed', 'false');
       await expect(ticket).not.toHaveClass(/is-back-arriving/);
       await expect(ticket.locator('.flip-sheet')).toHaveCount(0);
+      // Touch readers get another short reminder while staying here; reduced motion cancels it.
+      await page.clock.install();
+      // Install the clock before navigation, so the page's reminder timers belong to it.
+      await page.goto(new URL('v2/', baseURL!).href);
+      await page.locator('.ticket-wrap').evaluate((wrap) => {
+        const el = wrap as HTMLElement;
+        el.dataset.hintCount = '0';
+        el.addEventListener('animationstart', (event) => {
+          if ((event as AnimationEvent).animationName === 'ticket-peek') el.dataset.hintCount = String(Number(el.dataset.hintCount) + 1);
+        });
+      });
+      await ticket.scrollIntoViewIfNeeded();
+      await expect(page.locator('.ticket-wrap')).toHaveAttribute('data-hint-count', '1');
+      await expect(page.locator('.ticket-wrap')).not.toHaveClass(/is-peeking/);
+      await page.clock.fastForward(7000);
+      await page.clock.runFor(100);
+      await expect(page.locator('.ticket-wrap')).toHaveAttribute('data-hint-count', '2');
+      await page.emulateMedia({ reducedMotion: 'reduce' });
+      await page.clock.fastForward(21000);
+      await page.clock.runFor(100);
+      await expect(page.locator('.ticket-wrap')).toHaveAttribute('data-hint-count', '2');
+      await expect(page.locator('.ticket-wrap')).not.toHaveClass(/is-peeking/);
+
+      // Real desktop hover must replay on each pointer entry, independently of viewport re-entry.
+      const desktopPage = await browser.newPage({ viewport: { width: 1100, height: 850 } });
+      await desktopPage.goto(new URL('v2/', baseURL!).href);
+      await desktopPage.locator('.ticket-wrap').evaluate((wrap) => {
+        const el = wrap as HTMLElement;
+        el.dataset.hintCount = '0';
+        el.addEventListener('animationstart', (event) => {
+          if ((event as AnimationEvent).animationName === 'ticket-peek') el.dataset.hintCount = String(Number(el.dataset.hintCount) + 1);
+        });
+      });
+      const desktopTicket = desktopPage.locator('[data-ticket]');
+      await desktopTicket.scrollIntoViewIfNeeded();
+      await expect(desktopPage.locator('.ticket-wrap')).toHaveAttribute('data-hint-count', '1');
+      for (const count of [2, 3]) {
+        await desktopPage.mouse.move(0, 0);
+        await desktopTicket.hover();
+        await expect(desktopPage.locator('.ticket-wrap')).toHaveAttribute('data-hint-count', String(count));
+      }
+      await desktopPage.emulateMedia({ reducedMotion: 'reduce' });
+      await desktopPage.mouse.move(0, 0);
+      await desktopTicket.hover();
+      await expect(desktopPage.locator('.ticket-wrap')).toHaveAttribute('data-hint-count', '3');
+      await expect(desktopPage.locator('.ticket-wrap')).not.toHaveClass(/is-peeking/);
     } finally {
       await browser.close();
     }

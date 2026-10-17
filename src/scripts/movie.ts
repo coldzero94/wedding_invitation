@@ -86,25 +86,87 @@ if (ticket && ticketClock) {
   }).observe(ticketClock, { childList: true, characterData: true, subtree: true });
 }
 
-// Invite another flip whenever the guest returns to the ticket's part of the screen. The wider
-// exit threshold prevents a toolbar resize or tiny scroll around the entry point from replaying it.
-if (ticket && ticketWrap && 'IntersectionObserver' in window) {
+// Observe the stationary wrapper, so the paper's own nudge cannot trigger another viewport entry.
+// Touch screens also get an occasional reminder while reading; desktop pointers replay it on hover.
+if (ticket && ticketWrap) {
+  const hoverPointer = matchMedia('(hover: hover) and (pointer: fine)');
   let armed = true;
-  const hints = new IntersectionObserver((entries) => {
-    for (const entry of entries) {
-      if (entry.intersectionRatio <= .2) {
-        armed = true;
-        ticketWrap.classList.remove('is-peeking');
-      }
-      if (!entry.isIntersecting || entry.intersectionRatio < .65 || !armed || reduceMotion.matches) continue;
-      armed = false;
-      ticketWrap.classList.add('is-peeking');
+  let inView = false;
+  let reminder = 0;
+  let pendingHint = 0;
+  let hintFrame = 0;
+  let lastTap = -Infinity;
+  function stopHint() {
+    clearTimeout(pendingHint);
+    cancelAnimationFrame(hintFrame);
+    ticketWrap!.classList.remove('is-peeking');
+  }
+  function playHint(fromPointer = false) {
+    if ((!inView && !fromPointer) || reduceMotion.matches || document.hidden) return;
+    stopHint();
+    const settling = 900 - (performance.now() - lastTap);
+    if (settling > 0) {
+      pendingHint = window.setTimeout(() => playHint(fromPointer), Math.ceil(settling));
+      return;
     }
-  }, { rootMargin: '-12% 0px -12% 0px', threshold: [0, .2, .65] });
-  hints.observe(ticket);
-  ticket.addEventListener('animationend', (event) => {
-    if (event.animationName === 'ticket-peek') ticketWrap.classList.remove('is-peeking');
+    // Two frames let WebKit finish removing the previous animation before replaying it.
+    hintFrame = requestAnimationFrame(() => {
+      hintFrame = requestAnimationFrame(() => ticketWrap!.classList.add('is-peeking'));
+    });
+  }
+  function scheduleReminder() {
+    clearTimeout(reminder);
+    if (!inView || hoverPointer.matches || reduceMotion.matches || document.hidden) return;
+    reminder = window.setTimeout(() => {
+      playHint();
+      scheduleReminder();
+    }, 7000);
+  }
+  if ('IntersectionObserver' in window) {
+    const hints = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting || entry.intersectionRatio <= .4) {
+          inView = false;
+          armed = true;
+          clearTimeout(reminder);
+          stopHint();
+        }
+        if (!entry.isIntersecting || entry.intersectionRatio < .6) continue;
+        inView = true;
+        if (armed) {
+          armed = false;
+          playHint();
+          scheduleReminder();
+        }
+      }
+    }, { rootMargin: '-10% 0px -10% 0px', threshold: [0, .4, .6] });
+    hints.observe(ticketWrap);
+  }
+  ticket.addEventListener('pointerenter', (event) => {
+    if (event.pointerType === 'mouse' && hoverPointer.matches) playHint(true);
   });
+  ticket.addEventListener('click', () => {
+    lastTap = performance.now();
+    stopHint();
+    scheduleReminder();
+  });
+  ticket.addEventListener('animationend', (event) => {
+    if (event.animationName === 'ticket-peek') stopHint();
+  });
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) stopHint();
+    scheduleReminder();
+  });
+  reduceMotion.addEventListener('change', () => {
+    if (reduceMotion.matches) stopHint();
+    scheduleReminder();
+  });
+  hoverPointer.addEventListener('change', scheduleReminder);
+  window.addEventListener('pagehide', () => {
+    clearTimeout(reminder);
+    stopHint();
+  });
+  window.addEventListener('pageshow', scheduleReminder);
 }
 reduceMotion.addEventListener('change', () => {
   if (!reduceMotion.matches) return;
