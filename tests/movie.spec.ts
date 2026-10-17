@@ -378,9 +378,14 @@ test.describe('the movie edition (/v2/)', () => {
     // The two lots have different registration rules; the photo dialog must agree with the page.
     const directions = page.locator('#location .transport');
     await expect(directions.locator('div', { has: page.locator('dt', { hasText: '웨딩홀 건물 주차' }) })).toContainText('자동 적용');
-    await expect(directions.locator('div', { has: page.locator('dt', { hasText: '이대서울병원 주차' }) })).toContainText('5층 엘리베이터 앞 태블릿');
+    const hospitalParking = directions.locator('div', { has: page.locator('dt', { hasText: '이대서울병원 주차' }) });
+    await expect(hospitalParking).toContainText('1·2·5층 엘리베이터 앞');
+    await expect(hospitalParking).toContainText('차량번호 입력 후 무인 정산');
+    await expect(directions).not.toContainText('주차권');
     await page.locator('[data-open-parking]').click();
-    await expect(page.locator('#parking-dialog')).toContainText('5층 엘리베이터 앞 태블릿');
+    await expect(page.locator('#parking-dialog')).toContainText('1·2·5층 엘리베이터 앞');
+    await expect(page.locator('#parking-dialog')).toContainText('차량번호 입력 후 무인 정산');
+    await expect(page.locator('#parking-dialog')).not.toContainText('주차권');
     await expect(page.locator('#parking-dialog img')).toHaveCount(1);
     await expect(page.locator('#parking-dialog img')).toHaveAttribute('alt', /C관.*J·K·L.*남문/);
     await expect(page.locator('#parking-dialog')).not.toContainText('1층 안내데스크');
@@ -405,6 +410,8 @@ test.describe('the movie edition (/v2/)', () => {
     expect((location.y - sheet.y) / sheet.height).toBeLessThan(.58);
     // On paper 이대서울병원 is plain text, no brackets or bold (the couple's call; the mobile edition keeps its gold point).
     await expect(back.locator('dl')).toContainText('만차 시 이대서울병원 주차장 이용');
+    await expect(back.locator('dl')).toContainText('1·2·5층 엘리베이터 앞 태블릿 무인 정산');
+    await expect(back.locator('dl')).not.toContainText('주차권');
     await expect(back.locator('dl')).not.toContainText('[');
     await expect(back.locator('dl strong')).toHaveCount(0);
     // The QR code on a movie ticket at the foot of the list, as wide as the list, the code on the stub.
