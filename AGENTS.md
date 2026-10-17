@@ -1,6 +1,8 @@
 # AGENTS.md
 
-이 저장소에서 작업하는 에이전트(Claude Code, Codex 등)와 사람을 위한 안내입니다. `CLAUDE.md`는 이 파일을 가리키는 심볼릭 링크이므로, 내용은 **이 파일만** 고칩니다. 결정이 바뀌거나 새 작업 방식이 생기면 이 문서도 함께 갱신하고 같은 커밋에 넣습니다.
+> **`CLAUDE.md`는 이 파일(`AGENTS.md`)을 가리키는 심볼릭 링크입니다.** 내용은 이 파일만 고치고, `CLAUDE.md`를 일반 파일로 바꾸거나 따로 편집하지 않습니다. 링크가 끊기면 저장소 최상위에서 `ln -sf AGENTS.md CLAUDE.md`로 다시 만듭니다. Claude Code는 `CLAUDE.md`를, Codex 등 다른 도구는 `AGENTS.md`를 읽으므로 모두 같은 내용을 봅니다.
+
+이 저장소에서 작업하는 에이전트와 사람을 위한 안내입니다. 결정이 바뀌거나 새 작업 방식이 생기면 이 문서도 함께 갱신하고 같은 커밋에 넣습니다. 저장소가 공개되어 있으므로 개인적인 내용은 적지 않습니다.
 
 ## 프로젝트 한눈에 보기
 
@@ -37,6 +39,11 @@ SITE_URL=https://coldzero94.github.io BASE_PATH=/wedding_invitation npm run buil
 ```
 
 변경을 마치면 `npm run check`, `npm run build`, `npx playwright test`가 모두 통과해야 합니다.
+
+- 테스트는 **빌드된 `dist`**를 `astro preview`(포트 4322)로 띄워 검사하므로, 코드를 바꾼 뒤에는 먼저 `npm run build`를 다시 합니다.
+- 기본 브라우저는 설치된 Chrome(`channel: 'chrome'`)이고, 일부 테스트는 테스트 안에서 WebKit을 직접 띄웁니다.
+- 발송용 빌드(`build:release`)는 `isDemo: false`, 실제 HTTPS 주소, 비어 있지 않은 예식장 주소 등을 검사합니다(`src/lib/validate-wedding.ts`). 가상 데이터로 발송 모드를 검사하는 테스트(`tests/release-*.spec.ts`)는 실제 데이터를 바꾸지 않습니다.
+- 인쇄용 PDF를 만들 때는 실제 주소로 `build:release`를 하고, 끝나면 테스트를 위해 `npm run build`로 되돌립니다.
 
 ## 배포
 
@@ -79,11 +86,29 @@ SITE_URL=https://coldzero94.github.io BASE_PATH=/wedding_invitation npm run buil
 - **전달 파일:** 사용자가 지정한 폴더(현재 `~/Downloads/movie-invitation-print/`)에 `청첩장_4x6.pdf`, `1_앞면_인쇄선.png`, `2_뒷면_인쇄선.png`을 갱신합니다.
 - **앞면 벡터 파일:** `1_앞면_벡터.pdf`(인쇄용), `1_앞면_벡터_재단선.pdf`, `1_앞면_벡터.svg`. 글자는 Rozha One 윤곽선(opentype.js로 추출, 위치는 인쇄 페이지에서 측정), 사진은 원본 JPEG, 그라데이션은 SVG 그라데이션으로 직접 만든 SVG입니다. PDF를 `pdftocairo`로 SVG로 변환하는 방식은 마스크가 깨져 쓰지 않습니다. 앞면을 바꾸면 이 파일도 다시 만듭니다. 사진 원본은 1200 x 1800이라 카드 크기에서 약 288dpi입니다.
 
+## 기술 메모 (다시 겪지 않도록)
+
+- **표지 깜빡임(WebKit):** 표지 등장 효과의 transition은 `html.cover-ready`가 붙은 뒤에만 선언합니다. 처음부터 선언하면 WebKit이 표지를 한 번 그렸다가 숨기면서 깜빡입니다. 다시 열었을 때 바로 준비된 표지는 `cover-instant`로 효과 없이 보여 줍니다.
+- **CSS 인라인:** `astro.config.mjs`의 `inlineStylesheets: 'always'`는 카카오톡 인앱 브라우저가 새 HTML과 예전 CSS를 섞어 쓰지 않게 하려는 설정입니다. 바꾸지 않습니다.
+- **clip-path 애니메이션:** WebKit은 `clip-path: none`으로는 애니메이션하지 않으므로 시작과 끝을 모두 `inset()`으로 씁니다.
+- **티켓 뒤집기:** WebKit이 `backface-visibility`를 무시하는 경우가 있어서, 뒤집는 중간에 앞뒷면의 `visibility`를 바꿉니다.
+- **처음으로·공유 링크:** 페이지 안 이동은 주소에 `#`을 남기지 않고, 공유된 주소의 `#invitation`은 지웁니다(공유 링크가 표지가 아닌 곳에서 열리지 않게).
+- **카카오 공유 카드:** 이미지는 3:4(`kakao.jpg`)로 만들고 크기를 함께 넘깁니다. 크기를 안 넘기면 카카오가 정사각형으로 자릅니다. 카카오 개발자 앱의 [플랫폼 > Web]에 배포 도메인이 등록되어 있어야 합니다.
+- **스크립트 글꼴 가운데 맞춤:** 필기체는 획이 글자 상자 밖으로 나가서, 상자 기준으로 가운데 정렬하면 치우쳐 보입니다. 필기체 제목을 다시 쓰면 줄마다 잉크 위치를 재서 보정합니다(이전에 `movie.ts`의 `nudge`로 처리했습니다).
+- **글꼴 라이선스:** 사이트와 함께 배포하는 글꼴의 라이선스(OFL)는 `public/licenses/`에 둡니다. 글꼴을 추가하거나 빼면 이 폴더도 맞춰 고칩니다(현재 Rozha One, Noto Serif Display, Cormorant Garamond, Pretendard).
+
+## 그 밖의 폴더
+
+- `research/`: 처음 기획 단계의 조사와 시안 기록입니다. 클래식 버전 기준이라 지금 구조와 다른 내용이 있으니 참고만 합니다.
+- `output/qr/`: `npm run qr`로 만든 QR(기본 주소 `/`를 가리킴)입니다. 지금 하객에게 보내는 주소는 `/v2/`이므로, 인쇄물 QR은 지류 페이지가 빌드할 때 `/v2/`로 직접 만듭니다. 새로 QR을 만들 때는 `/v2/` 주소로 만듭니다.
+- `README.md`: 사진 넣기, 정보 바꾸기 등 사용 안내입니다. 내용 일부는 클래식 버전 기준입니다.
+- `photos-inbox/`: 사진 원본 보관 폴더(Git 제외). `photos-inbox/family/`에 가족사진 합성본이 있습니다.
+
 ## 사진
 
 - 갤러리는 32장(`src/assets/gallery/01.jpg`~). 01은 표지와 지류 앞면에도 쓰는 메인 사진입니다.
 - `src/assets/photos/hero.jpg`, `og.jpg`, `kakao.jpg`는 클래식 표지와 공유 카드용입니다(카카오 공유 이미지는 3:4).
-- 가족사진 합성본은 `photos-inbox/family/`에만 있습니다(Git 제외).
+- 가족사진 합성본(`가족사진_합성.jpg`, 배경 투명 `가족사진_투명배경.png`)은 `photos-inbox/family/`에만 있습니다(Git 제외).
 
 ## 진행 중이거나 결정 대기
 
