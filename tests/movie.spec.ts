@@ -86,9 +86,10 @@ for (const engine of ['chromium', 'webkit'] as const) {
       await expect(ticket).toHaveAccessibleDescription(/Our First Page.*2027.*12시 10분.*제니스홀.*초대석/);
       await expect(ticket.locator('.ticket-title')).toHaveText('Our First Page');
       await expect(ticket.locator('.ticket-front')).not.toContainText('The Greatest Love Story');
-      const qrUrl = new URL((await ticket.locator('.ticket-qr').getAttribute('data-qr-url'))!);
-      expect(qrUrl.pathname).toBe(new URL(baseURL!).pathname + 'v2/');
-      await expect(ticket.locator('.ticket-qr svg')).toHaveCount(1);
+      await expect(ticket.locator('.ticket-qr, .ticket-qr-wrap')).toHaveCount(0);
+      await expect(ticket.locator('.ticket-monogram')).toHaveText('C&Y');
+      await expect(ticket.locator('.ticket-couple')).toHaveText('찬영 · 예지');
+      await expect(ticket.locator('.ticket-stub-date')).toHaveText('03·13');
       await expect(ticket.locator('.barcode rect')).toHaveCount(57);
       for (const width of [320, 360, 390, 430]) {
         await page.setViewportSize({ width, height: 844 });
@@ -105,6 +106,8 @@ for (const engine of ['chromium', 'webkit'] as const) {
         await expect(ticket.locator('.ticket-back')).toBeVisible();
         await expect(ticket.locator('.cal-day')).toHaveCount(31);
         await expect(ticket.locator('.cal-day.is-day')).toHaveText('13');
+        await expect(ticket).not.toHaveClass(/is-back-arriving/);
+        expect(await ticket.locator('.cal-day-ring ellipse').evaluate((el) => parseFloat(getComputedStyle(el).strokeDashoffset))).toBe(0);
         expect((await ticket.boundingBox())!.height).toBeCloseTo(frontHeight, 1);
         const layout = await ticket.evaluate((button) => ({
           pageFits: document.documentElement.scrollWidth <= innerWidth,
@@ -130,8 +133,10 @@ for (const engine of ['chromium', 'webkit'] as const) {
       await page.locator('.ticket-wrap').evaluate((wrap) => {
         const el = wrap as HTMLElement;
         el.dataset.hintCount = '0';
+        el.dataset.ringCount = '0';
         el.addEventListener('animationstart', (event) => {
           if ((event as AnimationEvent).animationName === 'ticket-peek') el.dataset.hintCount = String(Number(el.dataset.hintCount) + 1);
+          if ((event as AnimationEvent).animationName === 'ticket-date-ring') el.dataset.ringCount = String(Number(el.dataset.ringCount) + 1);
         });
       });
       await page.emulateMedia({ reducedMotion: 'no-preference' });
@@ -146,6 +151,11 @@ for (const engine of ['chromium', 'webkit'] as const) {
       await expect(ticket.locator('.ticket-back')).toBeVisible();
       await expect(ticket.locator('.ticket-front')).toBeHidden();
       await expect(page.locator('.ticket-hint')).toBeVisible();
+      await expect(page.locator('.ticket-wrap')).toHaveAttribute('data-ring-count', '1');
+      await expect.poll(() => ticket.locator('.cal-day-ring ellipse').evaluate((el) => parseFloat(getComputedStyle(el).strokeDashoffset))).toBe(0);
+      await expect(ticket).not.toHaveClass(/is-back-arriving/);
+      // Real second changes roll the actual digit after the entrance; the timer text is never faked.
+      await page.waitForFunction(() => document.querySelector<HTMLElement>('.ticket-back [data-unit="s"]')!.getAnimations().some((animation) => animation.playState === 'running'));
       await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
       await expect(ticket).not.toBeInViewport();
       await ticket.scrollIntoViewIfNeeded();
@@ -159,6 +169,14 @@ for (const engine of ['chromium', 'webkit'] as const) {
       await expect(ticket).toHaveAttribute('aria-pressed', 'false');
       await expect(ticket.locator('.ticket-front')).toBeVisible();
       await expect(page.locator('.ticket-hint')).toBeVisible();
+      await page.keyboard.press('Enter');
+      await expect(page.locator('.ticket-wrap')).toHaveAttribute('data-ring-count', '2');
+      await page.keyboard.press('Enter');
+      // Rapid reversal must cancel the queued entrance instead of leaving hidden content animated.
+      await ticket.evaluate((button) => { (button as HTMLButtonElement).click(); (button as HTMLButtonElement).click(); });
+      await page.evaluate(() => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+      await expect(ticket).toHaveAttribute('aria-pressed', 'false');
+      await expect(ticket).not.toHaveClass(/is-back-arriving/);
     } finally {
       await browser.close();
     }

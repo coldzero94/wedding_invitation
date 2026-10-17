@@ -1,6 +1,5 @@
 ---
 import { Image, getImage } from 'astro:assets';
-import QRCode from 'qrcode';
 import rozhaOne from '@fontsource/rozha-one/files/rozha-one-latin-400-normal.woff2?url';
 import notoSerifDisplayItalic from '@fontsource/noto-serif-display/files/noto-serif-display-latin-600-italic.woff2?url';
 import frauncesItalic from '@fontsource/fraunces/files/fraunces-latin-700-italic.woff2?url';
@@ -20,7 +19,6 @@ import { year, month, day, longDate, time, shortDate, weekday, firstWeekday, day
 
 const root = import.meta.env.BASE_URL.replace(/\/$/, '') + '/';
 const canonical = new URL(root + 'v2/', Astro.site);
-const ticketQr = await QRCode.toString(canonical.href, { type: 'svg', margin: 2, errorCorrectionLevel: 'M', color: { dark: '#1f2619', light: '#0000' } });
 // Fixed SVG bars stay sharp at phone sizes; this is the ticket's decorative barcode, not guest data.
 const ticketBars = Array.from({ length: 57 }, (_, i) => ({ x: i * 4, width: [1, 3, 2, 1, 2, 3, 1][i % 7] }));
 const title = wedding.groom.name + ' & ' + wedding.bride.name + ', 결혼합니다';
@@ -229,10 +227,11 @@ const marqueeBulbs = (() => {
                 </span>
                 <span class="ticket-stub">
                   <span class="ticket-admit" lang="en">ADMIT ONE</span>
-                  <span class="ticket-theater" lang="en">MOBILE THEATER</span>
-                  <span class="ticket-qr-wrap" aria-hidden="true">
-                    <svg class="ticket-qr-frame" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M1 13V1h12M87 1h12v12M99 87v12H87M13 99H1V87" /></svg>
-                    <span class="ticket-qr" data-qr-url={canonical.href} set:html={ticketQr}></span>
+                  <span class="ticket-theater" lang="en">OUR WEDDING</span>
+                  <span class="ticket-admission">
+                    <span class="ticket-monogram" lang="en" aria-hidden="true"><span>{movie.namesEn.groom[0]}</span><span class="ticket-join">&amp;</span><span>{movie.namesEn.bride[0]}</span></span>
+                    <span class="ticket-couple">{wedding.groom.name} · {wedding.bride.name}</span>
+                    <span class="ticket-stub-date" lang="en">{String(month).padStart(2, '0')}<span>·</span>{String(day).padStart(2, '0')}</span>
                   </span>
                   <span class="ticket-flip-cue"><span lang="en">TURN OVER</span><span>날짜 보기</span></span>
                   <span class="ticket-seat ticket-row"><span class="k" lang="en">SEAT</span><span class="v">{movie.seat}</span></span>
@@ -245,7 +244,10 @@ const marqueeBulbs = (() => {
                   <span class="mini-calendar" role="img" aria-label={longDate + ' 예식 달력'}>
                     {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d) => <span class="cal-head" lang="en">{d}</span>)}
                     {emptyCells.map(() => <span></span>)}
-                    {dates.map((date) => date === day ? <span class="cal-day is-day">{date}</span> : <span class="cal-day">{date}</span>)}
+                    {dates.map((date) => <span class:list={['cal-day', { 'is-day': date === day }]} style={`--cal-order: ${date - 1}`}>
+                      {date === day && <svg class="cal-day-ring" viewBox="0 0 40 40" aria-hidden="true"><ellipse cx="20" cy="20" rx="17" ry="15.5" transform="rotate(-14 20 20)" pathLength="1" /></svg>}
+                      <span>{date}</span>
+                    </span>)}
                     {Array.from({ length: weeks * 7 - firstWeekday - daysInMonth }).map(() => <span></span>)}
                   </span>
                   <span class="ticket-back-note">{longDate}<br /><span>{time}</span></span>
@@ -256,8 +258,8 @@ const marqueeBulbs = (() => {
                   <span class="countdown" data-event-date={wedding.date} data-time-zone={wedding.timeZone}>
                     <span class="countdown-label">결혼식까지 남은 시간</span>
                     <span class="countdown-clock" role="timer" hidden>
-                      {[['d', 'DAYS'], ['h', 'HRS'], ['m', 'MIN'], ['s', 'SEC']].map(([unit, label]) => (
-                        <span class="countdown-unit"><span class="countdown-num" data-unit={unit}>00</span><span class="countdown-name" lang="en">{label}</span></span>
+                      {[['d', 'DAYS'], ['h', 'HRS'], ['m', 'MIN'], ['s', 'SEC']].map(([unit, label], index) => (
+                        <span class="countdown-unit" style={`--counter-order: ${index}`}><span class="countdown-num" data-unit={unit}>00</span><span class="countdown-name" lang="en">{label}</span></span>
                       ))}
                     </span>
                   </span>
