@@ -1,4 +1,45 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, chromium, webkit, devices } from '@playwright/test';
+
+for (const engine of ['chromium', 'webkit'] as const) {
+  test(`the cover keeps its photo crop while browser toolbars resize the viewport (${engine})`, async ({ baseURL }) => {
+    const browser = await (engine === 'webkit' ? webkit : chromium).launch({ channel: engine === 'chromium' ? 'chrome' : undefined });
+    try {
+      const context = await browser.newContext({
+        ...devices[engine === 'webkit' ? 'iPhone 13' : 'Pixel 7'],
+        viewport: { width: 390, height: 844 },
+        reducedMotion: 'reduce',
+      });
+      const page = await context.newPage();
+      await page.goto(new URL('v2/', baseURL!).href);
+      await expect(page.locator('html')).toHaveClass(/cover-ready/);
+      const geometry = () => page.locator('.cover').evaluate((cover) => {
+        const box = cover.getBoundingClientRect();
+        return {
+          width: box.width,
+          height: box.height,
+          photoHeight: cover.querySelector('.cover-image')!.getBoundingClientRect().height,
+          doodlesHeight: cover.querySelector('.cover-doodles')!.getBoundingClientRect().height,
+        };
+      });
+      const initial = await geometry();
+      // KakaoTalk can resize the webview itself when its toolbar hides; even svh then changes.
+      // Exercise both directions repeatedly, including a return to the top of the invitation.
+      for (const [height, top] of [[720, 160], [900, 60], [760, 180], [844, 0]]) {
+        await page.evaluate((top) => window.scrollTo({ top, behavior: 'instant' }), top);
+        await page.setViewportSize({ width: 390, height });
+        await page.evaluate(() => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+        expect(await geometry()).toEqual(initial);
+      }
+      // Rotating the phone must still lay the cover out for the new width and height.
+      await page.setViewportSize({ width: 844, height: 390 });
+      await expect.poll(async () => (await geometry()).height).toBe(760);
+      await page.setViewportSize({ width: 390, height: 720 });
+      await expect.poll(async () => (await geometry()).height).toBe(720);
+    } finally {
+      await browser.close();
+    }
+  });
+}
 
 // The movie-theater edition lives beside the original at /v2/ and shares its data and scripts.
 test.describe('the movie edition (/v2/)', () => {

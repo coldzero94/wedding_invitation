@@ -89,6 +89,7 @@ The KakaoTalk in-app browser caches hard; if an old page shows, tell the user to
 
 ## Technical notes (so these don't happen again)
 
+- **Cover size (KakaoTalk):** the in-app toolbar can resize the webview itself, changing even `100svh` and making the `object-fit: cover` photo zoom in and out during scrolling. The cover's inline script stores its initial CSS minimum in `--cover-height` before the entrance; only a width change (rotation / split view) measures it again. Don't update it on height-only or `visualViewport` resize events. Keep the CSS `svh` fallback for JavaScript-free visits.
 - **Cover flicker (WebKit):** declare the cover's entrance transitions only after `html.cover-ready` is set. Declared from the start, WebKit paints the cover, hides it and shows it again. A cover that is ready at once on a revisit is shown finished via `cover-instant`.
 - **Inline CSS:** `inlineStylesheets: 'always'` in `astro.config.mjs` keeps the KakaoTalk in-app browser from pairing new HTML with stale CSS. Leave it on.
 - **clip-path animation:** WebKit won't animate to `clip-path: none`, so both ends use `inset()`.

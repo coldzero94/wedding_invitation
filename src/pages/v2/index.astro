@@ -132,6 +132,20 @@ const marqueeBulbs = (() => {
       // ready almost at once is shown finished (cover-instant) rather than half-animated.
       (function () {
         var root = document.documentElement, cover = document.querySelector('.cover'), image = cover.querySelector('.cover-image');
+        // KakaoTalk can resize its webview as the toolbar hides, changing even svh. Freeze the CSS
+        // minimum before the poster appears so object-fit: cover never zooms the photo during scroll.
+        // A width change (rotation / split view) measures the CSS minimum again for the new layout.
+        var coverWidth = root.clientWidth;
+        function sizeCover() {
+          cover.style.removeProperty('--cover-height');
+          cover.style.setProperty('--cover-height', getComputedStyle(cover).minHeight);
+        }
+        sizeCover();
+        window.addEventListener('resize', function () {
+          if (root.clientWidth === coverWidth) return;
+          coverWidth = root.clientWidth;
+          sizeCover();
+        }, { passive: true });
         var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
         var leader = !reduce && !root.classList.contains('no-leader');
         var start = Date.now();

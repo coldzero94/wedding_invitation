@@ -96,7 +96,7 @@ h1, h2, h3 { font-weight: 400; }
 @keyframes leader-last { from, to { opacity: 1; } }
 
 /* Poster cover */
-.cover { position: relative; isolation: isolate; display: flex; flex-direction: column; min-height: 700px; min-height: max(640px, 100svh); overflow: hidden; overflow: clip; background: var(--bg); }
+.cover { position: relative; isolation: isolate; display: flex; flex-direction: column; min-height: 700px; min-height: max(640px, var(--cover-height, 100svh)); overflow: hidden; overflow: clip; background: var(--bg); }
 .cover-lqip, .cover-image, .poster-shade, .cover-doodles { position: absolute; z-index: -1; inset: 0; width: 100%; height: 100%; }
 .cover-lqip { background-size: cover; }
 .cover-image { object-fit: cover; }
@@ -397,7 +397,7 @@ dialog[open]::backdrop { opacity: 1; }
 @media (min-width: 600px) {
   body { background: #070707; }
   .cover, main { max-width: 520px; margin-inline: auto; background: var(--bg); }
-  .cover { min-height: max(760px, 100svh); }
+  .cover { min-height: max(760px, var(--cover-height, 100svh)); }
   .share-sheet { width: 400px; margin: auto; border: 1px solid var(--line); border-radius: 14px; padding-bottom: 14px; transform: scale(.96) translateY(10px); }
   @starting-style { .share-sheet[open] { opacity: 0; transform: scale(.96) translateY(10px); } }
 }
