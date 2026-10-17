@@ -83,21 +83,22 @@ for (const engine of ['chromium', 'webkit'] as const) {
       await page.goto(new URL('v2/', baseURL!).href);
       await page.evaluate(() => document.fonts.ready);
       const ticket = page.locator('[data-ticket]');
-      await expect(ticket).toHaveAccessibleDescription(/Our First Page.*2027.*12시 10분.*제니스홀.*초대석/);
+      await expect(ticket).toHaveAccessibleDescription(/Our First Page.*2027.*12시 10분.*제니스홀.*모바일 상영관/);
       await expect(ticket.locator('.ticket-title')).toHaveText('Our First Page');
       await expect(ticket.locator('.ticket-front')).not.toContainText('The Greatest Love Story');
-      await expect(ticket.locator('.ticket-qr, .ticket-qr-wrap')).toHaveCount(0);
+      await expect(ticket.locator('.ticket-qr svg')).toHaveCount(1);
       await expect(ticket.locator('.ticket-monogram')).toHaveCount(0);
-      await expect(ticket.locator('.ticket-couple')).toHaveText(/찬영\s*그리고\s*예지/);
-      await expect(ticket.locator('.ticket-stub-date')).toHaveText('03·13');
+      await expect(ticket.locator('.ticket-theater')).toHaveText('MOBILE THEATER');
+      await expect(ticket.locator('.ticket-scan-cue')).toContainText('SCAN TO WATCH');
       await expect(ticket.locator('.barcode rect')).toHaveCount(57);
       for (const width of [320, 360, 390, 430]) {
         await page.setViewportSize({ width, height: 844 });
         await ticket.scrollIntoViewIfNeeded();
-        // The couple's reference is a long paper ticket. A tall calendar must not stretch either face.
+        // The upright ticket stays compact on phones; neither face may stretch the paper.
         const paperRatio = await ticket.locator('.ticket-inner').evaluate((el) => el.clientWidth / el.clientHeight);
-        expect(paperRatio).toBeGreaterThan(2.15);
-        expect(paperRatio).toBeLessThan(2.3);
+        expect(paperRatio).toBeGreaterThan(.70);
+        expect(paperRatio).toBeLessThan(.73);
+        expect(await ticket.locator(".ticket-inner").evaluate((el) => el.clientHeight)).toBeLessThanOrEqual(420);
         const fieldRows = await ticket.locator('.ticket-front .ticket-rows .ticket-row').evaluateAll((fields) => fields.map((field) => (field as HTMLElement).offsetTop));
         expect(new Set(fieldRows).size).toBe(1);
         const frontHeight = (await ticket.boundingBox())!.height;
@@ -115,7 +116,7 @@ for (const engine of ['chromium', 'webkit'] as const) {
             const main = face.querySelector<HTMLElement>('.ticket-main')!;
             const stub = face.querySelector<HTMLElement>('.ticket-stub')!;
             return {
-              columnsFit: main.offsetLeft + main.offsetWidth <= stub.offsetLeft + 1 && stub.offsetLeft + stub.offsetWidth <= face.clientWidth + 1,
+              rowsFit: main.offsetTop + main.offsetHeight <= stub.offsetTop + 1 && stub.offsetTop + stub.offsetHeight <= face.clientHeight + 1,
               textFits: [...face.querySelectorAll<HTMLElement>('.ticket-main, .ticket-stub, .ticket-row, .ticket-title, .mini-calendar')].every((el) => el.scrollWidth <= el.clientWidth + 1 && el.scrollHeight <= el.clientHeight + 1),
               timerFits: [...face.querySelectorAll<HTMLElement>('.countdown-unit')].every((el, index, all) => {
                 const next = all[index + 1];
@@ -124,7 +125,7 @@ for (const engine of ['chromium', 'webkit'] as const) {
             };
           }),
         }));
-        expect(layout).toEqual({ pageFits: true, faces: [{ columnsFit: true, textFits: true, timerFits: true }, { columnsFit: true, textFits: true, timerFits: true }] });
+        expect(layout).toEqual({ pageFits: true, faces: [{ rowsFit: true, textFits: true, timerFits: true }, { rowsFit: true, textFits: true, timerFits: true }] });
         await ticket.tap();
         await expect(ticket).toHaveAttribute('aria-pressed', 'false');
       }
@@ -314,7 +315,7 @@ test.describe('the movie edition (/v2/)', () => {
       // The heart is decorative; a hidden word keeps the names apart for screen readers and copied text.
       await expect(page.locator(sel + ' .visually-hidden')).toHaveText(sel === '.greeting-sign' ? ' 그리고 ' : ' and ', { useInnerText: false });
     }
-    await expect(page.locator('.ticket-row', { hasText: 'SEAT' })).toContainText('초대석');
+    await expect(page.locator('.ticket-row', { hasText: 'SEAT' })).toContainText('모바일 상영관');
     await expect(page.locator('.ticket')).not.toContainText('소중한 당신의 자리');
     await expect(page.locator('.transport')).toContainText('5호선 발산역 하차 7번 출구 (도보 3분~5분)');
     await expect(page.locator('.transport .point')).toHaveText('[이대서울병원]');

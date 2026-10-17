@@ -14,7 +14,7 @@ export const movie = {
   // Cropped from the centre, as the paper is, so the doodles drawn on the photo (Doodles.astro) land in place.
   cover: { photo: '01', position: '50% 50%' },
   quote: { text: '나는 3000만큼 사랑해.', source: '영화 〈어벤져스: 엔드게임〉 중' },
-  seat: '초대석',
+  seat: '모바일 상영관',
   // Names come from wedding.ts, so both designs always credit the same people; empty entries are skipped.
   cast: [
     { role: 'GROOM', ko: '신랑', name: wedding.groom.fullName },
