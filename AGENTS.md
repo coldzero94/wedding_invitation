@@ -72,7 +72,7 @@ The KakaoTalk in-app browser caches hard; if an old page shows, tell the user to
 - **Zoom:** the page and the gallery photos can't be zoomed; only the parking guide images can, while they are open.
 - **Accounts:** shown hyphenated in each bank's format, copied as digits only.
 - **Footer:** only the "처음으로" (back to top) link; the link to the classic edition was removed.
-- **Film strips:** `stripTop` and `stripBottom` in `movie.ts` are gallery photo numbers with vertical crop positions. Update them when `npm run photos` renumbers the gallery.
+- **Film strips:** `stripTop` and `stripBottom` in `movie.ts` are gallery photo numbers with vertical crop positions (`y`, %). The frames are 150 x 105 px, so only ~47% of a portrait photo shows and heads get cut easily. Set `y` from face and body detection (macOS Vision) so the heads sit ~12% below the frame's top, then check every frame by eye. Update them when `npm run photos` renumbers or replaces the gallery.
 
 ## Paper invitation (`/v2/print/`)
 

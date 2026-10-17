@@ -30,9 +30,10 @@ export const movie = {
   // Gallery photo numbers (src/assets/gallery/NN.jpg) used for the film strips, the poster and the cookie.
   // Renumber these if photos are inserted before them (the two 2026-09-24 additions shifted everything by 2; the 2026-10-17 retouched set added MGA_9970 as 23 and MGA_0264 as 25).
   // Film frames are landscape cuts of portrait photos; y is the vertical crop position (%) that keeps the
-  // couple's heads in the frame, chosen per photo.
-  stripTop: [{ id: '20', y: 81 }, { id: '21', y: 66 }, { id: '22', y: 75 }, { id: '08', y: 75 }, { id: '11', y: 66 }, { id: '05', y: 53 }],
-  stripBottom: [{ id: '24', y: 28 }, { id: '26', y: 68 }, { id: '07', y: 60 }, { id: '28', y: 52 }, { id: '30', y: 60 }, { id: '10', y: 66 }],
+  // couple's heads in the frame, chosen per photo: measured with macOS face and body detection so the heads sit about
+  // 12% below the frame's top (2026-10-17, retouched set).
+  stripTop: [{ id: '20', y: 72 }, { id: '21', y: 65 }, { id: '22', y: 69 }, { id: '08', y: 65 }, { id: '11', y: 52 }, { id: '05', y: 64 }],
+  stripBottom: [{ id: '24', y: 15 }, { id: '26', y: 57 }, { id: '07', y: 51 }, { id: '28', y: 54 }, { id: '30', y: 55 }, { id: '10', y: 57 }],
   poster: '03',
   cookie: '22',
   cookieNote: '끝까지 봐 주셔서 고마워요. 식장에서 만나요!',
