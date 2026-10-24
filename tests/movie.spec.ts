@@ -432,6 +432,11 @@ test.describe('the movie edition (/v2/)', () => {
       .filter((el) => [...el.childNodes].some((node) => node.nodeType === 3 && node.textContent!.trim()))
       .map((el) => parseFloat(getComputedStyle(el).fontSize) * .75)));
     expect(smallest).toBeGreaterThanOrEqual(8);
+    // The front's billing prints in Noto Serif Display Bold (the couple chose it over SemiBold), and that face is loaded.
+    expect(await page.locator('.front-foot p').first().evaluate((el) => {
+      const style = getComputedStyle(el);
+      return [style.fontFamily.split(',')[0], style.fontWeight, document.fonts.check('700 8pt "Noto Serif Display"', el.textContent!)];
+    })).toEqual(['"Noto Serif Display"', '700', true]);
     await expect(back).not.toContainText('Greatest');
   });
 });

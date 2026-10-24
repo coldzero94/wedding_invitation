@@ -7,7 +7,7 @@ import { getImage } from 'astro:assets';
 import QRCode from 'qrcode';
 import '@fontsource/rozha-one/latin-400.css';
 import '@fontsource/fraunces/latin-700-italic.css';
-import '@fontsource/noto-serif-display/latin-600.css';
+import '@fontsource/noto-serif-display/latin-700.css';
 import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css';
 import Doodles from '../../components/Doodles.astro';
 import { wedding } from '../../data/wedding';
@@ -45,7 +45,9 @@ const parents = [
         /* Back-page type scale. Nothing is under 8 pt, the smallest size that still reads easily once printed. */
         --fs-head: 11pt; --fs-lead: 9pt; --fs-body: 8.5pt; --fs-small: 8pt; }
       * { box-sizing: border-box; }
-      html, body { margin: 0; background: #555; -webkit-print-color-adjust: exact; print-color-adjust: exact; font-variant-numeric: lining-nums; }
+      /* antialiased: macOS font smoothing draws light type on the photo heavier on screen than it prints, so the PNGs
+         captured from this page looked bolder than the PDF; without it the screen, the PNGs and the PDF agree. */
+      html, body { margin: 0; background: #555; -webkit-print-color-adjust: exact; print-color-adjust: exact; font-variant-numeric: lining-nums; -webkit-font-smoothing: antialiased; }
       body { font-family: var(--korean); font-weight: 400; }
       p, h1, h2, dl, dd { margin: 0; font-weight: 400; }
       .sheet { position: relative; width: 106mm; height: 156mm; margin: 10mm auto; overflow: hidden; background: var(--ink); break-after: page; }
@@ -65,10 +67,12 @@ const parents = [
       /* The couple's doodles, drawn on the photo in its own pixels (Doodles.astro); the photo is cropped from its centre. */
       :global(.front-doodles) { position: absolute; inset: 0; width: 100%; height: 100%; }
       /* Title and billing as on the couple's mock-up: the title's capitals 6.6 mm under the trim, one word a line;
-         the billing in Noto Serif Display SemiBold, its last line 11.5 mm above the trim (8 pt, a touch larger than
-         the mock-up's 7 pt, for the 8 pt minimum). */
+         the billing in Noto Serif Display, its last line 11.5 mm above the trim (8 pt, a touch larger than the mock-up's
+         7 pt, for the 8 pt minimum). Bold, not the mock-up's SemiBold (the couple's choice): light type reversed out of a
+         photo prints thinner than it looks, and these hairlines are fine at 8 pt. */
       .front-title { position: absolute; top: 6.4mm; left: -1.2mm; right: 0; display: grid; justify-items: center; font-family: var(--title); font-style: italic; font-weight: 700; font-size: 11.4mm; line-height: 12.65mm; color: var(--page); }
-      .front-foot { position: absolute; left: var(--safe); right: var(--safe); bottom: 13mm; display: grid; justify-items: center; gap: .3mm; font-family: var(--billing); font-weight: 600; font-size: 8pt; letter-spacing: .02em; color: var(--page); text-align: center; }
+      .front-foot { position: absolute; left: var(--safe); right: var(--safe); bottom: 13mm; display: grid; justify-items: center; gap: .3mm; font-family: var(--billing); font-weight: 700; font-size: 8pt; letter-spacing: .02em; color: var(--page); text-align: center; }
+      .front-foot p { font-weight: inherit; } /* the reset above sets every p to 400 */
       .front-foot .rule { width: 2.2mm; height: .2mm; margin: 1.85mm 0; background: var(--page); }
 
       /* Back: white, split into two halves, the invitation above and the location below. */
