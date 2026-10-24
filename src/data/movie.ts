@@ -50,7 +50,9 @@ export const movie = {
     relation: { groom: '아들', bride: '딸' },
     mobile: { heading: '모바일 청첩장', description: '사진과 오시는 길을 담았습니다.' },
     location: [
-      { label: '자차', lines: ['서울 강서구 공항대로 36길 57', '더뉴컨벤션 5층 제니스홀'] },
+      // 주소, not 자차: the address is for every guest, and 자차 next to 주차 read as two driving rows. The road name is
+      // written as officially, 공항대로36길, as on the mobile edition.
+      { label: '주소', lines: ['서울 강서구 공항대로36길 57', '더뉴컨벤션 5층 제니스홀'] },
       { label: '주차', lines: ['무료 주차 2시간(이후 30분당 3,000원)', '웨딩홀 만차 시 이대서울병원 주차 가능'] },
       { label: '대중교통', lines: ['지하철 5호선 발산역 7번 출구 (도보 3분)'] },
     ],

@@ -409,6 +409,9 @@ test.describe('the movie edition (/v2/)', () => {
     expect((location.y - sheet.y) / sheet.height).toBeGreaterThan(.45);
     expect((location.y - sheet.y) / sheet.height).toBeLessThan(.58);
     // On paper 이대서울병원 is plain text, no brackets or bold (the couple's call; the mobile edition keeps its gold point).
+    // The address row is 주소, not 자차 (it is for every guest), with the road name written as officially.
+    await expect(back.locator('dl dt')).toHaveText(['주소', '주차', '대중교통']);
+    await expect(back.locator('dl')).toContainText('서울 강서구 공항대로36길 57');
     await expect(back.locator('dl')).toContainText('무료 주차 2시간(이후 30분당 3,000원)');
     await expect(back.locator('dl')).toContainText('웨딩홀 만차 시 이대서울병원 주차 가능');
     await expect(back.locator('dl')).not.toContainText('주차권');
